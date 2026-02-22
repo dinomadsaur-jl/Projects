@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CaDA RC · Car Controller</title>
+    <!-- CaDA Logo as Icon (embedded SVG for sharpness + fallback PNG) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23FFCC00' stroke='%23B22222' stroke-width='4'/%3E%3Ctext x='50' y='70' font-size='56' text-anchor='middle' fill='%23B22222' font-family='Arial, sans-serif' font-weight='bold'%3ECaDA%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAv0lEQVR4nO2Y0Q3CMAxFbSY26AjdpBvBBrABm7ABG8AGMAl0BEZgBDbiC+oo6qdxSFzUiz5S+2Lp+Xw5pYSUUqq0pJSKUko9pZTyT6WUv1JKKaWUUl8DpZQopTSeZVmNcRxjHMc4DMMYhmEcwzCMYRiGcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzHcRzncw+nlFJKfR+o4Qby8i3NLQAAAABJRU5ErkJggg==">
+    <!-- Apple touch icon (CaDA style) -->
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAABm0lEQVR4nO2ZzVHCMBCF0xIdpAOtADoQKlAqkA6gA7ACKiAVYAdoB1qB3mk2w0z+GBJZli2+GWd8R9je92lXu5aUUkoppZRSSqmDpSiKNoqiaaU0TZ00TZ3rui7LstM0da7rupZl2bqu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu/6gPoiBzHiv/rEwAAAABJRU5ErkJggg==">
+    <!-- Web App Manifest (embedded) -->
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22CaDA%20RC%20Car%22%2C%22short_name%22%3A%22CaDA%20RC%22%2C%22description%22%3A%22Kid-friendly%20CaDA%20car%20controller%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22fullscreen%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%23001d3d%22%2C%22theme_color%22%3A%22%23ffcc00%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAABm0lEQVR4nO2ZzVHCMBCF0xIdpAOtADoQKlAqkA6gA7ACKiAVYAdoB1qB3mk2w0z%2BGBJZli2%2BGWd8R9je92lXu5aUUkoppZRSSqmDpSiKNoqiaaU0TZ00TZ3rui7LstM0da7rupZl2bqu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu67qu%2F6gPoiBzHiv%2FrEwAAAABJRU5ErkJggg%3D%3D%22%2C%22sizes%22%3A%2248x48%2072x72%2096x96%20128x128%20144x144%20192x192%20256x256%20512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CaDA RC">
+    <meta name="msapplication-TileColor" content="#001d3d">
+    <meta name="theme-color" content="#ffcc00">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+
+        /* Full screen & safe area */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            background: #001d3d; /* deep blue like CaDA packaging */
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Main container fills entire screen */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(145deg, #002856 0%, #001433 100%);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
+            border-radius: 0; /* full screen, no rounded corners on container */
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header with CaDA branding */
+        .cada-header {
+            background: #ffcc00; /* CaDA yellow */
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 0 #b8860b, 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 10;
+            min-height: 70px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cada-logo {
+            width: 48px;
+            height: 48px;
+            background: #b22222; /* CaDA red */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffcc00;
+            font-weight: 800;
+            font-size: 24px;
+            box-shadow: 0 4px 0 #6b0f0f;
+            border: 2px solid white;
+        }
+
+        .cada-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #b22222;
+            text-shadow: 2px 2px 0 #ffffff80;
+            letter-spacing: 1px;
+        }
+
+        .status-badge {
+            background: #001d3d;
+            border-radius: 40px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 3px solid #b22222;
+            box-shadow: inset 0 -3px 0 #00000060;
+        }
+
+        .led {
+            width: 20px;
+            height: 20px;
+            border-radius: 20px;
+            background: #5f5f5f;
+            box-shadow: 0 0 5px black;
+        }
+        .led.connected {
+            background: #2ecc71;
+            box-shadow: 0 0 20px #2ecc71;
+        }
+        .status-text {
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        /* Main control area – grows to fill space */
+        .control-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px 12px 12px;
+            gap: 16px;
+            overflow-y: auto;
+            background: rgba(0,40,80,0.4);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Big connection button when disconnected */
+        .connect-prompt {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .big-connect-btn {
+            background: #ffcc00;
+            border: none;
+            border-radius: 100px;
+            padding: 24px 48px;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #b22222;
+            box-shadow: 0 12px 0 #b8860b, 0 20px 30px black;
+            border: 4px solid white;
+            cursor: pointer;
+            transition: 0.05s linear;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .big-connect-btn:active {
+            transform: translateY(10px);
+            box-shadow: 0 6px 0 #b8860b, 0 15px 25px black;
+        }
+
+        .hint-icon {
+            font-size: 3rem;
+            filter: drop-shadow(2px 4px 0 #b8860b);
+        }
+
+        /* Sliders area (only visible when connected) */
+        .joystick-panel {
+            background: #001d3ddd;
+            border-radius: 60px 60px 40px 40px;
+            padding: 24px 16px;
+            border: 4px solid #ffcc00;
+            box-shadow: inset 0 -8px 0 #b8860b, 0 10px 20px black;
+        }
+
+        .slider-row {
+            margin-bottom: 28px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            color: #ffcc00;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 #b22222;
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .slider-value {
+            background: #b22222;
+            border-radius: 30px;
+            padding: 6px 22px;
+            color: #ffcc00;
+            font-size: 1.8rem;
+            font-weight: 800;
+            border: 2px solid #ffcc00;
+        }
+
+        input[type=range] {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, #306, #ffcc00, #306);
+            border-radius: 30px;
+            -webkit-appearance: none;
+            appearance: none;
+            border: 3px solid white;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 48px;
+            height: 48px;
+            background: #b22222;
+            border-radius: 48px;
+            border: 5px solid #ffcc00;
+            box-shadow: 0 6px 0 #5a0f0f;
+            cursor: grab;
+        }
+
+        /* Giant D-pad + brake */
+        .direction-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .dpad-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .dpad-btn {
+            width: 90px;
+            height: 90px;
+            border-radius: 40px;
+            background: #b22222;
+            border: 5px solid #ffcc00;
+            font-size: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 0 #5a0f0f, 0 10px 20px black;
+            cursor: pointer;
+            transition: 0.03s linear;
+            color: #ffcc00;
+            text-shadow: 2px 4px 0 #7a1f1f;
+        }
+
+        .dpad-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 4px 0 #5a0f0f, 0 8px 15px black;
+        }
+
+        .brake-btn {
+            background: #222222;
+            border-color: #ff5555;
+            color: white;
+            width: 140px;
+            font-size: 3.5rem;
+        }
+
+        /* Landscape adjustments */
+        @media (orientation: landscape) {
+            .control-panel {
+                flex-direction: row;
+                align-items: stretch;
+                padding: 12px;
+            }
+            .joystick-panel {
+                flex: 2;
+                margin-right: 10px;
+            }
+            .direction-panel {
+                flex: 1;
+                justify-content: center;
+            }
+            .dpad-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 3rem;
+            }
+            .brake-btn {
+                width: 120px;
+            }
+            .slider-label {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Kid-friendly touch zones */
+        button, .big-connect-btn {
+            touch-action: manipulation;
+        }
+
+        .disconnect-btn {
+            background: #b22222;
+            border: 3px solid #ffcc00;
+            border-radius: 40px;
+            color: white;
+            font-weight: 800;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            box-shadow: 0 6px 0 #5a0f0f;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="appContainer">
+    <!-- CaDA header always visible -->
+    <div class="cada-header">
+        <div class="logo-area">
+            <div class="cada-logo">Ca</div>
+            <span class="cada-title">CaDA</span>
+        </div>
+        <div class="status-badge" id="statusBadge">
+            <span class="led disconnected" id="connectionLed"></span>
+            <span class="status-text" id="statusMessage">disconnected</span>
+        </div>
+    </div>
+
+    <!-- Main area: shows either connect button OR controls -->
+    <div class="control-panel" id="controlPanel">
+        <!-- CONNECT VIEW (visible when disconnected) -->
+        <div id="connectView" class="connect-prompt">
+            <div class="big-connect-btn" id="connectBtn">
+                <span class="hint-icon">🚗</span> CONNECT
+            </div>
+            <div style="color:#ffcc00; font-size:1.4rem; font-weight:600; text-align:center; background:#001d3d; padding:16px; border-radius:60px; border:3px solid #b22222;">
+                ⚡ press yellow button to pair your CaDA car
+            </div>
+        </div>
+
+        <!-- DRIVE VIEW (visible when connected) -->
+        <div id="driveView" class="hidden" style="width:100%; height:100%; display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+                <button class="disconnect-btn" id="disconnectBtn">🔌 disconnect</button>
+            </div>
+            <div class="joystick-panel">
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span>🏎️ SPEED</span>
+                        <span class="slider-value" id="speedDisplay">0</span>
+                    </div>
+                    <input type="range" id="throttleSlider" min="-100" max="100" value="0" step="1">
+                </div>
+                <div class="slider-row">
+                    <div class="slider-label">
+                        <span>↩️ STEER</span>
+                        <span class="slider-value" id="steerDisplay">0</span>
+                    </div>
+                    <input type="range" id="steeringSlider" min="-100" max="100" value="0" step="1">
+                </div>
+            </div>
+
+            <!-- GIANT D-PAD -->
+            <div class="direction-panel">
+                <div class="dpad-row">
+                    <button class="dpad-btn" id="fwdBtn">⬆️</button>
+                </div>
+                <div class="dpad-row">
+                    <button class="dpad-btn" id="leftBtn">⬅️</button>
+                    <button class="dpad-btn brake-btn" id="brakeBtn">⏹️</button>
+                    <button class="dpad-btn" id="rightBtn">➡️</button>
+                </div>
+                <div class="dpad-row">
+                    <button class="dpad-btn" id="revBtn">⬇️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // ---- CaDA / Lego PF 2.0 BLE UUIDs ----
+    const SERVICE_UUID  = '0000ffe5-0000-1000-8000-00805f9a34fb';  // 0xFFE5
+    const CHAR_UUID     = '0000ffe9-0000-1000-8000-00805f9a34fb';  // 0xFFE9
+
+    // ---- state ----
+    let bluetoothDevice = null;
+    let txCharacteristic = null;
+    let connected = false;
+
+    // UI elements
+    const connectView = document.getElementById('connectView');
+    const driveView = document.getElementById('driveView');
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const statusMsg = document.getElementById('statusMessage');
+    const led = document.getElementById('connectionLed');
+
+    // Sliders & displays
+    const throttleSlider = document.getElementById('throttleSlider');
+    const steeringSlider = document.getElementById('steeringSlider');
+    const speedDisplay = document.getElementById('speedDisplay');
+    const steerDisplay = document.getElementById('steerDisplay');
+
+    // Direction buttons
+    const fwdBtn = document.getElementById('fwdBtn');
+    const revBtn = document.getElementById('revBtn');
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const brakeBtn = document.getElementById('brakeBtn');
+
+    // ---- Helper: map -100..100 to 0..255 byte (CaDA format) ----
+    function mapToByte(val) {
+        return Math.min(255, Math.max(0, Math.round((val + 100) * 255 / 200)));
+    }
+
+    // ---- Send 3-byte command ----
+    function sendCommand(throttleInt, steeringInt) {
+        if (!connected || !txCharacteristic) {
+            console.warn('Not connected');
+            return;
+        }
+        const throttleByte = mapToByte(throttleInt);
+        const steeringByte = mapToByte(steeringInt);
+        const command = new Uint8Array([0x08, throttleByte, steeringByte]);
+        txCharacteristic.writeValue(command).catch(e => {
+            console.error('Write error', e);
+            // if write fails, assume disconnect
+            if (connected) setConnectedState(false);
+        });
+    }
+
+    // ---- Update UI and send command on slider change ----
+    function updateFromSliders() {
+        const t = parseInt(throttleSlider.value, 10);
+        const s = parseInt(steeringSlider.value, 10);
+        speedDisplay.innerText = t;
+        steerDisplay.innerText = s;
+        sendCommand(t, s);
+    }
+
+    throttleSlider.addEventListener('input', updateFromSliders);
+    steeringSlider.addEventListener('input', updateFromSliders);
+
+    // ---- Button actions (momentary with auto-stop) ----
+    function setThrottleSteer(throttle, steer) {
+        throttleSlider.value = throttle;
+        steeringSlider.value = steer;
+        speedDisplay.innerText = throttle;
+        steerDisplay.innerText = steer;
+        sendCommand(throttle, steer);
+    }
+
+    // Helper: after button release, return to (0, current steer) or (throttle,0) ?
+    // For safety: release throttle to 0, keep steer.
+    function releaseThrottle() {
+        if (!connected) return;
+        setThrottleSteer(0, parseInt(steeringSlider.value, 10));
+    }
+    function releaseSteer() {
+        if (!connected) return;
+        setThrottleSteer(parseInt(throttleSlider.value, 10), 0);
+    }
+
+    // Forward / back
+    fwdBtn.addEventListener('mousedown', (e) => { e.preventDefault(); setThrottleSteer(100, parseInt(steeringSlider.value,10)); });
+    fwdBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setThrottleSteer(100, parseInt(steeringSlider.value,10)); });
+    fwdBtn.addEventListener('mouseup', releaseThrottle);
+    fwdBtn.addEventListener('touchend', releaseThrottle);
+    fwdBtn.addEventListener('mouseleave', releaseThrottle);
+
+    revBtn.addEventListener('mousedown', (e) => { e.preventDefault(); setThrottleSteer(-100, parseInt(steeringSlider.value,10)); });
+    revBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setThrottleSteer(-100, parseInt(steeringSlider.value,10)); });
+    revBtn.addEventListener('mouseup', releaseThrottle);
+    revBtn.addEventListener('touchend', releaseThrottle);
+    revBtn.addEventListener('mouseleave', releaseThrottle);
+
+    // Left / right
+    leftBtn.addEventListener('mousedown', (e) => { e.preventDefault(); setThrottleSteer(parseInt(throttleSlider.value,10), -100); });
+    leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setThrottleSteer(parseInt(throttleSlider.value,10), -100); });
+    leftBtn.addEventListener('mouseup', releaseSteer);
+    leftBtn.addEventListener('touchend', releaseSteer);
+    leftBtn.addEventListener('mouseleave', releaseSteer);
+
+    rightBtn.addEventListener('mousedown', (e) => { e.preventDefault(); setThrottleSteer(parseInt(throttleSlider.value,10), 100); });
+    rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setThrottleSteer(parseInt(throttleSlider.value,10), 100); });
+    rightBtn.addEventListener('mouseup', releaseSteer);
+    rightBtn.addEventListener('touchend', releaseSteer);
+    rightBtn.addEventListener('mouseleave', releaseSteer);
+
+    // Brake: set throttle 0, keep steering
+    brakeBtn.addEventListener('mousedown', (e) => { e.preventDefault(); setThrottleSteer(0, parseInt(steeringSlider.value,10)); });
+    brakeBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setThrottleSteer(0, parseInt(steeringSlider.value,10)); });
+    // No need to release (already 0)
+
+    // ---- Connection UI update ----
+    function setConnectedState(isConnected) {
+        connected = isConnected;
+        if (isConnected) {
+            led.className = 'led connected';
+            statusMsg.innerText = 'connected';
+            connectView.classList.add('hidden');
+            driveView.classList.remove('hidden');
+            // send neutral on connect
+            sendCommand(0,0);
+        } else {
+            led.className = 'led disconnected';
+            statusMsg.innerText = 'disconnected';
+            connectView.classList.remove('hidden');
+            driveView.classList.add('hidden');
+            bluetoothDevice = null;
+            txCharacteristic = null;
+        }
+    }
+
+    // ---- Bluetooth connection ----
+    connectBtn.addEventListener('click', async () => {
+        if (!navigator.bluetooth) {
+            alert('Your device does not support Bluetooth. Try on a phone/tablet with Chrome.');
+            return;
+        }
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [
+                    { services: [SERVICE_UUID] },
+                    { namePrefix: 'CaDA' },
+                    { namePrefix: 'LEGO' },
+                    { namePrefix: 'Car' }
+                ],
+                optionalServices: [SERVICE_UUID]
+            });
+            bluetoothDevice = device;
+            device.addEventListener('gattserverdisconnected', () => {
+                setConnectedState(false);
+            });
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService(SERVICE_UUID);
+            const characteristic = await service.getCharacteristic(CHAR_UUID);
+            txCharacteristic = characteristic;
+            setConnectedState(true);
+        } catch (error) {
+            console.error(error);
+            alert('Connection failed: ' + error.message);
+        }
+    });
+
+    disconnectBtn.addEventListener('click', () => {
+        if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+            bluetoothDevice.gatt.disconnect();
+        } else {
+            setConnectedState(false);
+        }
+    });
+
+    // ---- Initialize ----
+    setConnectedState(false);
+
+    // Prevent context menu on all buttons
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+})();
+</script>
+</body>
+</html>

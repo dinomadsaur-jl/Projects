@@ -1,0 +1,433 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathPlot - Python Plotting</title>
+    
+    <!-- PWA Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="MathPlot">
+    <meta name="theme-color" content="#4CAF50">
+    
+    <!-- Manifest link -->
+    <link rel="manifest" href="#">
+    
+    <!-- Load Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .app {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .debug-panel {
+            background: #1e1e2f;
+            color: #00ff00;
+            font-family: monospace;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .debug-line {
+            margin: 4px 0;
+            border-bottom: 1px solid #333;
+            padding: 4px 0;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff5555; }
+        .info { color: #ffff00; }
+        .install-banner {
+            background: #4CAF50;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 50px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .install-btn {
+            background: white;
+            color: #4CAF50;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .status {
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        .loading { background: #fff3cd; color: #856404; }
+        .ready { background: #d4edda; color: #155724; }
+        .code-area {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 16px 0;
+        }
+        .run-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .plot-container {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+            min-height: 400px;
+        }
+        .manual-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Debug Panel -->
+        <div class="debug-panel" id="debugPanel">
+            <div class="debug-line">🔍 PWA Installation Debugger</div>
+            <div id="debugLog"></div>
+        </div>
+
+        <!-- Install Banner -->
+        <div id="installBanner" class="install-banner">
+            <span>📱 Install MathPlot on your device</span>
+            <button id="installButton" class="install-btn">Install</button>
+        </div>
+        
+        <!-- Manual Test Buttons -->
+        <div style="margin-bottom: 10px;">
+            <button class="manual-btn" onclick="testManifest()">🔍 Test Manifest</button>
+            <button class="manual-btn" onclick="checkInstallability()">📱 Check Installability</button>
+            <button class="manual-btn" onclick="forceInstallPrompt()">🔄 Force Prompt Check</button>
+        </div>
+        
+        <div class="header">
+            <h1>📊 MathPlot Lab</h1>
+        </div>
+        
+        <div id="status" class="status loading">
+            ⏳ Loading Pyodide...
+        </div>
+        
+        <textarea id="code" class="code-area" rows="8">import matplotlib.pyplot as plt
+import numpy as np
+x = np.linspace(0, 10, 100)
+plt.plot(x, np.sin(x))
+plt.show()</textarea>
+        
+        <button id="runBtn" class="run-btn" disabled>▶️ Run Python Code</button>
+        <div id="plot" class="plot-container">
+            <p style="color: #999;">Plot will appear here...</p>
+        </div>
+    </div>
+
+    <script>
+    // ========== DEBUGGING FUNCTIONS ==========
+    function addDebugLog(message, type = 'info') {
+        const debugLog = document.getElementById('debugLog');
+        const line = document.createElement('div');
+        line.className = `debug-line ${type}`;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        debugLog.appendChild(line);
+        debugLog.scrollTop = debugLog.scrollHeight;
+        console.log(message);
+    }
+
+    // Test manifest loading
+    async function testManifest() {
+        addDebugLog('🔍 Testing manifest...', 'info');
+        const link = document.querySelector('link[rel="manifest"]');
+        
+        if (!link || !link.href) {
+            addDebugLog('❌ No manifest link found', 'error');
+            return;
+        }
+        
+        addDebugLog(`✅ Manifest URL: ${link.href}`, 'success');
+        
+        try {
+            const response = await fetch(link.href);
+            const manifest = await response.json();
+            addDebugLog('✅ Manifest loaded successfully', 'success');
+            addDebugLog(`📋 Name: ${manifest.name}`, 'info');
+            addDebugLog(`📋 Short name: ${manifest.short_name}`, 'info');
+            addDebugLog(`📋 Display: ${manifest.display}`, 'info');
+            addDebugLog(`📋 Icons: ${manifest.icons.length} found`, 'info');
+            
+            // Test icon loading
+            if (manifest.icons && manifest.icons[0]) {
+                const img = new Image();
+                img.onload = () => addDebugLog('✅ Icon loads successfully', 'success');
+                img.onerror = () => addDebugLog('❌ Icon failed to load', 'error');
+                img.src = manifest.icons[0].src;
+            }
+        } catch (error) {
+            addDebugLog(`❌ Manifest fetch failed: ${error.message}`, 'error');
+        }
+    }
+
+    // Check if site is installable
+    function checkInstallability() {
+        addDebugLog('🔍 Checking installability...', 'info');
+        
+        // Check Chrome version
+        const chromeMatch = navigator.userAgent.match(/Chrome\/(\d+)/);
+        if (chromeMatch) {
+            const chromeVersion = parseInt(chromeMatch[1]);
+            addDebugLog(`🌐 Chrome version: ${chromeVersion}`, 'info');
+            if (chromeVersion < 76) {
+                addDebugLog('❌ Chrome too old (need 76+)', 'error');
+            } else {
+                addDebugLog('✅ Chrome version OK', 'success');
+            }
+        }
+        
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            addDebugLog('✅ App is already installed', 'success');
+        } else {
+            addDebugLog('ℹ️ App not installed yet', 'info');
+        }
+        
+        // Check beforeinstallprompt support
+        if ('onbeforeinstallprompt' in window) {
+            addDebugLog('✅ beforeinstallprompt supported', 'success');
+        } else {
+            addDebugLog('❌ beforeinstallprompt NOT supported', 'error');
+        }
+        
+        // Check service worker support
+        if ('serviceWorker' in navigator) {
+            addDebugLog('✅ Service Worker supported', 'success');
+        } else {
+            addDebugLog('❌ Service Worker NOT supported', 'error');
+        }
+        
+        // Check HTTPS/localhost
+        if (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            addDebugLog('✅ Secure context (HTTPS/localhost)', 'success');
+        } else {
+            addDebugLog('❌ Not secure context - install may not work', 'error');
+        }
+    }
+
+    // Force check for install prompt
+    function forceInstallPrompt() {
+        addDebugLog('🔄 Forcing install prompt check...', 'info');
+        if (deferredPrompt) {
+            addDebugLog('✅ Install prompt is available!', 'success');
+            installBanner.style.display = 'flex';
+        } else {
+            addDebugLog('❌ No install prompt available yet', 'error');
+            addDebugLog('💡 Tips:', 'info');
+            addDebugLog('   - Wait 30 seconds', 'info');
+            addDebugLog('   - Interact with page', 'info');
+            addDebugLog('   - Refresh page', 'info');
+            addDebugLog('   - Check Chrome menu → Add to Home screen', 'info');
+        }
+    }
+
+    // ========== MANIFEST CREATION ==========
+    (function() {
+        addDebugLog('🚀 Creating manifest...', 'info');
+        
+        const manifest = {
+            name: "MathPlot Lab",
+            short_name: "MathPlot",
+            description: "Python plotting in browser",
+            start_url: window.location.href,
+            display: "standalone",
+            background_color: "#ffffff",
+            theme_color: "#4CAF50",
+            prefer_related_applications: false,
+            icons: [
+                {
+                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234CAF50' /%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📊%3C/text%3E%3C/svg%3E",
+                    sizes: "192x192",
+                    type: "image/svg+xml",
+                    purpose: "any"
+                },
+                {
+                    src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%234CAF50' /%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📊%3C/text%3E%3C/svg%3E",
+                    sizes: "512x512",
+                    type: "image/svg+xml",
+                    purpose: "any"
+                }
+            ]
+        };
+        
+        try {
+            const manifestJSON = JSON.stringify(manifest);
+            const blob = new Blob([manifestJSON], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(blob);
+            
+            const link = document.querySelector('link[rel="manifest"]');
+            if (link) {
+                link.href = manifestURL;
+                addDebugLog(`✅ Manifest created: ${manifestURL}`, 'success');
+                
+                // Auto-test manifest after creation
+                setTimeout(testManifest, 500);
+            }
+        } catch (error) {
+            addDebugLog(`❌ Manifest creation failed: ${error.message}`, 'error');
+        }
+    })();
+
+    // ========== INSTALLATION HANDLER ==========
+    let deferredPrompt;
+    const installBanner = document.getElementById('installBanner');
+    const installButton = document.getElementById('installButton');
+
+    // Listen for install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.style.display = 'flex';
+        addDebugLog('🎯 beforeinstallprompt event FIRED!', 'success');
+        addDebugLog(`📋 Platforms: ${e.platforms ? e.platforms.join(', ') : 'unknown'}`, 'info');
+        
+        // Log prompt details
+        if (e.userChoice) {
+            e.userChoice.then((choiceResult) => {
+                addDebugLog(`📋 User choice: ${choiceResult.outcome}`, 'info');
+            });
+        }
+    });
+
+    // Handle install button click
+    installButton.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            addDebugLog('❌ Install clicked but no prompt available', 'error');
+            alert('Install prompt not ready. Try:\n1. Wait 30 seconds\n2. Refresh page\n3. Use Chrome menu → Add to Home screen');
+            return;
+        }
+        
+        addDebugLog('🔄 Showing install prompt...', 'info');
+        deferredPrompt.prompt();
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        addDebugLog(`📋 Install outcome: ${outcome}`, outcome === 'accepted' ? 'success' : 'error');
+        
+        if (outcome === 'accepted') {
+            installBanner.style.display = 'none';
+        }
+        deferredPrompt = null;
+    });
+
+    // App installed
+    window.addEventListener('appinstalled', (event) => {
+        addDebugLog('✅ App successfully installed!', 'success');
+        installBanner.style.display = 'none';
+    });
+
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        addDebugLog('✅ App is running in standalone mode (already installed)', 'success');
+        installBanner.style.display = 'none';
+    }
+
+    // Run initial checks
+    setTimeout(() => {
+        checkInstallability();
+    }, 1000);
+
+    // ========== PYODIDE SETUP ==========
+    let pyodide;
+    const statusDiv = document.getElementById('status');
+    const runBtn = document.getElementById('runBtn');
+    const plotDiv = document.getElementById('plot');
+    const codeArea = document.getElementById('code');
+
+    async function initPyodide() {
+        try {
+            statusDiv.textContent = '⏳ Loading Pyodide...';
+            statusDiv.className = 'status loading';
+            
+            pyodide = await loadPyodide({
+                indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/'
+            });
+            
+            statusDiv.textContent = '📦 Installing matplotlib...';
+            
+            await pyodide.loadPackage(['micropip']);
+            const micropip = pyodide.pyimport('micropip');
+            await micropip.install('matplotlib');
+            
+            await pyodide.runPythonAsync(`
+import matplotlib
+matplotlib.use('module://matplotlib_pyodide.html5_canvas_backend')
+import matplotlib.pyplot as plt
+import numpy as np
+            `);
+            
+            statusDiv.textContent = '✅ Ready!';
+            statusDiv.className = 'status ready';
+            runBtn.disabled = false;
+            addDebugLog('✅ Pyodide initialized', 'success');
+            
+        } catch (error) {
+            statusDiv.textContent = '❌ Error';
+            statusDiv.className = 'status error';
+            addDebugLog(`❌ Pyodide error: ${error.message}`, 'error');
+        }
+    }
+
+    async function runPython() {
+        try {
+            plotDiv.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.id = 'matplotlib-canvas';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            plotDiv.appendChild(canvas);
+            
+            await pyodide.runPythonAsync(codeArea.value);
+            
+        } catch (error) {
+            plotDiv.innerHTML = `<p style="color: #f44336;">Error: ${error.message}</p>`;
+        }
+    }
+
+    runBtn.addEventListener('click', runPython);
+    initPyodide();
+    </script>
+</body>
+</html>

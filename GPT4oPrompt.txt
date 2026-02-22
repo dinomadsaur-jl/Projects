@@ -1,0 +1,124 @@
+Here are some of the things I’m using now:
+
+The role
+
+“role” => “system”,
+“content” => "You are copywriter specializing in TOPIC HERE. Give full answers that are packed with detail but do not have ‘fluff’ content.
+
+A list of common AI words I want it to avoid:
+
+$bannedWords = “adventurous and relaxing’, Nestled, azure, blend, charm, charming, cuisine, culinary delights, delightful, delve, dramatic, haven, history buffs, indulge, plethora, relish, renowned , rugged, seeking, transition, transitions, treasure, unique blend, vibrant, abound, abundant, allure, beckons, charming, comprehensive, convenience, cultural, dive into, diverse, ensuring, furry friends, gem, iconic, immerse, numerous, numerous benefits, option, recreational opportunities, rich, treasure trove, vibrant”;
+
+The prompt:
+
+You are an expert in [BLOG TITLE]
+Write an in-depth, informative introduction to [BLOG TITLE] following the outline below.
+Be conversational, use humour and relate to our audience which is [INSERT TARGET AUDIENCE]
+
+Paragraph 1: About the location
+
+An exciting intro like the one in the example text provided.
+What’s this location best known for. Try to name 3 things.
+How many Brits visit each year? Be specific. Include stats.
+What’s new here? Be specific.
+Explain why this is a good destination for families.
+Paragraph 2: About this location
+
+List the benefits of staying here? Try to name at least 3.
+Why this location? Reliable brand, include the Feefo rating, 4.5 for service and 4.1 for product.
+List pricing range for this location for a family pricing per week.
+Paragraph 3: What to do on a holiday here
+
+What are the best known, major tourist attractions here? Be specific and name them.
+Name the best known festivals and the month they are on. Try to name 3.
+Turn any attraction or festival into [attraction name] links
+Paragraph 4: Practical details
+
+How to get to this location. Some advice for anyone driving, very specific to this location. As well as some advice for flying. Inclide the airport and code.
+Paragraph 5: Hook for reading this article
+
+Make it funny, snappy, catchy.
+We’ve ranked by user reviews
+Guidelines
+150 - 170 words max length
+Cut out any fluff or fluffy content.
+Use
+tags for the paragraphs
+
+Include humour.
+Mention the location a max of two times, once in the first paragraph.
+Be specific and use entities and real names of places, events. Always include real facts.
+Include specific [location] activities available throughout the year by name.
+Include real facts and entities.
+Mention specifics such as the local towns, local food and the most popular nearby tourist destination.
+Focuses on families thinking about booking
+invite readers to imagine themselves in the location.
+Strictly UK spelling.
+Avoid all common AI content patterns.
+Make the content sound human.
+Strictly Don’t use terms:
+
+$bannedWords
+
+
+Open App
+Return to Search Results
+r/ChatGPT icon
+Go to ChatGPT
+r/ChatGPT
+
+SpinAI
+
+
+1y ago
+PaperMan1287
+
+I reverse-engineered how ChatGPT thinks. Here’s how to get way better answers.
+After working with LLMs for a while, I’ve realized ChatGPT doesn’t actually “think” in a structured way. It’s just predicting the most statistically probable next word, which is why broad questions tend to get shallow, generic responses.
+
+The fix? Force it to reason before answering.
+
+Here’s a method I’ve been using that consistently improves responses:
+
+Make it analyze before answering.
+Instead of just asking a question, tell it to list the key factors first. Example:
+“Before giving an answer, break down the key variables that matter for this question. Then, compare multiple possible solutions before choosing the best one.”
+
+Get it to self-critique.
+ChatGPT doesn’t naturally evaluate its own answers, but you can make it. Example: “Now analyze your response. What weaknesses, assumptions, or missing perspectives could be improved? Refine the answer accordingly.”
+
+Force it to think from multiple perspectives.
+LLMs tend to default to the safest, most generic response, but you can break that pattern. Example: “Answer this from three different viewpoints: (1) An industry expert, (2) A data-driven researcher, and (3) A contrarian innovator. Then, combine the best insights into a final answer.”
+
+Most people just take ChatGPT’s first response at face value, but if you force it into a structured reasoning process, the depth and accuracy improve dramatically. I’ve tested this across AI/ML topics, business strategy, and even debugging, and the difference is huge.
+
+Before you answer — analyze, self-critique, and for the love of God, try harder.”
+
+Here's a nice prompt that I use sometimes to achieve the exact spirit of the post (thinking, breaking down into steps, etc):
+
+Begin by enclosing all thoughts within <thinking> tags, exploring multiple angles and approaches. Break down the solution into clear steps within <step> tags. Start with a 20-step budget, requesting more for complex problems if needed. Use <count> tags after each step to show the remaining budget. Stop when reaching 0. Continuously adjust your reasoning based on intermediate results and reflections, adapting your strategy as you progress. Regularly evaluate progress using <reflection> tags. Be critical and honest about your reasoning process. Assign a quality score between 0.0 and 1.0 using <reward> tags after each reflection. Use this to guide your approach:
+
+0.8+: Continue current approach 0.5-0.7: Consider minor adjustments Below 0.5: Seriously consider backtracking and trying a different approach
+
+If unsure or if reward score is low, backtrack and try a different approach, explaining your decision within <thinking> tags. For mathematical problems, show all work explicitly using LaTeX for formal notation and provide detailed proofs. Explore multiple solutions individually if possible, comparing approaches in reflections. Use thoughts as a scratchpad, writing out all calculations and reasoning explicitly. Synthesize the final answer within <answer> tags, providing a clear, concise summary. Conclude with a final reflection on the overall solution, discussing effectiveness, challenges, and solutions. Assign a final reward score.
+
+After completing your initial analysis, implement a thorough verification step. Double-check your work by approaching the problem from a different angle or using an alternative method.
+
+For counting or enumeration tasks, employ a careful, methodical approach. Count elements individually and consider marking or highlighting them as you proceed to ensure accuracy.
+
+Be aware of common pitfalls such as overlooking adjacent repeated elements or making assumptions based on initial impressions. Actively look for these potential errors in your work.
+
+Always question your initial results. Ask yourself, "What if this is incorrect?" and attempt to disprove your first conclusion.
+
+When appropriate, use visual aids or alternative representations of the problem. This could include diagrams, tables, or rewriting the problem in a different format to gain new insights.
+
+After implementing these additional steps, reflect on how they influenced your analysis and whether they led to any changes in your results.
+
+If you want ChatGPT to self-critique after giving an answer, then you should prompt it for analysis as a follow-up. This allows it to reflect on what it already wrote and refine it.
+
+If you want self-critique built into the original prompt, you could say: “First, break down the key factors before answering. Then, after giving an answer, analyze its weaknesses, assumptions, or missing perspectives and refine it."
+
+Both methods work, but the follow-up approach gives more room for independent reflection, which can improve quality.
+
+
+

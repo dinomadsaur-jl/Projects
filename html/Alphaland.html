@@ -1,0 +1,999 @@
+l<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AlphaLand">
+<meta name="theme-color" content="#FF6B35">
+
+<!-- Apple touch icon (inline SVG → data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%23FF6B35'/%3E%3Ctext x='96' y='140' font-size='110' text-anchor='middle'%3E%F0%9F%A6%81%3C/text%3E%3C/svg%3E">
+
+<title>AlphaLand 🦁</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:#FFF8F0; --primary:#FF6B35; --teal:#4ECDC4; --yellow:#FFE66D;
+  --purple:#A855F7; --green:#22C55E; --pink:#F472B6; --dark:#2D2D2D;
+  --shadow:0 8px 32px rgba(0,0,0,.12);
+  --spring:cubic-bezier(0.34,1.56,0.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);touch-action:manipulation}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 15% 15%,rgba(255,107,53,.07) 0%,transparent 50%),
+             radial-gradient(circle at 85% 85%,rgba(78,205,196,.07) 0%,transparent 50%)}
+
+/* ── FLOATING LETTERS ── */
+#bg-letters{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.fl{position:absolute;font-family:'Fredoka One',cursive;opacity:.055;
+    animation:drift linear infinite;color:var(--dark)}
+@keyframes drift{from{transform:translateY(110vh) rotate(0deg)}to{transform:translateY(-10vh) rotate(360deg)}}
+
+/* ── SCREENS ── */
+.screen{display:none;position:fixed;inset:0;z-index:1;overflow-y:auto;overflow-x:hidden;
+        animation:fadeUp .35s ease both;-webkit-overflow-scrolling:touch}
+.screen.active{display:flex;flex-direction:column}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;gap:.6rem;
+        padding:clamp(.6rem,2.5vw,1rem) clamp(.6rem,2.5vw,1.2rem);
+        background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.07);
+        position:sticky;top:0;z-index:50;flex-shrink:0}
+.back-btn{background:var(--bg);border:none;width:44px;height:44px;border-radius:50%;
+          font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+          transition:transform .15s var(--spring);flex-shrink:0}
+.back-btn:active{transform:scale(.86)}
+.topbar-title{font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,4.5vw,1.5rem);
+              color:var(--dark);flex:1}
+.star-pill{font-size:clamp(.8rem,3vw,1rem);font-weight:800;color:var(--primary);
+           background:#FFF3E0;padding:.25rem .75rem;border-radius:20px;white-space:nowrap}
+
+/* ══ HOME ══ */
+#home{align-items:center;justify-content:center;gap:clamp(1rem,4vw,2rem);padding:1.5rem}
+.logo-wrap{text-align:center;animation:popIn .6s var(--spring)}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.logo-emoji{font-size:clamp(3.5rem,14vw,7rem);display:block;
+            animation:floatAnim 3s ease-in-out infinite;line-height:1}
+@keyframes floatAnim{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
+.logo-title{font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,9vw,4.5rem);
+            background:linear-gradient(135deg,var(--primary),var(--purple));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.logo-sub{font-size:clamp(.85rem,3.5vw,1.15rem);color:#999;font-weight:700;margin-top:.2rem}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.6rem,2.5vw,.9rem);
+           width:100%;max-width:420px}
+.mode-btn{background:#fff;border:none;border-radius:22px;
+          padding:clamp(.9rem,3.5vw,1.3rem);cursor:pointer;box-shadow:var(--shadow);
+          display:flex;flex-direction:column;align-items:center;gap:.4rem;
+          transition:transform .15s var(--spring)}
+.mode-btn:active{transform:scale(.9)}
+.mode-icon{font-size:clamp(1.8rem,7vw,2.6rem)}
+.mode-label{font-family:'Fredoka One',cursive;font-size:clamp(.9rem,3.5vw,1.2rem);color:var(--dark)}
+
+/* install banner */
+#install-banner{display:none;align-items:center;justify-content:space-between;
+                background:linear-gradient(135deg,var(--primary),var(--purple));
+                color:#fff;padding:.75rem 1rem;border-radius:16px;gap:.75rem;
+                width:100%;max-width:420px;cursor:pointer;box-shadow:var(--shadow);
+                animation:popIn .5s var(--spring)}
+#install-banner span{font-family:'Fredoka One',cursive;font-size:clamp(.9rem,3.5vw,1.1rem)}
+#install-banner button{background:rgba(255,255,255,.25);border:none;border-radius:10px;
+                        color:#fff;font-family:'Fredoka One',cursive;font-size:.9rem;
+                        padding:.35rem .8rem;cursor:pointer;white-space:nowrap}
+#install-banner .ib-close{background:transparent;font-size:1.1rem;padding:.2rem .4rem}
+
+@media(orientation:landscape) and (max-height:520px){
+  #home{flex-direction:row;justify-content:space-evenly;padding:.6rem 1.2rem}
+  .mode-grid{grid-template-columns:repeat(4,1fr);max-width:none;flex:1}
+  .logo-emoji{font-size:clamp(2.5rem,8vw,4rem)}
+}
+
+/* ══ LEARN ══ */
+.scroll-area{flex:1;overflow-y:auto;padding:clamp(.6rem,2.5vw,1rem);-webkit-overflow-scrolling:touch}
+.alpha-grid{display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(clamp(64px,17vw,105px),1fr));
+            gap:clamp(.4rem,1.8vw,.75rem)}
+.alpha-card{aspect-ratio:1;border-radius:18px;background:#fff;border:none;cursor:pointer;
+            box-shadow:0 4px 14px rgba(0,0,0,.09);display:flex;flex-direction:column;
+            align-items:center;justify-content:center;gap:.1rem;
+            transition:transform .15s var(--spring);position:relative;overflow:hidden}
+.alpha-card:active{transform:scale(.87)}
+.alpha-card.done::after{content:'⭐';position:absolute;top:3px;right:4px;font-size:.65rem}
+.a-letter{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,6.5vw,2.7rem);line-height:1}
+.a-word{font-size:clamp(.5rem,1.8vw,.72rem);font-weight:700;color:#AAA;text-transform:uppercase;letter-spacing:.05em}
+
+/* ══ DETAIL ══ */
+#detail{flex-direction:column}
+.detail-hero{flex:1;display:flex;flex-direction:column;align-items:center;
+             justify-content:center;padding:clamp(.6rem,2.5vw,1.2rem);
+             gap:clamp(.6rem,2.5vw,1rem);text-align:center;min-height:0}
+.big-letter{font-family:'Fredoka One',cursive;font-size:clamp(5rem,22vw,11rem);
+            line-height:1;cursor:pointer;user-select:none;display:block;
+            animation:letterPop .5s var(--spring)}
+.big-letter:active{transform:scale(.87) rotate(-8deg)}
+@keyframes letterPop{from{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.15) rotate(5deg)}to{transform:scale(1) rotate(0)}}
+.letter-cases{font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,5vw,2.2rem);color:#CCC}
+.d-emoji{font-size:clamp(2.8rem,11vw,5.5rem);animation:emojiFloat 2s ease-in-out infinite;cursor:pointer}
+@keyframes emojiFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.06)}}
+.d-word{font-family:'Fredoka One',cursive;font-size:clamp(1.6rem,6.5vw,3rem);color:var(--dark)}
+.d-word .hl{text-decoration:underline;text-underline-offset:4px}
+.hear-btn{background:linear-gradient(135deg,var(--primary),var(--purple));border:none;
+          border-radius:18px;padding:clamp(.6rem,2.5vw,.9rem) clamp(1.2rem,5vw,2.2rem);
+          color:#fff;font-family:'Fredoka One',cursive;font-size:clamp(.95rem,3.8vw,1.3rem);
+          cursor:pointer;box-shadow:0 6px 18px rgba(255,107,53,.32);
+          transition:transform .15s var(--spring);display:flex;align-items:center;gap:.4rem}
+.hear-btn:active{transform:scale(.91)}
+.detail-nav{display:flex;align-items:center;justify-content:space-between;
+            padding:clamp(.6rem,2.5vw,1rem);gap:.6rem;flex-shrink:0}
+.nav-arr{background:#fff;border:none;border-radius:14px;
+         padding:.6rem 1.1rem;font-size:1.4rem;cursor:pointer;
+         box-shadow:0 4px 12px rgba(0,0,0,.09);transition:transform .15s var(--spring)}
+.nav-arr:active{transform:scale(.87)}
+.nav-arr:disabled{opacity:.28;pointer-events:none}
+.d-counter{font-family:'Fredoka One',cursive;font-size:1rem;color:#BBB}
+@media(orientation:landscape) and (max-height:520px){
+  .detail-hero{flex-direction:row;text-align:left;padding:.5rem 1.2rem;gap:1.2rem}
+}
+
+/* ══ SPELL ══ */
+#spell{flex-direction:column}
+.spell-body{flex:1;display:flex;flex-direction:column;align-items:center;
+            justify-content:center;padding:clamp(.6rem,2.5vw,1.2rem);
+            gap:clamp(.6rem,2.5vw,1rem);min-height:0}
+.sp-emoji{font-size:clamp(3.5rem,15vw,7rem);display:block;cursor:pointer;
+          animation:emojiFloat 2.2s ease-in-out infinite}
+.sp-hint{font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,5vw,2rem);
+         color:#D0D0D0;letter-spacing:.35em;margin-top:.2rem}
+.sp-slots{display:flex;justify-content:center;gap:clamp(.25rem,1.3vw,.55rem);flex-wrap:wrap}
+.slot{width:clamp(38px,9.5vw,60px);height:clamp(46px,11.5vw,72px);
+      border-radius:13px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.1);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,4.5vw,2rem);
+      transition:all .2s var(--spring);border:3px solid transparent}
+.slot.filled{border-color:var(--teal);background:#E0FAF8}
+.slot.correct{border-color:var(--green);background:#DCFCE7;animation:slotPop .3s var(--spring)}
+.slot.wrong{border-color:var(--primary);background:#FEE2E2;animation:shake .4s}
+@keyframes slotPop{0%{transform:scale(1)}50%{transform:scale(1.28)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.sp-choices{display:flex;justify-content:center;gap:clamp(.25rem,1.3vw,.55rem);flex-wrap:wrap}
+.choice-btn{width:clamp(42px,10.5vw,64px);height:clamp(42px,10.5vw,64px);
+            border-radius:13px;background:#fff;border:none;cursor:pointer;
+            font-family:'Fredoka One',cursive;font-size:clamp(1.3rem,4.5vw,1.9rem);
+            box-shadow:0 4px 14px rgba(0,0,0,.11);
+            transition:transform .15s var(--spring),opacity .2s;
+            display:flex;align-items:center;justify-content:center;color:var(--dark)}
+.choice-btn:active{transform:scale(.86)}
+.choice-btn.used{opacity:.18;pointer-events:none}
+.feedback{font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,4.5vw,1.6rem);
+          text-align:center;min-height:1.8rem;transition:all .25s}
+.feedback.ok{color:var(--green);animation:feedPop .35s var(--spring)}
+.feedback.no{color:var(--primary)}
+@keyframes feedPop{from{transform:scale(.5)}to{transform:scale(1)}}
+.prog-bar{height:7px;background:#EEE;border-radius:4px;overflow:hidden;width:100%;max-width:400px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));
+           border-radius:4px;transition:width .5s ease}
+@media(orientation:landscape) and (max-height:520px){
+  .spell-body{flex-direction:row;flex-wrap:wrap;justify-content:space-around;align-items:center}
+}
+
+/* ══ QUIZ ══ */
+#quiz{flex-direction:column}
+.quiz-body{flex:1;display:flex;flex-direction:column;align-items:center;
+           justify-content:center;padding:clamp(.6rem,2.5vw,1.2rem);
+           gap:clamp(.8rem,3vw,1.3rem);text-align:center;min-height:0}
+.quiz-q{font-family:'Fredoka One',cursive;font-size:clamp(1.1rem,4.5vw,1.8rem);color:var(--dark)}
+.quiz-emoji{font-size:clamp(3.5rem,16vw,7.5rem);cursor:pointer;animation:emojiFloat 2.5s ease-in-out infinite}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.5rem,2vw,.85rem);
+           width:100%;max-width:380px}
+.quiz-btn{background:#fff;border:none;border-radius:18px;
+          padding:clamp(.6rem,2.5vw,1.1rem);font-family:'Fredoka One',cursive;
+          font-size:clamp(1.7rem,6.5vw,2.8rem);cursor:pointer;
+          box-shadow:0 4px 14px rgba(0,0,0,.1);transition:transform .15s var(--spring)}
+.quiz-btn:active{transform:scale(.88)}
+.quiz-btn.correct{background:#DCFCE7;box-shadow:0 4px 14px rgba(34,197,94,.3)}
+.quiz-btn.wrong{background:#FEE2E2;box-shadow:0 4px 14px rgba(255,107,53,.3);animation:shake .4s}
+
+/* ══ PROGRESS ══ */
+#progress{flex-direction:column}
+.prog-msg{text-align:center;padding:.75rem 1rem;font-family:'Fredoka One',cursive;
+          font-size:clamp(1rem,4vw,1.4rem);color:#AAA}
+
+/* ══ CONFETTI ══ */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+.cp{position:absolute;top:-14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ══ TOAST ══ */
+#toast{position:fixed;top:1rem;left:50%;
+       transform:translateX(-50%) translateY(-120px);
+       background:var(--dark);color:#fff;padding:.6rem 1.4rem;border-radius:20px;
+       font-weight:700;font-size:.85rem;z-index:9999;
+       transition:transform .4s var(--spring);white-space:nowrap;max-width:90vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ══ PYODIDE STATUS ══ */
+#pystatus{position:fixed;bottom:.75rem;right:.75rem;background:#fff;border-radius:10px;
+          padding:.35rem .8rem;font-size:.75rem;font-weight:700;color:#999;
+          box-shadow:0 2px 10px rgba(0,0,0,.1);z-index:200;
+          display:flex;align-items:center;gap:.35rem;transition:opacity .6s}
+.pydot{width:7px;height:7px;border-radius:50%;background:#CCC;animation:pulse 1.5s infinite}
+.pydot.ok{background:var(--green);animation:none}
+.pydot.warn{background:#FFB347;animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:#DDD;border-radius:3px}
+</style>
+</head>
+<body>
+
+<div id="bg-letters"></div>
+<div id="confetti"></div>
+<div id="toast"></div>
+<div id="pystatus"><div class="pydot" id="pydot"></div><span id="pytext">Loading Python…</span></div>
+
+<!-- ══ HOME ══ -->
+<div class="screen active" id="home">
+  <div class="logo-wrap">
+    <span class="logo-emoji">🦁</span>
+    <div class="logo-title">AlphaLand</div>
+    <div class="logo-sub">Learn letters &amp; words!</div>
+  </div>
+  <div class="mode-grid">
+    <button class="mode-btn" onclick="goLearn()"><span class="mode-icon">🔤</span><span class="mode-label">Alphabet</span></button>
+    <button class="mode-btn" onclick="goSpell()"><span class="mode-icon">✏️</span><span class="mode-label">Spelling</span></button>
+    <button class="mode-btn" onclick="goQuiz()"><span class="mode-icon">🎯</span><span class="mode-label">Quiz</span></button>
+    <button class="mode-btn" onclick="goProgress()"><span class="mode-icon">⭐</span><span class="mode-label">Progress</span></button>
+  </div>
+  <!-- Install Banner (shown when browser fires beforeinstallprompt) -->
+  <div id="install-banner">
+    <span>📱 Install AlphaLand!</span>
+    <button onclick="doInstall()">Install</button>
+    <button class="ib-close" onclick="hideBanner()">✕</button>
+  </div>
+</div>
+
+<!-- ══ LEARN ══ -->
+<div class="screen" id="learn">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <span class="topbar-title">🔤 Alphabet</span>
+    <div class="star-pill">⭐ <span class="sc">0</span></div>
+  </div>
+  <div class="scroll-area"><div class="alpha-grid" id="alphaGrid"></div></div>
+</div>
+
+<!-- ══ DETAIL ══ -->
+<div class="screen" id="detail">
+  <div class="topbar">
+    <button class="back-btn" onclick="goLearn()">←</button>
+    <span class="topbar-title" id="dTitle">Letter A</span>
+    <div class="star-pill">⭐ <span class="sc">0</span></div>
+  </div>
+  <div class="detail-hero">
+    <div style="text-align:center">
+      <span class="big-letter" id="bigL" onclick="spkLetter()">A</span>
+      <div class="letter-cases" id="dCases">A &nbsp; a</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.6rem;text-align:center">
+      <span class="d-emoji" id="dEmoji" onclick="spkWord()">🍎</span>
+      <div class="d-word" id="dWordEl"><span class="hl">A</span>pple</div>
+      <button class="hear-btn" onclick="spkAll()">🔊 Hear it!</button>
+    </div>
+  </div>
+  <div class="detail-nav">
+    <button class="nav-arr" id="prevBtn" onclick="prevL()">◀</button>
+    <div class="d-counter" id="dCounter">1 / 26</div>
+    <button class="nav-arr" id="nextBtn" onclick="nextL()">▶</button>
+  </div>
+</div>
+
+<!-- ══ SPELL ══ -->
+<div class="screen" id="spell">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <span class="topbar-title">✏️ Spell It!</span>
+    <div class="star-pill">⭐ <span class="sc">0</span></div>
+  </div>
+  <div class="spell-body">
+    <div style="text-align:center">
+      <span class="sp-emoji" id="spEmoji" onclick="spkSpell()">🐱</span>
+      <div class="sp-hint" id="spHint">_ _ _</div>
+    </div>
+    <div style="width:100%;max-width:440px;display:flex;flex-direction:column;align-items:center;gap:.55rem">
+      <div class="sp-slots" id="spSlots"></div>
+      <div class="sp-choices" id="spChoices"></div>
+      <div class="feedback" id="spFeed"></div>
+      <div class="prog-bar"><div class="prog-fill" id="spProg" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div class="screen" id="quiz">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <span class="topbar-title">🎯 Letter Quiz</span>
+    <div class="star-pill">⭐ <span class="sc">0</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="quiz-q" id="quizQ">Which letter starts this word?</div>
+    <span class="quiz-emoji" id="quizEmoji" onclick="spkQuiz()">🍎</span>
+    <div class="quiz-grid" id="quizGrid"></div>
+    <div class="feedback" id="quizFeed"></div>
+  </div>
+</div>
+
+<!-- ══ PROGRESS ══ -->
+<div class="screen" id="progress">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <span class="topbar-title">⭐ My Progress</span>
+    <div class="star-pill">⭐ <span class="sc">0</span></div>
+  </div>
+  <div class="scroll-area">
+    <div class="prog-msg" id="progMsg"></div>
+    <div class="alpha-grid" id="progGrid"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  1. MANIFEST  — injected as a blob so the browser sees it
+//     as a real linked manifest (works on Android Chrome,
+//     partially on iOS — see note below).
+// ═══════════════════════════════════════════════════════════
+(function injectManifest(){
+  // Tiny SVG lion icon encoded as a data URI inside the manifest
+  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="%23FF6B35"/><text x="256" y="340" font-size="260" text-anchor="middle">🦁</text></svg>`;
+  const icon192 = `data:image/svg+xml,${iconSvg}`;
+
+  const manifest = {
+    name: "AlphaLand - Kids Alphabet",
+    short_name: "AlphaLand",
+    description: "Fun alphabet & spelling app for kids aged 3-5",
+    start_url: "./",           // relative so it works from any path
+    display: "standalone",
+    orientation: "any",
+    background_color: "#FFF8F0",
+    theme_color: "#FF6B35",
+    lang: "en",
+    categories: ["education","kids","games"],
+    icons: [
+      { src: icon192, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+      { src: icon192, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+    ],
+    screenshots: [],
+    prefer_related_applications: false
+  };
+
+  const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  const url  = URL.createObjectURL(blob);
+  const link = Object.assign(document.createElement("link"), { rel:"manifest", href: url });
+  document.head.appendChild(link);
+
+  // iOS note: Safari ignores blob-manifest for the install prompt.
+  // The apple-mobile-web-app-* meta tags above handle iOS standalone mode.
+  // Android Chrome fully respects the blob manifest → shows install banner.
+})();
+
+
+// ═══════════════════════════════════════════════════════════
+//  2. SERVICE WORKER  — registered from an inline blob.
+//     Caches: app shell, Pyodide CDN, Google Fonts.
+//     Strategy: Cache-first for CDN assets, Network-first
+//     for the app shell (so updates land on next visit).
+// ═══════════════════════════════════════════════════════════
+(function registerSW(){
+  if (!('serviceWorker' in navigator)) return;
+
+  const SW = `
+const APP   = 'al-app-v2';
+const PY    = 'al-pyodide-v2';
+const FONTS = 'al-fonts-v2';
+const ALL   = [APP, PY, FONTS];
+
+// On install: pre-cache just the page itself
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(APP)
+      .then(c => c.add(self.location.href.replace(/\\/[^/]*$/, '/')))
+      .catch(() => {}) // if root 404s, continue anyway
+  );
+  self.skipWaiting();
+});
+
+// On activate: delete old caches
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => !ALL.includes(k)).map(k => caches.delete(k))
+      ))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  const u = new URL(e.request.url);
+
+  // ── Pyodide / jsdelivr  →  Cache-first (large files, rarely change) ──
+  if (u.hostname.includes('jsdelivr') || u.hostname.includes('pyodide')) {
+    e.respondWith(
+      caches.open(PY).then(async c => {
+        const cached = await c.match(e.request);
+        if (cached) return cached;
+        try {
+          const res = await fetch(e.request);
+          if (res.ok) c.put(e.request, res.clone());
+          return res;
+        } catch { return cached || new Response('', { status: 503 }); }
+      })
+    );
+    return;
+  }
+
+  // ── Google Fonts  →  Cache-first ──
+  if (u.hostname.includes('fonts.g') || u.hostname.includes('fonts.gstatic')) {
+    e.respondWith(
+      caches.open(FONTS).then(async c => {
+        const cached = await c.match(e.request);
+        if (cached) return cached;
+        try {
+          const res = await fetch(e.request);
+          if (res.ok) c.put(e.request, res.clone());
+          return res;
+        } catch { return cached || new Response('', { status: 503 }); }
+      })
+    );
+    return;
+  }
+
+  // ── App shell  →  Network-first, fall back to cache ──
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(APP).then(c => c.put(e.request, clone));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request))
+  );
+});
+`;
+
+  const blob = new Blob([SW], { type: 'application/javascript' });
+  const url  = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url)
+    .then(r => console.log('[SW] registered', r.scope))
+    .catch(e => console.warn('[SW] failed', e));
+})();
+
+
+// ═══════════════════════════════════════════════════════════
+//  3. DATA
+// ═══════════════════════════════════════════════════════════
+const AZ = [
+  {l:'A',w:'Apple',     e:'🍎',c:'#FF6B6B'},
+  {l:'B',w:'Butterfly', e:'🦋',c:'#FFB347'},
+  {l:'C',w:'Cat',       e:'🐱',c:'#FFD700'},
+  {l:'D',w:'Dog',       e:'🐶',c:'#87CEEB'},
+  {l:'E',w:'Elephant',  e:'🐘',c:'#DDA0DD'},
+  {l:'F',w:'Fish',      e:'🐟',c:'#87CEEB'},
+  {l:'G',w:'Giraffe',   e:'🦒',c:'#FFD700'},
+  {l:'H',w:'House',     e:'🏠',c:'#FF8C69'},
+  {l:'I',w:'Ice Cream', e:'🍦',c:'#FFB6C1'},
+  {l:'J',w:'Jellyfish', e:'🪼',c:'#E6E6FA'},
+  {l:'K',w:'Kangaroo',  e:'🦘',c:'#DEB887'},
+  {l:'L',w:'Lion',      e:'🦁',c:'#FFD700'},
+  {l:'M',w:'Monkey',    e:'🐵',c:'#DEB887'},
+  {l:'N',w:'Narwhal',   e:'🦄',c:'#6495ED'},
+  {l:'O',w:'Orange',    e:'🍊',c:'#FF8C00'},
+  {l:'P',w:'Penguin',   e:'🐧',c:'#4169E1'},
+  {l:'Q',w:'Queen',     e:'👑',c:'#FFD700'},
+  {l:'R',w:'Rainbow',   e:'🌈',c:'#FF69B4'},
+  {l:'S',w:'Star',      e:'⭐',c:'#FFD700'},
+  {l:'T',w:'Tiger',     e:'🐯',c:'#FF8C00'},
+  {l:'U',w:'Umbrella',  e:'☂️',c:'#6495ED'},
+  {l:'V',w:'Violin',    e:'🎻',c:'#8B4513'},
+  {l:'W',w:'Whale',     e:'🐳',c:'#4169E1'},
+  {l:'X',w:'Xylophone', e:'🎵',c:'#FF6B6B'},
+  {l:'Y',w:'Yak',       e:'🐂',c:'#8B4513'},
+  {l:'Z',w:'Zebra',     e:'🦓',c:'#696969'},
+];
+
+const WORDS = [
+  {w:'CAT',e:'🐱'},{w:'DOG',e:'🐶'},{w:'SUN',e:'☀️'},{w:'BUS',e:'🚌'},
+  {w:'CUP',e:'☕'},{w:'HEN',e:'🐔'},{w:'PIG',e:'🐷'},{w:'BAT',e:'🦇'},
+  {w:'ANT',e:'🐜'},{w:'BEE',e:'🐝'},{w:'COW',e:'🐄'},{w:'FOX',e:'🦊'},
+  {w:'JAM',e:'🫙'},{w:'NET',e:'🕸️'},{w:'POT',e:'🫕'},{w:'RAT',e:'🐭'},
+  {w:'FROG',e:'🐸'},{w:'DUCK',e:'🦆'},{w:'CAKE',e:'🎂'},{w:'FISH',e:'🐟'},
+  {w:'BEAR',e:'🐻'},{w:'BIRD',e:'🐦'},{w:'BOAT',e:'⛵'},{w:'BELL',e:'🔔'},
+  {w:'CRAB',e:'🦀'},{w:'DEER',e:'🦌'},{w:'GOAT',e:'🐐'},{w:'KITE',e:'🪁'},
+  {w:'LEAF',e:'🍃'},{w:'MOON',e:'🌙'},
+];
+
+
+// ═══════════════════════════════════════════════════════════
+//  4. PYODIDE
+// ═══════════════════════════════════════════════════════════
+let pyReady = false;
+let pyodide  = null;
+
+async function initPy() {
+  try {
+    pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+
+    await pyodide.runPythonAsync(`
+import json, random
+
+class Game:
+    # ── Spelling: correct letters + distractor letters, shuffled ──
+    def spell_choices(self, word):
+        letters  = list(word)
+        pool     = [c for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if c not in letters]
+        extra    = random.sample(pool, min(4, len(pool)))
+        result   = letters + extra
+        random.shuffle(result)
+        return json.dumps(result)
+
+    # ── Quiz: 3 wrong + 1 correct, shuffled ──
+    def quiz_choices(self, answer, all_letters_json):
+        all_letters = json.loads(all_letters_json)
+        wrong  = [l for l in all_letters if l != answer]
+        chosen = random.sample(wrong, min(3, len(wrong)))
+        result = chosen + [answer]
+        random.shuffle(result)
+        return json.dumps(result)
+
+    # ── Motivational star message ──
+    def star_msg(self, n):
+        if   n == 0:  return "Let's start learning! 🌟"
+        elif n <  5:  return f"Great start! {n} stars! Keep going! 🚀"
+        elif n < 15:  return f"You're amazing! {n} stars! ⭐"
+        elif n < 30:  return f"Super smart! {n} stars! 🧠"
+        else:         return f"ALPHABET CHAMPION! {n} stars! 🏆"
+
+game = Game()
+print("✅ AlphaLand Python backend ready")
+`);
+
+    pyReady = true;
+    document.getElementById('pydot').classList.add('ok');
+    document.getElementById('pytext').textContent = 'Python ✓';
+    setTimeout(() => document.getElementById('pystatus').style.opacity = '0', 3000);
+
+  } catch (err) {
+    console.warn('[Pyodide] failed, using JS fallback:', err);
+    document.getElementById('pydot').classList.add('warn');
+    document.getElementById('pytext').textContent = 'JS mode';
+    setTimeout(() => document.getElementById('pystatus').style.opacity = '0', 4000);
+  }
+}
+
+// ── Wrappers with JS fallback ──────────────────────────────
+async function pySpellChoices(word) {
+  if (pyReady) {
+    const r = await pyodide.runPythonAsync(`game.spell_choices("${word}")`);
+    return JSON.parse(r);
+  }
+  // JS fallback
+  const letters = [...word];
+  const pool    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(c => !letters.includes(c));
+  const extra   = pool.sort(() => Math.random() - .5).slice(0, 4);
+  return [...letters, ...extra].sort(() => Math.random() - .5);
+}
+
+async function pyQuizChoices(answer) {
+  const all = AZ.map(a => a.l);
+  if (pyReady) {
+    const r = await pyodide.runPythonAsync(
+      `game.quiz_choices("${answer}", '${JSON.stringify(all)}')`
+    );
+    return JSON.parse(r);
+  }
+  // JS fallback
+  const wrong = all.filter(l => l !== answer).sort(() => Math.random() - .5).slice(0, 3);
+  return [...wrong, answer].sort(() => Math.random() - .5);
+}
+
+async function pyStarMsg(n) {
+  if (pyReady) return await pyodide.runPythonAsync(`game.star_msg(${n})`);
+  if (n === 0)  return "Let's start learning! 🌟";
+  if (n < 5)    return `Great start! ${n} stars! 🚀`;
+  if (n < 15)   return `Amazing! ${n} stars! ⭐`;
+  return `Champion! ${n} stars! 🏆`;
+}
+
+// Load Pyodide script dynamically
+(function loadPyScript() {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+  s.onload  = initPy;
+  s.onerror = () => {
+    document.getElementById('pytext').textContent = 'Offline JS mode';
+    document.getElementById('pydot').classList.add('warn');
+    setTimeout(() => document.getElementById('pystatus').style.opacity = '0', 4000);
+  };
+  document.head.appendChild(s);
+})();
+
+
+// ═══════════════════════════════════════════════════════════
+//  5. APP STATE & UTILITIES
+// ═══════════════════════════════════════════════════════════
+let stars   = +localStorage.getItem('al_stars')  || 0;
+let learned = JSON.parse(localStorage.getItem('al_learned') || '{}');
+let curIdx  = 0;
+let sp = {};   // spell state
+let qz = {};   // quiz state
+
+const save = () => {
+  localStorage.setItem('al_stars',   stars);
+  localStorage.setItem('al_learned', JSON.stringify(learned));
+};
+
+const addStars = n => {
+  stars += n;
+  save();
+  document.querySelectorAll('.sc').forEach(e => e.textContent = stars);
+};
+
+const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+
+const speak = (text, rate = 0.82) => {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate  = rate;
+  u.pitch = 1.2;
+  speechSynthesis.speak(u);
+};
+
+const showToast = (msg, ms = 3500) => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+};
+
+function confetti() {
+  const cols = ['#FF6B35','#4ECDC4','#FFE66D','#A855F7','#22C55E','#F472B6'];
+  const el   = document.getElementById('confetti');
+  for (let i = 0; i < 55; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'cp';
+      const size = 8 + Math.random() * 10;
+      p.style.cssText = `
+        left:${Math.random()*100}%;
+        background:${rand(cols)};
+        width:${size}px; height:${size}px;
+        animation-duration:${1.4 + Math.random() * 1.4}s;
+        animation-delay:${Math.random() * .4}s;
+        border-radius:${Math.random() > .5 ? '50%' : '2px'};
+        transform:rotate(${Math.random()*360}deg)`;
+      el.appendChild(p);
+      setTimeout(() => p.remove(), 3000);
+    }, i * 28);
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  6. INSTALL BANNER
+//     Android Chrome fires beforeinstallprompt when all
+//     PWA criteria pass. We capture it and show our own UI.
+//     iOS doesn't fire this event — users must use
+//     Safari Share → Add to Home Screen manually.
+// ═══════════════════════════════════════════════════════════
+let deferredInstall = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();               // stop browser's default mini-bar
+  deferredInstall = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  hideBanner();
+  showToast('🎉 AlphaLand installed! Find it on your home screen.');
+});
+
+function doInstall() {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.then(r => {
+    if (r.outcome === 'accepted') hideBanner();
+    deferredInstall = null;
+  });
+}
+
+function hideBanner() {
+  document.getElementById('install-banner').style.display = 'none';
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  7. FLOATING BACKGROUND LETTERS
+// ═══════════════════════════════════════════════════════════
+(function buildBg() {
+  const c = document.getElementById('bg-letters');
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => {
+    const d = document.createElement('div');
+    d.className = 'fl';
+    d.textContent = l;
+    d.style.cssText = `
+      left:${Math.random()*95}%;
+      font-size:${2 + Math.random()*3}rem;
+      animation-duration:${15 + Math.random()*18}s;
+      animation-delay:${-Math.random()*18}s`;
+    c.appendChild(d);
+  });
+})();
+
+
+// ═══════════════════════════════════════════════════════════
+//  8. ROUTING
+// ═══════════════════════════════════════════════════════════
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function goHome()     { show('home'); }
+function goLearn()    { buildAlphaGrid(); show('learn'); }
+function goProgress() { buildProgGrid(); show('progress'); }
+
+
+// ═══════════════════════════════════════════════════════════
+//  9. LEARN — alphabet grid
+// ═══════════════════════════════════════════════════════════
+function buildAlphaGrid() {
+  const g = document.getElementById('alphaGrid');
+  g.innerHTML = '';
+  AZ.forEach((d, i) => {
+    const b = document.createElement('button');
+    b.className = 'alpha-card' + (learned[d.l] ? ' done' : '');
+    b.style.background = `linear-gradient(135deg,${d.c}22,${d.c}44)`;
+    b.innerHTML = `
+      <span class="a-letter" style="color:${d.c}">${d.l}</span>
+      <span class="a-word">${d.w}</span>`;
+    b.onclick = () => { curIdx = i; openDetail(); };
+    g.appendChild(b);
+  });
+  document.querySelectorAll('#learn .sc').forEach(e => e.textContent = stars);
+}
+
+function openDetail() {
+  renderDetail();
+  show('detail');
+  setTimeout(() => speak(`${AZ[curIdx].l} is for ${AZ[curIdx].w}!`, .85), 280);
+}
+
+function renderDetail() {
+  const d = AZ[curIdx];
+  document.getElementById('dTitle').textContent   = `Letter ${d.l}`;
+  document.getElementById('bigL').textContent     = d.l;
+  document.getElementById('bigL').style.color     = d.c;
+  document.getElementById('dCases').textContent   = `${d.l}   ${d.l.toLowerCase()}`;
+  document.getElementById('dEmoji').textContent   = d.e;
+  document.getElementById('dWordEl').innerHTML    =
+    `<span class="hl" style="color:${d.c}">${d.l}</span>${d.w.slice(1)}`;
+  document.getElementById('dCounter').textContent = `${curIdx + 1} / 26`;
+  document.getElementById('prevBtn').disabled     = curIdx === 0;
+  document.getElementById('nextBtn').disabled     = curIdx === 25;
+  document.querySelectorAll('#detail .sc').forEach(e => e.textContent = stars);
+}
+
+function spkLetter() { speak(AZ[curIdx].l, .7); }
+function spkWord()   { speak(AZ[curIdx].w); }
+function spkAll() {
+  const d = AZ[curIdx];
+  speak(`${d.l} is for ${d.w}!`, .85);
+  learned[d.l] = true; save(); addStars(1); confetti();
+  buildAlphaGrid();   // refresh stars on cards
+}
+
+function prevL() {
+  if (curIdx > 0) {
+    curIdx--;
+    renderDetail();
+    setTimeout(() => speak(`${AZ[curIdx].l} is for ${AZ[curIdx].w}!`, .85), 220);
+  }
+}
+function nextL() {
+  if (curIdx < 25) {
+    learned[AZ[curIdx].l] = true; save();
+    curIdx++;
+    renderDetail();
+    setTimeout(() => speak(`${AZ[curIdx].l} is for ${AZ[curIdx].w}!`, .85), 220);
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  10. SPELL
+// ═══════════════════════════════════════════════════════════
+async function goSpell() {
+  await nextSpellWord();
+  show('spell');
+}
+
+async function nextSpellWord() {
+  const wd      = rand(WORDS);
+  const choices = await pySpellChoices(wd.w);
+  sp = { wd, filled: Array(wd.w.length).fill(null), choices, used: Array(choices.length).fill(false) };
+
+  document.getElementById('spEmoji').textContent = wd.e;
+  document.getElementById('spHint').textContent  = wd.w.split('').map(() => '_').join(' ');
+  document.getElementById('spFeed').textContent  = '';
+  document.getElementById('spFeed').className    = 'feedback';
+
+  const sl = document.getElementById('spSlots'); sl.innerHTML = '';
+  wd.w.split('').forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'slot'; d.id = `sl${i}`;
+    sl.appendChild(d);
+  });
+
+  const ch = document.getElementById('spChoices'); ch.innerHTML = '';
+  choices.forEach((letter, i) => {
+    const b = document.createElement('button');
+    b.className = 'choice-btn'; b.id = `ch${i}`;
+    b.textContent = letter;
+    b.onclick = () => tapSpell(i, letter);
+    ch.appendChild(b);
+  });
+
+  setTimeout(() => speak(wd.w.toLowerCase(), .8), 380);
+  document.querySelectorAll('#spell .sc').forEach(e => e.textContent = stars);
+}
+
+function tapSpell(ci, letter) {
+  const empty = sp.filled.findIndex(f => f === null);
+  if (empty === -1) return;
+
+  if (letter === sp.wd.w[empty]) {
+    // Correct
+    sp.filled[empty] = letter;
+    sp.used[ci]      = true;
+    const s = document.getElementById(`sl${empty}`);
+    s.textContent = letter;
+    s.classList.add('filled', 'correct');
+    document.getElementById(`ch${ci}`).classList.add('used');
+    speak(letter, 1);
+
+    if (sp.filled.every(f => f !== null)) setTimeout(spellDone, 420);
+  } else {
+    // Wrong
+    const s = document.getElementById(`sl${empty}`);
+    s.classList.add('wrong');
+    speak('Try again!', 1);
+    document.getElementById('spFeed').textContent = 'Try another letter! 🤔';
+    document.getElementById('spFeed').className   = 'feedback no';
+    setTimeout(() => s.classList.remove('wrong'), 480);
+  }
+}
+
+function spellDone() {
+  speak(`You spelled ${sp.wd.w}! Amazing!`, .85);
+  document.getElementById('spFeed').textContent = `🎉 You spelled ${sp.wd.w}!`;
+  document.getElementById('spFeed').className   = 'feedback ok';
+  addStars(2); confetti();
+  setTimeout(nextSpellWord, 2600);
+}
+
+function spkSpell() { if (sp.wd) speak(sp.wd.w.toLowerCase(), .8); }
+
+
+// ═══════════════════════════════════════════════════════════
+//  11. QUIZ
+// ═══════════════════════════════════════════════════════════
+async function goQuiz() {
+  await nextQuizQ();
+  show('quiz');
+}
+
+async function nextQuizQ() {
+  const d       = rand(AZ);
+  const choices = await pyQuizChoices(d.l);
+  qz = { answer: d.l, answered: false };
+
+  document.getElementById('quizQ').textContent     = `Which letter starts "${d.w}"?`;
+  document.getElementById('quizEmoji').textContent = d.e;
+  document.getElementById('quizFeed').textContent  = '';
+  document.getElementById('quizFeed').className    = 'feedback';
+
+  const g = document.getElementById('quizGrid'); g.innerHTML = '';
+  choices.forEach(letter => {
+    const b = document.createElement('button');
+    b.className   = 'quiz-btn';
+    b.textContent = letter;
+    b.onclick     = () => answerQ(b, letter);
+    g.appendChild(b);
+  });
+
+  setTimeout(() => speak(d.w, .8), 280);
+  document.querySelectorAll('#quiz .sc').forEach(e => e.textContent = stars);
+}
+
+function answerQ(btn, letter) {
+  if (qz.answered) return;
+  qz.answered = true;
+
+  if (letter === qz.answer) {
+    btn.classList.add('correct');
+    speak('Correct! Wonderful!', .9);
+    document.getElementById('quizFeed').textContent = '🎉 Correct! Amazing!';
+    document.getElementById('quizFeed').className   = 'feedback ok';
+    addStars(1); confetti();
+    learned[qz.answer] = true; save();
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-btn').forEach(b => {
+      if (b.textContent === qz.answer) b.classList.add('correct');
+    });
+    speak(`The answer is ${qz.answer}!`, .85);
+    document.getElementById('quizFeed').textContent = `It was ${qz.answer}! Keep trying! 💪`;
+    document.getElementById('quizFeed').className   = 'feedback no';
+  }
+
+  setTimeout(nextQuizQ, 2600);
+}
+
+function spkQuiz() {
+  const d = AZ.find(a => a.l === qz.answer);
+  if (d) speak(d.w, .8);
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  12. PROGRESS
+// ═══════════════════════════════════════════════════════════
+async function goProgress() {
+  const g    = document.getElementById('progGrid');
+  g.innerHTML = '';
+
+  const keys = Object.keys(learned).filter(k => learned[k]);
+  document.getElementById('progMsg').textContent = await pyStarMsg(stars);
+
+  if (!keys.length) {
+    document.getElementById('progMsg').textContent = "Go learn some letters first! 🦁";
+  } else {
+    keys.forEach(letter => {
+      const d = AZ.find(a => a.l === letter);
+      if (!d) return;
+      const c = document.createElement('button');
+      c.className = 'alpha-card';
+      c.style.background = `linear-gradient(135deg,${d.c}33,${d.c}66)`;
+      c.innerHTML = `<span class="a-letter">${d.e}</span><span class="a-word">${d.l}</span>`;
+      c.onclick = () => speak(`${d.l} is for ${d.w}!`, .85);
+      g.appendChild(c);
+    });
+  }
+
+  document.querySelectorAll('#progress .sc').forEach(e => e.textContent = stars);
+  show('progress');
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  13. ONLINE / OFFLINE
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('offline', () => showToast('📴 Playing offline! 🦁'));
+window.addEventListener('online',  () => showToast('✅ Back online!'));
+
+// Init star display
+document.querySelectorAll('.sc').forEach(e => e.textContent = stars);
+</script>
+</body>
+</html>

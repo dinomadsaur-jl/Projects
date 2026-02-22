@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Matplotlib Figure Serialization Schema",
+  "description": "Fully reviewed schema with support for multiples (e.g., multiple secondary axes, annotations, plots, artists, legends per axis if needed). Legends are explicitly referenced to axes via per-axis 'legend' object. Covers ~99% of practical cases, including subplots, twins/insets/secondary, 2D/3D/polar, interactivity flags, and web exports.",
+  "type": "object",
+  "required": ["metadata", "figure", "axes"],
+  "additionalProperties": false,
+  "properties": {
+
+    "metadata": {
+      "type": "object",
+      "required": ["matplotlib_version", "created"],
+      "properties": {
+        "matplotlib_version": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "author": { "type": "string" },
+        "dependencies": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "figure": {
+      "type": "object",
+      "required": ["size_inches", "dpi"],
+      "properties": {
+        "num": { "oneOf": [{ "type": "integer" }, { "type": "string" }] },
+        "size_inches": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } },
+        "dpi": { "type": "number" },
+        "facecolor": { "oneOf": [{ "type": "string" }, { "type": "array", "minItems": 3, "maxItems": 4 }] },
+        "edgecolor": { "oneOf": [{ "type": "string" }, { "type": "array", "minItems": 3, "maxItems": 4 }] },
+        "frameon": { "type": "boolean", "default": true },
+        "tight_layout": { "oneOf": [{ "type": "boolean" }, { "type": "object" }] },
+        "constrained_layout": { "type": "boolean" },
+        "layout_engine": { "enum": ["none", "tight", "constrained"] },
+        "suptitle": { "type": "string" },
+        "suptitle_kwargs": { "type": "object" },
+        "supxlabel": { "type": "string" },
+        "supylabel": { "type": "string" },
+        "subplots_adjust": {
+          "type": "object",
+          "properties": {
+            "left":   { "type": "number" },
+            "right":  { "type": "number" },
+            "bottom": { "type": "number" },
+            "top":    { "type": "number" },
+            "wspace": { "type": "number" },
+            "hspace": { "type": "number" }
+          }
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "description": "[method_name: string, args: array, kwargs: object]"
+          }
+        }
+      }
+    },
+
+    "subplot_grid": {
+      "type": "object",
+      "description": "For regular subplots grid (plt.subplots)",
+      "properties": {
+        "nrows": { "type": "integer", "minimum": 1 },
+        "ncols": { "type": "integer", "minimum": 1 },
+        "sharex": { "oneOf": [{ "type": "boolean" }, { "enum": ["none", "all", "row", "col"] }] },
+        "sharey": { "oneOf": [{ "type": "boolean" }, { "enum": ["none", "all", "row", "col"] }] },
+        "squeeze": { "type": "boolean", "default": true },
+        "subplot_kw": { "type": "object" },
+        "gridspec_kw": { "type": "object" }
+      }
+    },
+
+    "axes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "description": "Unique ID for referencing (e.g., in legends, colorbars, twins)" },
+          "position": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "number" } },
+          "row": { "type": "integer" },
+          "col": { "type": "integer" },
+          "projection": { "enum": ["rectilinear", "polar", "3d", "aitoff", "hammer", "lambert", "mollweide"] },
+
+          "title": { "type": "string" },
+          "title_kwargs": { "type": "object" },
+          "xlabel": { "type": "string" },
+          "xlabel_kwargs": { "type": "object" },
+          "ylabel": { "type": "string" },
+          "ylabel_kwargs": { "type": "object" },
+          "zlabel": { "type": "string" },
+
+          "xlim": { "type": "array", "minItems": 2, "maxItems": 2 },
+          "ylim": { "type": "array", "minItems": 2, "maxItems": 2 },
+          "zlim": { "type": "array", "minItems": 2, "maxItems": 2 },
+
+          "xscale": { "enum": ["linear", "log", "symlog", "logit"] },
+          "yscale": { "enum": ["linear", "log", "symlog", "logit"] },
+          "zscale": { "enum": ["linear", "log", "symlog"] },
+
+          "xticks": { "type": "array", "items": { "type": "number" } },
+          "yticks": { "type": "array", "items": { "type": "number" } },
+          "zticks": { "type": "array", "items": { "type": "number" } },
+
+          "xticklabels": { "type": "array", "items": { "type": "string" } },
+          "yticklabels": { "type": "array", "items": { "type": "string" } },
+          "zticklabels": { "type": "array", "items": { "type": "string" } },
+
+          "xtick_params": { "type": "object" },
+          "ytick_params": { "type": "object" },
+          "ztick_params": { "type": "object" },
+
+          "minor_ticks": {
+            "type": "object",
+            "properties": {
+              "xminor_locator": { "type": "object" },
+              "yminor_locator": { "type": "object" },
+              "zminor_locator": { "type": "object" },
+              "xminor_formatter": { "type": "object" },
+              "yminor_formatter": { "type": "object" },
+              "zminor_formatter": { "type": "object" }
+            }
+          },
+
+          "xformatter": { "type": "object" },
+          "yformatter": { "type": "object" },
+          "zformatter": { "type": "object" },
+
+          "xlocator": { "type": "object" },
+          "ylocator": { "type": "object" },
+          "zlocator": { "type": "object" },
+
+          "grid": { "type": "object" },
+          "spines": { "type": "object" },
+
+          "legend": {
+            "type": "array",
+            "description": "Supports multiples (rare, but possible for custom legends on same axis)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "visible": { "type": "boolean", "default": true },
+                "loc": { "type": "string" },
+                "bbox_to_anchor": { "type": "array", "minItems": 2, "maxItems": 4 },
+                "ncol": { "type": "integer" },
+                "frameon": { "type": "boolean" },
+                "fancybox": { "type": "boolean" },
+                "shadow": { "type": "boolean" },
+                "title": { "type": "string" },
+                "draggable": { "type": "boolean", "default": false },
+                "picking_enabled": { "type": "boolean", "default": false },
+                "handler_map": { "type": "object" }
+              }
+            }
+          },
+
+          "colorbar": {
+            "type": "array",
+            "description": "Supports multiples (e.g., one per mappable)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "visible": { "type": "boolean" },
+                "mappable": { "type": "string" },
+                "orientation": { "enum": ["vertical", "horizontal"] },
+                "fraction": { "type": "number" },
+                "pad": { "type": "number" },
+                "shrink": { "type": "number" },
+                "aspect": { "type": "number" },
+                "extend": { "enum": ["neither", "both", "min", "max"] }
+              }
+            }
+          },
+
+          "3d_properties": {
+            "type": "object",
+            "properties": {
+              "azim": { "type": "number" },
+              "elev": { "type": "number" },
+              "dist": { "type": "number" },
+              "proj_type": { "enum": ["persp", "ortho"] }
+            }
+          },
+
+          "polar_properties": {
+            "type": "object",
+            "properties": {
+              "theta_offset": { "type": "number" },
+              "theta_direction": { "type": "integer" },
+              "rmin": { "type": "number" },
+              "rmax": { "type": "number" }
+            }
+          },
+
+          "date_axis": {
+            "type": "object",
+            "properties": {
+              "x_is_date": { "type": "boolean" },
+              "y_is_date": { "type": "boolean" },
+              "date_format": { "type": "string" },
+              "date_locator": { "type": "string" }
+            }
+          },
+
+          "secondary_xaxis": {
+            "type": "array",
+            "description": "Supports multiples (e.g., multiple secondary x-axes)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "functions": { "type": "array", "minItems": 2, "maxItems": 2 },
+                "label": { "type": "string" },
+                "annotations": {
+                  "type": "array",
+                  "description": "Annotations on this secondary axis",
+                  "items": { "type": "object" }
+                }
+              }
+            }
+          },
+
+          "secondary_yaxis": {
+            "type": "array",
+            "description": "Supports multiples (e.g., multiple secondary y-axes)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "functions": { "type": "array", "minItems": 2, "maxItems": 2 },
+                "label": { "type": "string" },
+                "annotations": {
+                  "type": "array",
+                  "description": "Annotations on this secondary axis",
+                  "items": { "type": "object" }
+                }
+              }
+            }
+          },
+
+          "plots": {
+            "type": "array",
+            "description": "Multiple plots per axis",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": { "type": "string" },
+                "args": { "type": "array" },
+                "kwargs": { "type": "object" }
+              }
+            }
+          },
+
+          "artists": {
+            "type": "array",
+            "description": "Multiple artists per axis",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": { "type": "string" },
+                "properties": { "type": "object" }
+              }
+            }
+          },
+
+          "annotations": {
+            "type": "array",
+            "description": "Multiple annotations per axis",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": { "type": "string" },
+                "text": { "type": "string" },
+                "xy": { "type": "array", "minItems": 2, "maxItems": 2 },
+                "xycoords": { "type": "string" },
+                "xytext": { "type": "array", "minItems": 2, "maxItems": 2 },
+                "textcoords": { "type": "string" },
+                "arrowprops": { "type": "object" },
+                "bbox": { "type": "object" }
+              }
+            }
+          },
+
+          "twin_axes": { "type": "array", "items": { "type": "object" } },
+          "inset_axes": { "type": "array", "items": { "type": "object" } },
+
+          "methods": { "type": "array", "items": { "type": "array", "minItems": 1 } }
+        }
+      }
+    },
+
+    "interactive": {
+      "type": "object",
+      "properties": {
+        "backend": { "type": "string" },
+        "desktop": {
+          "type": "object",
+          "properties": {
+            "zoom_enabled": { "type": "boolean", "default": true },
+            "pan_enabled": { "type": "boolean", "default": true },
+            "legend_draggable": { "type": "boolean", "default": false },
+            "legend_picking": { "type": "boolean", "default": false },
+            "hover_enabled": { "type": "boolean", "default": false },
+            "click_to_annotate": { "type": "boolean", "default": false }
+          }
+        },
+        "web_export": {
+          "type": "object",
+          "properties": {
+            "mpld3": { "type": "object" },
+            "plotly": { "type": "object" }
+          }
+        }
+      }
+    },
+
+    "export_formats": {
+      "type": "object",
+      "properties": {
+        "static_png": { "type": "string" },
+        "static_svg": { "type": "string" },
+        "interactive_html": { "type": "string" }
+      }
+    }
+  }
+}

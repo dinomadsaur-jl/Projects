@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>WeDo 2.0 - Scratch Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#1a1a2e;--ink2:#4a4a6a;--bg:#f0eeff;--white:#fff;
+  --motor:#4caf50;--sensor:#ff9800;--control:#ffeb3b;--hub:#f44336;--drive:#2196f3;
+  --run:#4caf50;--stop:#f44336;--accent:#673ab7;
+  --dark:#1e1b30;--dark2:#2d2a40;--dborder:rgba(255,255,255,0.1);
+  --r:16px;--hdr:56px;--tb:52px;--sr:32px;
+}
+html,body{height:100%;overflow:hidden;background:var(--dark)}
+body{
+  font-family:'Nunito',sans-serif;
+  display:flex;flex-direction:column;
+  height:100dvh;width:100%;position:fixed;top:0;left:0;
+}
+
+/* ── HEADER ─────────────────────────────────────────── */
+#hdr{
+  height:var(--hdr);min-height:var(--hdr);flex-shrink:0;
+  background:var(--dark);border-bottom:1px solid var(--dborder);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;gap:12px;z-index:100;
+}
+.logo{
+  font-family:'Fredoka One',cursive;
+  font-size:1.5rem;
+  background:linear-gradient(135deg,#fff,#a5b4fc);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.pill{
+  display:flex;align-items:center;gap:6px;padding:6px 14px;
+  background:rgba(255,255,255,0.05);border-radius:30px;
+  border:1px solid var(--dborder);font-size:.75rem;font-weight:700;color:#aaa;
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#f44336}
+.dot.on{background:#4caf50;box-shadow:0 0 10px #4caf50}
+.hbtn{
+  border:none;background:rgba(255,255,255,0.05);color:#fff;
+  padding:6px 16px;border-radius:30px;cursor:pointer;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;
+  border:1px solid var(--dborder);transition:.15s;
+}
+.hbtn:active{transform:scale(.94);background:rgba(255,255,255,.1)}
+.hbtn.connected{background:var(--run);border-color:transparent}
+.hbtn.drive-active{background:var(--drive);border-color:transparent}
+
+/* ── TOOLBAR (SCRATCH STYLE) ────────────────────────── */
+#tb{
+  height:var(--tb);min-height:var(--tb);flex-shrink:0;
+  background:var(--dark2);border-bottom:1px solid var(--dborder);
+  display:flex;align-items:center;padding:0 12px;gap:8px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.tbb{
+  flex-shrink:0;height:36px;padding:0 20px;border:none;border-radius:30px;
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;
+  cursor:pointer;transition:.12s;white-space:nowrap;
+}
+.tbb:active{transform:scale(.94)}
+.tb-run{background:var(--run);color:#fff}
+.tb-stop{background:var(--stop);color:#fff}
+.tb-clear{background:rgba(255,255,255,.08);color:#fff}
+.tb-sec{background:rgba(255,255,255,.05);color:#aaa}
+
+/* ── SENSOR ROW (SCRATCH STYLE) ─────────────────────── */
+#sr{
+  height:var(--sr);min-height:var(--sr);flex-shrink:0;
+  background:rgba(0,0,0,0.3);border-bottom:1px solid var(--dborder);
+  display:flex;align-items:center;padding:0 12px;gap:16px;
+  overflow-x:auto;
+}
+.sc{
+  display:flex;align-items:center;gap:6px;
+  font-size:.75rem;font-weight:700;color:#aaa;
+  background:rgba(255,255,255,.03);padding:4px 14px;border-radius:30px;
+}
+.sc b{color:var(--sensor);font-size:.9rem}
+
+/* ── MAIN LAYOUT ────────────────────────────────────── */
+#app{flex:1;display:flex;overflow:hidden;background:var(--bg)}
+
+/* ── PROGRAM AREA (SCRATCH STAGE) ───────────────────── */
+#pw{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#f5f5f9}
+#pc{flex:1;overflow-y:auto;padding:16px}
+#pl{display:flex;flex-direction:column;gap:10px}
+
+/* Empty state */
+.emp{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 20px;gap:12px;
+  background:white;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,.04);
+}
+.emp-i{font-size:4rem;animation:bob 2s infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.emp h3{font-family:'Fredoka One',cursive;color:var(--accent)}
+.emp p{color:#666;font-weight:600}
+
+/* ── PROGRAM BLOCKS (SCRATCH STYLE) ─────────────────── */
+.pb{
+  background:white;border-radius:var(--r);padding:14px 16px;
+  border-left:6px solid;box-shadow:0 3px 10px rgba(0,0,0,.05);
+  animation:slideIn .2s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}}
+.pb.run{outline:3px solid #ffb74d;box-shadow:0 0 15px #ffb74d}
+.pb-motor{border-color:var(--motor)}
+.pb-sensor{border-color:var(--sensor)}
+.pb-control{border-color:var(--control)}
+.pb-hub{border-color:var(--hub)}
+.pb-drive{border-color:var(--drive)}
+
+.ph{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+}
+.pt{font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:6px}
+.pa{display:flex;gap:4px}
+.ab{
+  width:32px;height:32px;border:none;border-radius:8px;
+  background:#f0f0f8;cursor:pointer;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.ab:active{transform:scale(.9)}
+.ab.dl{background:#fee8e8;color:var(--stop)}
+
+.pp{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+  padding-top:5px;border-top:1px solid #eee;
+}
+.pp select,.pp input{
+  height:36px;padding:0 10px;border:2px solid #e0e0f0;
+  border-radius:10px;font-weight:600;font-size:.85rem;
+}
+.pp label{font-size:.75rem;font-weight:700;color:#666}
+
+.sr2{display:flex;align-items:center;gap:10px;flex:1;min-width:140px}
+.sl{
+  flex:1;height:6px;border-radius:3px;
+  -webkit-appearance:none;background:#e0e0f0;
+}
+.sl::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:var(--motor);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+.sv{font-weight:800;min-width:35px;color:var(--motor)}
+
+/* ── SIDEBAR (LANDSCAPE) ────────────────────────────── */
+#sb{
+  width:70px;flex-shrink:0;background:var(--dark);
+  border-right:1px solid var(--dborder);
+  display:none;flex-direction:column;transition:width .2s;
+}
+#sb.exp{width:230px}
+#sb-tog{
+  height:40px;border:none;background:rgba(255,255,255,.03);
+  color:#666;cursor:pointer;border-bottom:1px solid var(--dborder);
+}
+#sb-cats{padding:10px 5px;display:flex;flex-direction:column;gap:4px}
+.sbc{
+  height:48px;border:none;border-radius:10px;
+  background:rgba(255,255,255,.03);cursor:pointer;
+  display:flex;align-items:center;gap:10px;padding:0 12px;
+  color:#888;font-weight:600;white-space:nowrap;
+}
+.sbc .ci{font-size:1.2rem;width:28px}
+.sbc .cl{opacity:0;transition:.2s}
+#sb.exp .sbc .cl{opacity:1}
+.sbc.act{color:#fff}
+.sbc[data-c=motor].act{background:var(--motor)}
+.sbc[data-c=sensor].act{background:var(--sensor)}
+.sbc[data-c=control].act{background:var(--control)}
+.sbc[data-c=hub].act{background:var(--hub)}
+.sbc[data-c=drive].act{background:var(--drive)}
+
+#sb-grid{
+  flex:1;overflow-y:auto;padding:10px 5px;
+  display:grid;gap:4px;grid-template-columns:1fr;
+}
+#sb.exp #sb-grid{grid-template-columns:1fr 1fr}
+
+/* ── BOTTOM DRAWER (PORTRAIT) ───────────────────────── */
+#drw{
+  position:absolute;bottom:0;left:0;right:0;z-index:50;
+  background:var(--dark);border-radius:25px 25px 0 0;
+  box-shadow:0 -4px 20px rgba(0,0,0,.5);
+  transform:translateY(calc(100% - 90px));
+  transition:transform .3s;max-height:70vh;
+}
+#drw.open{transform:translateY(0)}
+#drw-handle{
+  padding:12px 15px 8px;display:flex;flex-direction:column;
+  align-items:center;gap:8px;cursor:pointer;
+}
+.hbar{width:45px;height:4px;background:rgba(255,255,255,.2);border-radius:3px}
+#drw-cats{
+  display:flex;gap:8px;padding:0 15px 12px;overflow-x:auto;
+}
+.dcat{
+  flex-shrink:0;padding:6px 16px;border-radius:25px;border:none;
+  font-weight:800;font-size:.75rem;background:rgba(255,255,255,.06);
+  color:#888;cursor:pointer;display:flex;align-items:center;gap:4px;
+}
+.dcat.act{color:#fff}
+.dcat[data-c=motor].act{background:var(--motor)}
+.dcat[data-c=sensor].act{background:var(--sensor)}
+.dcat[data-c=control].act{background:var(--control)}
+.dcat[data-c=hub].act{background:var(--hub)}
+.dcat[data-c=drive].act{background:var(--drive)}
+.drw-hint{color:rgba(255,255,255,.2);font-size:.7rem}
+
+#drw-grid{
+  padding:5px 12px 18px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+}
+
+/* ── BLOCK CARDS ────────────────────────────────────── */
+.bc{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:10px 4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  text-align:center;transition:.1s;
+}
+.bc:active{transform:scale(.9);background:rgba(255,255,255,.1)}
+.bc .bi{font-size:1.4rem}
+.bc .bl{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.7)}
+#sb:not(.exp) .bc .bl{display:none}
+#sb:not(.exp) .bc{height:52px;justify-content:center}
+
+/* ── DRIVE PANEL ────────────────────────────────────── */
+#drive{
+  display:none;flex:1;flex-direction:column;overflow:hidden;background:var(--dark)
+}
+#drive.on{display:flex}
+.drive-hd{
+  background:linear-gradient(135deg,#1976d2,#2196f3);
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+}
+.drive-hd h2{font-family:'Fredoka One',cursive;color:#fff}
+.drive-hd .sub{color:rgba(255,255,255,.8);font-size:.7rem}
+
+/* Drive mode selector */
+.drive-mode-selector {
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(0,0,0,0.2);
+}
+.drive-mode-btn {
+  flex: 1;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: .1s;
+}
+.drive-mode-btn.active {
+  background: var(--drive);
+  color: white;
+}
+
+.drive-body{
+  flex:1;overflow-y:auto;padding:20px;display:flex;
+  flex-direction:column;align-items:center;gap:20px;
+}
+.drive-stats{
+  display:flex;gap:10px;width:100%;max-width:400px
+}
+.ds{
+  flex:1;background:rgba(255,255,255,.06);border-radius:14px;
+  padding:12px;text-align:center
+}
+.ds-v{
+  font-family:'Fredoka One',cursive;font-size:1.6rem;color:var(--drive)
+}
+.ds-l{font-size:.65rem;color:#aaa;font-weight:700}
+
+.dpad{
+  display:grid;grid-template-columns:repeat(3,70px);
+  grid-template-rows:repeat(3,70px);gap:8px
+}
+.dp{
+  border:none;border-radius:18px;font-size:1.6rem;
+  cursor:pointer;background:rgba(255,255,255,.1);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.dp:active{transform:scale(.9)}
+.dp-f{grid-column:2;grid-row:1;background:var(--drive)}
+.dp-b{grid-column:2;grid-row:3;background:#ff9800}
+.dp-s{grid-column:2;grid-row:2;background:#f44336;font-size:1rem}
+.speed-ctrl{
+  display:flex;flex-direction:column;align-items:center;gap:8px
+}
+.speed-val{
+  background:rgba(33,150,243,.1);border:2px solid var(--drive);
+  border-radius:12px;padding:8px 18px;font-family:'Fredoka One',cursive;
+  font-size:1.2rem;color:var(--drive)
+}
+.speed-btn{
+  width:50px;height:40px;border:none;border-radius:10px;
+  background:rgba(255,255,255,.1);color:#fff;font-size:1.3rem;
+  cursor:pointer
+}
+.drive-tip{
+  color:#aaa;font-size:.7rem;text-align:center;max-width:300px
+}
+
+/* ── MODAL ──────────────────────────────────────────── */
+#modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);align-items:center;justify-content:center}
+#modal.on{display:flex}
+.mb{
+  background:#fff;border-radius:25px;width:90%;max-width:340px;
+  padding:25px;animation:pop .2s
+}
+@keyframes pop{from{transform:scale(.9)}}
+#devL{display:flex;flex-direction:column;gap:8px;margin:15px 0;max-height:200px;overflow-y:auto}
+.di{
+  padding:12px 15px;border:2px solid #eee;border-radius:12px;
+  cursor:pointer;display:flex;align-items:center;gap:10px
+}
+.di:active{border-color:var(--accent);background:#f5f5ff}
+.mcan{
+  width:100%;height:40px;border:2px solid #eee;border-radius:10px;
+  background:#fff;font-weight:800;cursor:pointer
+}
+
+/* ── TOAST ──────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+  background:#1a1a2e;color:#fff;padding:10px 22px;border-radius:30px;
+  font-weight:700;z-index:300;animation:slideUp .2s;
+}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}}
+
+@media (orientation:landscape),(min-width:640px){#drw{display:none}#sb{display:flex}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="logo">🤖 WeDo 2.0</div>
+  <div class="hdr-r">
+    <div class="pill"><div class="dot" id="dot"></div><span id="ct">Offline</span></div>
+    <button class="hbtn" id="connBtn">Connect</button>
+    <button class="hbtn" id="driveBtn">🛴 Drive</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div id="tb">
+  <button class="tbb tb-run" id="runBtn">▶ Run</button>
+  <button class="tbb tb-stop" id="stopBtn">⏹ Stop</button>
+  <button class="tbb tb-clear" id="clearBtn">🗑 Clear</button>
+  <button class="tbb tb-sec" id="saveBtn">💾 Save</button>
+  <button class="tbb tb-sec" id="loadBtn">📂 Load</button>
+</div>
+
+<!-- SENSOR ROW -->
+<div id="sr">
+  <div class="sc">📡 Motion <b id="motionVal">---</b></div>
+  <div class="sc">📳 Tilt <b id="tiltVal">---</b></div>
+  <div class="sc">⚙️ Motor <b id="motorStatus">OFF</b></div>
+  <div class="sc">🔋 Battery <b id="batteryVal">---</b></div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+
+  <!-- SIDEBAR (LANDSCAPE) -->
+  <div id="sb">
+    <button id="sb-tog">⇄</button>
+    <div id="sb-cats">
+      <button class="sbc act" data-c="motor"><span class="ci">⚙️</span><span class="cl">Motor</span></button>
+      <button class="sbc" data-c="sensor"><span class="ci">📡</span><span class="cl">Sensor</span></button>
+      <button class="sbc" data-c="control"><span class="ci">🔁</span><span class="cl">Control</span></button>
+      <button class="sbc" data-c="hub"><span class="ci">💡</span><span class="cl">Hub</span></button>
+      <button class="sbc" data-c="drive"><span class="ci">🛴</span><span class="cl">Drive</span></button>
+    </div>
+    <div id="sb-grid"></div>
+  </div>
+
+  <!-- PROGRAM AREA -->
+  <div id="pw">
+    <div id="pc"><div id="pl">
+      <div class="emp"><div class="emp-i">🧩</div><h3>Build Your Program</h3><p>Tap blocks from the library to start</p></div>
+    </div></div>
+  </div>
+
+  <!-- DRIVE PANEL -->
+  <div id="drive">
+    <div class="drive-hd">
+      <div><h2>Drive Control</h2><div class="sub">Hold buttons to drive</div></div>
+      <div id="driveStatus" style="color:rgba(255,255,255,.5)">Not connected</div>
+    </div>
+    
+    <!-- Drive Mode Selector -->
+    <div class="drive-mode-selector">
+      <button class="drive-mode-btn active" data-drive="regular">🚗 Regular Car</button>
+      <button class="drive-mode-btn" data-drive="segway">🛴 Segway</button>
+    </div>
+    
+    <div class="drive-body">
+      <div class="drive-stats">
+        <div class="ds"><div class="ds-v" id="speedDisplay">0</div><div class="ds-l">Speed</div></div>
+        <div class="ds"><div class="ds-v" id="tiltDisplay">0°</div><div class="ds-l">Tilt</div></div>
+        <div class="ds"><div class="ds-v" id="dirDisplay">—</div><div class="ds-l">Direction</div></div>
+      </div>
+      
+      <div class="dpad">
+        <button class="dp dp-f" id="btnF">⬆️</button>
+        <button class="dp dp-l" id="btnL">⬅️</button>
+        <button class="dp dp-s" id="btnS">⏹</button>
+        <button class="dp dp-r" id="btnR">➡️</button>
+        <button class="dp dp-b" id="btnB">⬇️</button>
+      </div>
+      
+      <div class="speed-ctrl">
+        <div style="color:#aaa;font-size:.7rem">SPEED</div>
+        <button class="speed-btn" id="speedUp">+</button>
+        <div class="speed-val" id="speedValue">50%</div>
+        <button class="speed-btn" id="speedDown">-</button>
+      </div>
+      
+      <div class="drive-tip">
+        <span id="driveModeHint">🚗 Regular: Tank controls (both motors same)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM DRAWER (PORTRAIT) -->
+  <div id="drw">
+    <div id="drw-handle">
+      <div class="hbar"></div>
+      <div id="drw-cats">
+        <div class="drw-hint">↑ Swipe up</div>
+        <button class="dcat act" data-c="motor">⚙️ Motor</button>
+        <button class="dcat" data-c="sensor">📡 Sensor</button>
+        <button class="dcat" data-c="control">🔁 Control</button>
+        <button class="dcat" data-c="hub">💡 Hub</button>
+        <button class="dcat" data-c="drive">🛴 Drive</button>
+      </div>
+    </div>
+    <div id="drw-grid"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="mb">
+    <h3>Connect WeDo 2.0</h3>
+    <p>Make sure your hub is turned on</p>
+    <div id="deviceList"></div>
+    <button class="mcan" id="cancelBtn">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// ═══ WEDO 2.0 - SCRATCH COMPATIBLE ════════════════════════════
+// ════════════════════════════════════════════════════════════════
+
+// ================================================================
+// ✅ CORRECT WEDO 2.0 UUIDs (from LEGO firmware)
+// ================================================================
+const WEDO_SERVICE = '00001523-1212-efde-1523-785feabcd123';
+const WEDO_MOTOR = '00001525-1212-efde-1523-785feabcd123';
+const WEDO_SENSOR = '00001526-1212-efde-1523-785feabcd123';
+const WEDO_LED = '00001527-1212-efde-1523-785feabcd123';
+
+// ================================================================
+// ✅ LED COLORS (Scratch uses these exact colors)
+// ================================================================
+const LED_COLORS = {
+  off: 0,
+  pink: 1,
+  purple: 2,
+  blue: 3,      // Default
+  lightblue: 4,
+  cyan: 5,
+  green: 6,
+  yellow: 7,
+  orange: 8,
+  red: 9,
+  white: 10
+};
+
+// ================================================================
+// ✅ TILT SENSOR (Scratch values)
+// ================================================================
+const TILT_VALUES = {
+  0: 'level',
+  1: 'up',
+  2: 'down',
+  3: 'left',
+  4: 'right'
+};
+
+const TILT_DISPLAY = {
+  0: 'Level',
+  1: 'Up',
+  2: 'Down',
+  3: 'Left',
+  4: 'Right'
+};
+
+// ================================================================
+// ✅ BLOCKS (Scratch-style)
+// ================================================================
+const BLOCKS = [
+  // Motor blocks
+  {id:'motor-on',   cat:'motor',  em:'▶️', name:'turn motor ON',      params:{port:'A', power:75}},
+  {id:'motor-off',  cat:'motor',  em:'⏹️', name:'turn motor OFF',     params:{port:'A'}},
+  {id:'motor-power',cat:'motor',  em:'⚡', name:'set motor power',    params:{port:'A', power:50}},
+  {id:'motor-timer',cat:'motor',  em:'⏱️', name:'run motor for secs', params:{port:'A', sec:2, power:75}},
+  
+  // LED blocks (simple - like Scratch)
+  {id:'led-set',    cat:'hub',    em:'💡', name:'set LED color',      params:{color:'blue'}},
+  {id:'led-blink',  cat:'hub',    em:'✨', name:'blink LED',          params:{color:'blue', times:3}},
+  
+  // Sound blocks (simple beep - like Scratch)
+  {id:'sound-beep', cat:'hub',    em:'🔊', name:'play beep',          params:{}},
+  {id:'sound-tada', cat:'hub',    em:'🎵', name:'play tada',          params:{}},
+  
+  // Sensor blocks
+  {id:'tilt-read',  cat:'sensor', em:'📳', name:'tilt direction',     params:{}},
+  {id:'tilt-wait',  cat:'sensor', em:'⏳', name:'wait for tilt',      params:{dir:'any'}},
+  {id:'motion-read',cat:'sensor', em:'👀', name:'distance',           params:{}},
+  {id:'motion-wait',cat:'sensor', em:'⌛', name:'wait for motion',    params:{thresh:5}},
+  
+  // Control blocks
+  {id:'wait',       cat:'control',em:'⏸️', name:'wait',               params:{sec:1}},
+  {id:'loop',       cat:'control',em:'🔁', name:'repeat',             params:{times:3}},
+  
+  // Drive blocks
+  {id:'drive-fwd',  cat:'drive',  em:'⬆️', name:'drive forward',      params:{speed:50}},
+  {id:'drive-rev',  cat:'drive',  em:'⬇️', name:'drive reverse',      params:{speed:50}},
+  {id:'turn-left',  cat:'drive',  em:'⬅️', name:'turn left',          params:{speed:50}},
+  {id:'turn-right', cat:'drive',  em:'➡️', name:'turn right',         params:{speed:50}},
+  {id:'stop',       cat:'drive',  em:'🛑', name:'stop',               params:{}}
+];
+
+const CAT_COLORS = {
+  motor: '#4caf50',
+  sensor: '#ff9800',
+  control: '#ffeb3b',
+  hub: '#f44336',
+  drive: '#2196f3'
+};
+
+// ================================================================
+// ✅ STATE
+// ================================================================
+let program = [];
+let running = false;
+let connected = false;
+let driveModeActive = false;
+let currentDriveMode = 'regular'; // 'regular' or 'segway'
+
+let device = null;
+let server = null;
+let service = null;
+let motorChar = null;
+let sensorChar = null;
+let ledChar = null;
+
+let sensorData = { motion: 10, tilt: 0 };
+let driveSpeed = 50;
+let currentDir = null;
+let driveInterval = null;
+let sensorInterval = null;
+
+let activeCategory = 'motor';
+let drawerOpen = false;
+let sidebarExpanded = false;
+
+// ================================================================
+// ✅ UI RENDERING
+// ================================================================
+function renderCategory(cat) {
+  const grids = ['drw-grid', 'sb-grid'];
+  grids.forEach(id => {
+    const grid = document.getElementById(id);
+    if (!grid) return;
+    grid.innerHTML = '';
+    BLOCKS.filter(b => b.cat === cat).forEach(block => {
+      const card = document.createElement('div');
+      card.className = 'bc';
+      card.dataset.cat = block.cat;
+      card.innerHTML = `<div class="bi">${block.em}</div><div class="bl">${block.name}</div>`;
+      card.addEventListener('click', () => addBlock(block.id));
+      grid.appendChild(card);
+    });
+  });
+}
+
+function addBlock(id) {
+  const block = BLOCKS.find(b => b.id === id);
+  if (!block) return;
+  
+  program.push({
+    uid: Date.now() + Math.random(),
+    id: block.id,
+    cat: block.cat,
+    em: block.em,
+    name: block.name,
+    params: JSON.parse(JSON.stringify(block.params))
+  });
+  
+  renderProgram();
+  toast(`➕ ${block.name}`);
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+function renderProgram() {
+  const container = document.getElementById('pl');
+  if (!program.length) {
+    container.innerHTML = `<div class="emp"><div class="emp-i">🧩</div><h3>Build Your Program</h3><p>Tap blocks from the library to start</p></div>`;
+    return;
+  }
+  
+  container.innerHTML = program.map((b, i) => `
+    <div class="pb pb-${b.cat}" id="block-${b.uid}">
+      <div class="ph">
+        <div class="pt" style="color:${CAT_COLORS[b.cat]}">${b.em} ${b.name}</div>
+        <div class="pa">
+          <button class="ab" onclick="moveBlock(${i}, -1)" ${i===0?'disabled':''}>↑</button>
+          <button class="ab" onclick="moveBlock(${i}, 1)" ${i===program.length-1?'disabled':''}>↓</button>
+          <button class="ab dl" onclick="removeBlock(${i})">✕</button>
+        </div>
+      </div>
+      ${renderParams(b, i)}
+    </div>
+  `).join('');
+}
+
+function renderParams(block, index) {
+  const p = block.params;
+  
+  switch(block.id) {
+    case 'motor-on':
+    case 'motor-off':
+      return `<div class="pp">
+        <label>Port</label>
+        <select onchange="updateParam(${index}, 'port', this.value)">
+          <option value="A" ${p.port==='A'?'selected':''}>A</option>
+          <option value="B" ${p.port==='B'?'selected':''}>B</option>
+          <option value="AB" ${p.port==='AB'?'selected':''}>Both</option>
+        </select>
+        ${block.id==='motor-on' ? `
+          <div class="sr2">
+            <input class="sl" type="range" min="0" max="100" value="${p.power||75}" 
+              onchange="updateParam(${index}, 'power', +this.value); this.nextElementSibling.textContent=this.value+'%'">
+            <span class="sv">${p.power||75}%</span>
+          </div>
+        ` : ''}
+      </div>`;
+      
+    case 'motor-power':
+      return `<div class="pp">
+        <label>Port</label>
+        <select onchange="updateParam(${index}, 'port', this.value)">
+          <option value="A" ${p.port==='A'?'selected':''}>A</option>
+          <option value="B" ${p.port==='B'?'selected':''}>B</option>
+          <option value="AB" ${p.port==='AB'?'selected':''}>Both</option>
+        </select>
+        <div class="sr2">
+          <input class="sl" type="range" min="0" max="100" value="${p.power||50}" 
+            onchange="updateParam(${index}, 'power', +this.value); this.nextElementSibling.textContent=this.value+'%'">
+          <span class="sv">${p.power||50}%</span>
+        </div>
+      </div>`;
+      
+    case 'motor-timer':
+      return `<div class="pp">
+        <label>Port</label>
+        <select onchange="updateParam(${index}, 'port', this.value)">
+          <option value="A" ${p.port==='A'?'selected':''}>A</option>
+          <option value="B" ${p.port==='B'?'selected':''}>B</option>
+          <option value="AB" ${p.port==='AB'?'selected':''}>Both</option>
+        </select>
+        <label>Sec</label>
+        <input type="number" min="0.1" max="30" step="0.1" value="${p.sec||2}" 
+          onchange="updateParam(${index}, 'sec', +this.value)">
+        <div class="sr2">
+          <input class="sl" type="range" min="0" max="100" value="${p.power||75}" 
+            onchange="updateParam(${index}, 'power', +this.value); this.nextElementSibling.textContent=this.value+'%'">
+          <span class="sv">${p.power||75}%</span>
+        </div>
+      </div>`;
+      
+    case 'led-set':
+      return `<div class="pp">
+        <label>Color</label>
+        <select onchange="updateParam(${index}, 'color', this.value)">
+          ${Object.keys(LED_COLORS).map(c => 
+            `<option value="${c}" ${p.color===c?'selected':''}>${c}</option>`
+          ).join('')}
+        </select>
+      </div>`;
+      
+    case 'led-blink':
+      return `<div class="pp">
+        <label>Color</label>
+        <select onchange="updateParam(${index}, 'color', this.value)">
+          ${Object.keys(LED_COLORS).map(c => 
+            `<option value="${c}" ${p.color===c?'selected':''}>${c}</option>`
+          ).join('')}
+        </select>
+        <label>Times</label>
+        <input type="number" min="1" max="20" value="${p.times||3}" 
+          onchange="updateParam(${index}, 'times', +this.value)">
+      </div>`;
+      
+    case 'tilt-wait':
+      return `<div class="pp">
+        <label>Direction</label>
+        <select onchange="updateParam(${index}, 'dir', this.value)">
+          <option value="any" ${p.dir==='any'?'selected':''}>Any</option>
+          <option value="up" ${p.dir==='up'?'selected':''}>Up</option>
+          <option value="down" ${p.dir==='down'?'selected':''}>Down</option>
+          <option value="left" ${p.dir==='left'?'selected':''}>Left</option>
+          <option value="right" ${p.dir==='right'?'selected':''}>Right</option>
+          <option value="level" ${p.dir==='level'?'selected':''}>Level</option>
+        </select>
+      </div>`;
+      
+    case 'motion-wait':
+      return `<div class="pp">
+        <label>Threshold</label>
+        <div class="sr2">
+          <input class="sl" type="range" min="1" max="10" value="${p.thresh||5}" 
+            onchange="updateParam(${index}, 'thresh', +this.value); this.nextElementSibling.textContent=this.value">
+          <span class="sv">${p.thresh||5}</span>
+        </div>
+        <span class="u">(1=close,10=far)</span>
+      </div>`;
+      
+    case 'wait':
+      return `<div class="pp">
+        <label>Seconds</label>
+        <input type="number" min="0.1" max="30" step="0.1" value="${p.sec||1}" 
+          onchange="updateParam(${index}, 'sec', +this.value)">
+      </div>`;
+      
+    case 'loop':
+      return `<div class="pp">
+        <label>Times</label>
+        <input type="number" min="1" max="100" value="${p.times||3}" 
+          onchange="updateParam(${index}, 'times', +this.value)">
+      </div>`;
+      
+    case 'drive-fwd':
+    case 'drive-rev':
+    case 'turn-left':
+    case 'turn-right':
+      return `<div class="pp">
+        <div class="sr2">
+          <input class="sl" style="--thumb-color:${CAT_COLORS.drive}" type="range" min="0" max="100" value="${p.speed||50}" 
+            onchange="updateParam(${index}, 'speed', +this.value); this.nextElementSibling.textContent=this.value+'%'">
+          <span class="sv" style="color:${CAT_COLORS.drive}">${p.speed||50}%</span>
+        </div>
+      </div>`;
+      
+    default:
+      return '';
+  }
+}
+
+window.updateParam = (i, k, v) => { program[i].params[k] = v; renderProgram(); };
+window.moveBlock = (i, d) => {
+  const j = i + d;
+  if (j < 0 || j >= program.length) return;
+  [program[i], program[j]] = [program[j], program[i]];
+  renderProgram();
+};
+window.removeBlock = (i) => { program.splice(i, 1); renderProgram(); toast('Block removed'); };
+
+// ================================================================
+// ✅ CATEGORY SWITCHING
+// ================================================================
+document.querySelectorAll('.dcat, .sbc').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.c;
+    if (!cat) return;
+    
+    activeCategory = cat;
+    document.querySelectorAll('.dcat, .sbc').forEach(b => b.classList.remove('act'));
+    document.querySelectorAll(`.dcat[data-c="${cat}"]`).forEach(b => b.classList.add('act'));
+    document.querySelectorAll(`.sbc[data-c="${cat}"]`).forEach(b => b.classList.add('act'));
+    
+    renderCategory(cat);
+    
+    if (btn.classList.contains('dcat') && !drawerOpen) {
+      document.getElementById('drw').classList.add('open');
+      drawerOpen = true;
+    }
+  });
+});
+
+// ================================================================
+// ✅ DRAWER CONTROLS
+// ================================================================
+const drawer = document.getElementById('drw');
+let touchStartY = 0;
+
+document.getElementById('drw-handle').addEventListener('click', () => {
+  drawer.classList.toggle('open');
+  drawerOpen = drawer.classList.contains('open');
+});
+
+drawer.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+
+drawer.addEventListener('touchend', e => {
+  const dy = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(dy) > 30) {
+    drawer.classList.toggle('open', dy > 0);
+    drawerOpen = dy > 0;
+  }
+}, {passive:true});
+
+document.getElementById('pc').addEventListener('click', () => {
+  if (drawerOpen) {
+    drawer.classList.remove('open');
+    drawerOpen = false;
+  }
+});
+
+// ================================================================
+// ✅ SIDEBAR
+// ================================================================
+document.getElementById('sb-tog').addEventListener('click', () => {
+  sidebarExpanded = !sidebarExpanded;
+  document.getElementById('sb').classList.toggle('exp', sidebarExpanded);
+});
+
+// ================================================================
+// ✅ DRIVE MODE
+// ================================================================
+const drivePanel = document.getElementById('drive');
+const progPanel = document.getElementById('pw');
+
+document.getElementById('driveBtn').addEventListener('click', () => {
+  driveModeActive = !driveModeActive;
+  const btn = document.getElementById('driveBtn');
+  btn.textContent = driveModeActive ? '🧩 Build' : '🛴 Drive';
+  btn.classList.toggle('drive-active', driveModeActive);
+  drivePanel.classList.toggle('on', driveModeActive);
+  progPanel.style.display = driveModeActive ? 'none' : '';
+  document.getElementById('tb').style.display = driveModeActive ? 'none' : '';
+  document.getElementById('sb').style.display = driveModeActive ? 'none' : '';
+  drawer.style.display = driveModeActive ? 'none' : '';
+  
+  if (!driveModeActive) stopDrive(); // Stop motors when leaving drive mode
+});
+
+// Drive mode selector
+document.querySelectorAll('.drive-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.drive-mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDriveMode = btn.dataset.drive;
+    document.getElementById('driveModeHint').textContent = 
+      currentDriveMode === 'regular' 
+        ? '🚗 Regular: Tank controls (both motors same)' 
+        : '🛴 Segway: Turning controls (one motor stops)';
+    
+    if (currentDir) stopDrive(); // Stop when switching modes
+  });
+});
+
+// ================================================================
+// ✅ DRIVE CONTROL FUNCTIONS
+// ================================================================
+function setMotor(port, power) {
+  if (!motorChar || !connected) return false;
+  
+  try {
+    const portCode = port === 'A' ? 0x01 : (port === 'B' ? 0x02 : 0x03);
+    motorChar.writeValue(new Uint8Array([portCode, power]));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function stopDrive() {
+  clearInterval(driveInterval);
+  if (currentDir && motorChar) {
+    setMotor('A', 0);
+    setMotor('B', 0);
+  }
+  currentDir = null;
+  document.getElementById('dirDisplay').textContent = '—';
+  document.getElementById('speedDisplay').textContent = '0';
+}
+
+function startDrive(dir) {
+  currentDir = dir;
+  
+  const dirMap = {f:'⬆️', b:'⬇️', l:'⬅️', r:'➡️', s:'⏹'};
+  document.getElementById('dirDisplay').textContent = dirMap[dir] || '—';
+  document.getElementById('speedDisplay').textContent = dir === 's' ? 0 : driveSpeed;
+  
+  clearInterval(driveInterval);
+  
+  if (dir !== 's' && motorChar) {
+    // Initial command
+    if (currentDriveMode === 'regular') {
+      // Regular mode - both motors same
+      setMotor('A', driveSpeed);
+      setMotor('B', driveSpeed);
+    } else {
+      // Segway mode - one motor stops for turning
+      switch(dir) {
+        case 'f': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+        case 'b': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+        case 'l': setMotor('A', driveSpeed); setMotor('B', 0); break;
+        case 'r': setMotor('A', 0); setMotor('B', driveSpeed); break;
+      }
+    }
+    
+    // Continuous updates
+    driveInterval = setInterval(() => {
+      if (currentDir === dir && motorChar) {
+        if (currentDriveMode === 'regular') {
+          setMotor('A', driveSpeed);
+          setMotor('B', driveSpeed);
+        } else {
+          switch(dir) {
+            case 'f': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+            case 'b': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+            case 'l': setMotor('A', driveSpeed); setMotor('B', 0); break;
+            case 'r': setMotor('A', 0); setMotor('B', driveSpeed); break;
+          }
+        }
+      }
+    }, 100);
+  }
+  
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+
+// D-pad listeners
+['btnF','f', 'btnB','b', 'btnL','l', 'btnR','r'].forEach((id, i) => {
+  if (i % 2 === 0) {
+    const btn = document.getElementById(id);
+    const dir = arguments[i+1];
+    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); startDrive(dir); });
+    btn.addEventListener('pointerup', stopDrive);
+    btn.addEventListener('pointercancel', stopDrive);
+    btn.addEventListener('pointerleave', () => { if (currentDir === dir) stopDrive(); });
+  }
+});
+
+document.getElementById('btnS').addEventListener('click', () => {
+  stopDrive();
+});
+
+// Speed controls
+document.getElementById('speedUp').addEventListener('click', () => {
+  driveSpeed = Math.min(100, driveSpeed + 10);
+  document.getElementById('speedValue').textContent = driveSpeed + '%';
+  if (currentDir && currentDir !== 's') {
+    if (currentDriveMode === 'regular') {
+      setMotor('A', driveSpeed);
+      setMotor('B', driveSpeed);
+    } else {
+      switch(currentDir) {
+        case 'f': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+        case 'b': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+        case 'l': setMotor('A', driveSpeed); setMotor('B', 0); break;
+        case 'r': setMotor('A', 0); setMotor('B', driveSpeed); break;
+      }
+    }
+  }
+});
+
+document.getElementById('speedDown').addEventListener('click', () => {
+  driveSpeed = Math.max(10, driveSpeed - 10);
+  document.getElementById('speedValue').textContent = driveSpeed + '%';
+  if (currentDir && currentDir !== 's') {
+    if (currentDriveMode === 'regular') {
+      setMotor('A', driveSpeed);
+      setMotor('B', driveSpeed);
+    } else {
+      switch(currentDir) {
+        case 'f': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+        case 'b': setMotor('A', driveSpeed); setMotor('B', driveSpeed); break;
+        case 'l': setMotor('A', driveSpeed); setMotor('B', 0); break;
+        case 'r': setMotor('A', 0); setMotor('B', driveSpeed); break;
+      }
+    }
+  }
+});
+
+// ================================================================
+// ✅ BLUETOOTH CONNECTION
+// ================================================================
+document.getElementById('connBtn').addEventListener('click', () => {
+  if (connected) {
+    disconnectHub();
+    return;
+  }
+  document.getElementById('modal').classList.add('on');
+  scanForHub();
+});
+
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  document.getElementById('modal').classList.remove('on');
+});
+
+async function scanForHub() {
+  const list = document.getElementById('deviceList');
+  list.innerHTML = `<div style="text-align:center;padding:20px;color:#999">🔍 Scanning...</div>`;
+
+  if (!navigator.bluetooth) {
+    list.innerHTML = `<div style="color:#f44336;padding:20px">Web Bluetooth not supported. Use Chrome.</div>`;
+    return;
+  }
+
+  try {
+    const hub = await navigator.bluetooth.requestDevice({
+      filters: [
+        { namePrefix: 'WeDo' },
+        { namePrefix: 'Wedo' },
+        { namePrefix: 'LEGO' },
+        { services: [WEDO_SERVICE] }
+      ],
+      optionalServices: [WEDO_SERVICE]
+    });
+
+    list.innerHTML = '';
+    const item = document.createElement('div');
+    item.className = 'di';
+    item.innerHTML = `<span style="font-size:1.3rem">🤖</span><div><b>${hub.name || 'WeDo Hub'}</b><br><small>Tap to connect</small></div>`;
+    item.addEventListener('click', () => connectToHub(hub));
+    list.appendChild(item);
+    
+  } catch (err) {
+    list.innerHTML = `<div style="color:#ff9800;padding:14px">⚠️ ${err.message}</div>`;
+  }
+}
+
+async function connectToHub(hub) {
+  document.getElementById('modal').classList.remove('on');
+  toast('🔵 Connecting...');
+  
+  try {
+    device = hub;
+    server = await device.gatt.connect();
+    service = await server.getPrimaryService(WEDO_SERVICE);
+    
+    motorChar = await service.getCharacteristic(WEDO_MOTOR).catch(() => null);
+    sensorChar = await service.getCharacteristic(WEDO_SENSOR).catch(() => null);
+    ledChar = await service.getCharacteristic(WEDO_LED).catch(() => null);
+    
+    connected = true;
+    document.getElementById('dot').classList.add('on');
+    document.getElementById('ct').textContent = 'Connected';
+    document.getElementById('connBtn').textContent = 'Disconnect';
+    document.getElementById('connBtn').classList.add('connected');
+    document.getElementById('driveStatus').textContent = 'Connected';
+    
+    // Test LED
+    if (ledChar) {
+      setLED('green');
+      setTimeout(() => setLED('blue'), 500);
+    }
+    
+    toast('✅ Connected!');
+    startSensorPolling();
+    
+    device.addEventListener('gattserverdisconnected', () => {
+      connected = false;
+      document.getElementById('dot').classList.remove('on');
+      document.getElementById('ct').textContent = 'Offline';
+      document.getElementById('connBtn').textContent = 'Connect';
+      document.getElementById('connBtn').classList.remove('connected');
+      document.getElementById('driveStatus').textContent = 'Not connected';
+      toast('📴 Disconnected');
+    });
+    
+  } catch (err) {
+    toast('❌ Connection failed');
+  }
+}
+
+function disconnectHub() {
+  if (device && device.gatt.connected) {
+    device.gatt.disconnect();
+  } else {
+    connected = false;
+    document.getElementById('dot').classList.remove('on');
+    document.getElementById('ct').textContent = 'Offline';
+    document.getElementById('connBtn').textContent = 'Connect';
+    document.getElementById('connBtn').classList.remove('connected');
+  }
+}
+
+// ================================================================
+// ✅ HARDWARE CONTROL FUNCTIONS
+// ================================================================
+function setLED(color) {
+  if (!ledChar || !connected) return false;
+  const code = LED_COLORS[color] || 3;
+  ledChar.writeValue(new Uint8Array([code]));
+  return true;
+}
+
+function playBeep() {
+  if (!motorChar || !connected) return;
+  
+  // Simple beep - quick motor pulse
+  setMotor('A', 70);
+  setTimeout(() => setMotor('A', 0), 150);
+}
+
+function playTada() {
+  if (!motorChar || !connected) return;
+  
+  // Three ascending beeps
+  setMotor('A', 50);
+  setTimeout(() => setMotor('A', 0), 100);
+  setTimeout(() => setMotor('A', 70), 150);
+  setTimeout(() => setMotor('A', 0), 250);
+  setTimeout(() => setMotor('A', 90), 300);
+  setTimeout(() => setMotor('A', 0), 400);
+}
+
+async function readSensors() {
+  if (!sensorChar || !connected) return;
+  
+  try {
+    const val = await sensorChar.readValue();
+    const data = new Uint8Array(val.buffer);
+    
+    if (data.length >= 2) {
+      if (data[0] === 0x01) {
+        sensorData.motion = data[1];
+        document.getElementById('motionVal').textContent = data[1];
+      } else if (data[0] === 0x02) {
+        sensorData.tilt = data[1];
+        document.getElementById('tiltVal').textContent = TILT_DISPLAY[data[1]] || 'Unknown';
+        
+        // Update tilt display in drive mode
+        if (driveModeActive) {
+          const tiltMap = {0:0, 1:30, 2:-30, 3:-15, 4:15};
+          const tiltDeg = tiltMap[data[1]] || 0;
+          document.getElementById('tiltDisplay').textContent = tiltDeg + '°';
+        }
+      }
+    }
+  } catch (e) {}
+}
+
+function startSensorPolling() {
+  if (sensorInterval) clearInterval(sensorInterval);
+  
+  sensorInterval = setInterval(async () => {
+    if (connected) {
+      await readSensors();
+    } else {
+      // Mock data
+      sensorData.motion = Math.floor(Math.random() * 10) + 1;
+      sensorData.tilt = Math.floor(Math.random() * 5);
+      document.getElementById('motionVal').textContent = sensorData.motion;
+      document.getElementById('tiltVal').textContent = TILT_DISPLAY[sensorData.tilt];
+    }
+    
+    document.getElementById('motorStatus').textContent = running ? 'RUN' : 'OFF';
+    document.getElementById('batteryVal').textContent = Math.floor(70 + Math.random() * 20) + '%';
+  }, 300);
+}
+
+// ================================================================
+// ✅ PROGRAM EXECUTION
+// ================================================================
+async function executeBlock(block) {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  
+  if (!connected) {
+    // Simulation mode
+    if (block.id === 'wait') await sleep(block.params.sec * 1000);
+    else if (block.id === 'motor-timer') await sleep(block.params.sec * 1000);
+    else await sleep(300);
+    return;
+  }
+  
+  try {
+    switch(block.id) {
+      case 'motor-on':
+        setMotor(block.params.port || 'A', block.params.power || 75);
+        await sleep(200);
+        break;
+        
+      case 'motor-off':
+        setMotor(block.params.port || 'A', 0);
+        await sleep(200);
+        break;
+        
+      case 'motor-power':
+        setMotor(block.params.port || 'A', block.params.power || 50);
+        await sleep(200);
+        break;
+        
+      case 'motor-timer':
+        setMotor(block.params.port || 'A', block.params.power || 75);
+        await sleep((block.params.sec || 2) * 1000);
+        setMotor(block.params.port || 'A', 0);
+        break;
+        
+      case 'led-set':
+        setLED(block.params.color || 'blue');
+        await sleep(200);
+        break;
+        
+      case 'led-blink':
+        for (let i = 0; i < (block.params.times || 3); i++) {
+          setLED(block.params.color || 'blue');
+          await sleep(300);
+          setLED('off');
+          await sleep(200);
+        }
+        setLED('blue');
+        break;
+        
+      case 'sound-beep':
+        playBeep();
+        await sleep(300);
+        break;
+        
+      case 'sound-tada':
+        playTada();
+        await sleep(500);
+        break;
+        
+      case 'drive-fwd':
+        setMotor('A', block.params.speed || 50);
+        setMotor('B', block.params.speed || 50);
+        await sleep(1000);
+        setMotor('A', 0); setMotor('B', 0);
+        break;
+        
+      case 'drive-rev':
+        setMotor('A', block.params.speed || 50);
+        setMotor('B', block.params.speed || 50);
+        await sleep(1000);
+        setMotor('A', 0); setMotor('B', 0);
+        break;
+        
+      case 'turn-left':
+        setMotor('A', block.params.speed || 50);
+        setMotor('B', 0);
+        await sleep(800);
+        setMotor('A', 0);
+        break;
+        
+      case 'turn-right':
+        setMotor('A', 0);
+        setMotor('B', block.params.speed || 50);
+        await sleep(800);
+        setMotor('B', 0);
+        break;
+        
+      case 'stop':
+        setMotor('A', 0); setMotor('B', 0);
+        await sleep(200);
+        break;
+        
+      case 'wait':
+        await sleep((block.params.sec || 1) * 1000);
+        break;
+        
+      case 'tilt-read':
+        await readSensors();
+        toast(`Tilt: ${TILT_DISPLAY[sensorData.tilt]}`);
+        await sleep(200);
+        break;
+        
+      case 'tilt-wait':
+        const targetDir = block.params.dir || 'any';
+        toast(`⏳ Waiting for ${targetDir} tilt...`);
+        
+        let timeout = 10000;
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+          await readSensors();
+          const current = TILT_VALUES[sensorData.tilt] || 'level';
+          
+          if (targetDir === 'any' && current !== 'level') break;
+          if (current === targetDir) break;
+          
+          await sleep(100);
+        }
+        break;
+        
+      case 'motion-read':
+        await readSensors();
+        toast(`Distance: ${sensorData.motion}`);
+        await sleep(200);
+        break;
+        
+      case 'motion-wait':
+        toast(`⏳ Waiting for motion...`);
+        timeout = 10000;
+        const motionStart = Date.now();
+        while (Date.now() - motionStart < timeout) {
+          await readSensors();
+          if (sensorData.motion <= (block.params.thresh || 5)) break;
+          await sleep(100);
+        }
+        break;
+    }
+  } catch (e) {
+    console.error('Block error:', e);
+    toast('❌ Command failed');
+  }
+}
+
+// ================================================================
+// ✅ RUN/STOP
+// ================================================================
+document.getElementById('runBtn').addEventListener('click', async () => {
+  if (!program.length) { toast('Add blocks first'); return; }
+  if (running) return;
+  
+  running = true;
+  document.getElementById('runBtn').disabled = true;
+  toast('▶ Running...');
+  
+  for (let i = 0; i < program.length && running; i++) {
+    document.querySelectorAll('.pb').forEach((el, idx) => {
+      el.classList.toggle('run', idx === i);
+    });
+    
+    const el = document.querySelectorAll('.pb')[i];
+    if (el) el.scrollIntoView({behavior:'smooth', block:'nearest'});
+    
+    await executeBlock(program[i]);
+  }
+  
+  document.querySelectorAll('.pb').forEach(el => el.classList.remove('run'));
+  if (running) toast('✅ Done!');
+  running = false;
+  document.getElementById('runBtn').disabled = false;
+});
+
+document.getElementById('stopBtn').addEventListener('click', () => {
+  running = false;
+  document.querySelectorAll('.pb').forEach(el => el.classList.remove('run'));
+  toast('⏹ Stopped');
+  document.getElementById('runBtn').disabled = false;
+  
+  if (motorChar) {
+    setMotor('A', 0);
+    setMotor('B', 0);
+  }
+});
+
+// ================================================================
+// ✅ SAVE/LOAD
+// ================================================================
+document.getElementById('saveBtn').addEventListener('click', () => {
+  if (!program.length) { toast('Nothing to save'); return; }
+  localStorage.setItem('wedo_program', JSON.stringify(program));
+  toast('💾 Saved!');
+});
+
+document.getElementById('loadBtn').addEventListener('click', () => {
+  const saved = localStorage.getItem('wedo_program');
+  if (saved) {
+    program = JSON.parse(saved);
+    renderProgram();
+    toast('📂 Loaded!');
+  } else {
+    toast('No saved program');
+  }
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  program = [];
+  renderProgram();
+  toast('🗑 Cleared');
+});
+
+// ================================================================
+// ✅ TEST BUTTON
+// ================================================================
+const testBtn = document.createElement('button');
+testBtn.className = 'tbb tb-sec';
+testBtn.textContent = '🔧 Test';
+testBtn.style.background = '#673ab7';
+testBtn.style.color = '#fff';
+testBtn.addEventListener('click', async () => {
+  if (!connected) { toast('Connect first'); return; }
+  
+  toast('🔧 Testing...');
+  
+  // Test LED colors
+  const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'white'];
+  for (const color of colors) {
+    setLED(color);
+    await new Promise(r => setTimeout(r, 300));
+  }
+  setLED('blue');
+  
+  // Test beep
+  playBeep();
+  
+  // Test motors
+  setMotor('A', 70);
+  await new Promise(r => setTimeout(r, 500));
+  setMotor('A', 0);
+  setMotor('B', 70);
+  await new Promise(r => setTimeout(r, 500));
+  setMotor('B', 0);
+  
+  toast('✅ Test complete');
+});
+document.getElementById('tb').appendChild(testBtn);
+
+// ================================================================
+// ✅ TOAST
+// ================================================================
+let toastTimer = null;
+function toast(msg) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 2000);
+}
+
+// ================================================================
+// ✅ INIT
+// ================================================================
+renderCategory('motor');
+renderProgram();
+</script>
+</body>
+</html>

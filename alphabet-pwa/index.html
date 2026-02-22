@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>ABC Fun</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Theme & icons -->
+  <meta name="theme-color" content="#ff4500">
+
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #f0f8ff, #e0f7fa);
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      touch-action: manipulation;
+    }
+    #letter {
+      font-size: 22vh;
+      color: #ff4500;
+      margin: 0;
+      text-shadow: 4px 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.3s, color 0.4s;
+    }
+    #letter:active { transform: scale(1.15); color: #32cd32; }
+    #word {
+      font-size: 8vh;
+      color: #4169e1;
+      margin: 20px 0;
+      text-align: center;
+      padding: 0 20px;
+    }
+    #controls {
+      position: absolute;
+      bottom: 6vh;
+      width: 90%;
+      display: flex;
+      justify-content: space-between;
+    }
+    button {
+      font-size: 6vh;
+      padding: 2vh 5vw;
+      background: #ffd700;
+      border: 3px solid #ff8c00;
+      border-radius: 20px;
+      color: #d2691e;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:active { background: #ffcc00; transform: scale(0.95); }
+    @media (orientation: landscape) {
+      #letter { font-size: 18vw; }
+      #word   { font-size: 6vw; }
+      button  { font-size: 5vw; padding: 1.5vh 4vw; }
+    }
+  </style>
+</head>
+<body>
+  <div id="letter">A</div>
+  <div id="word">Apple 🍎</div>
+
+  <div id="controls">
+    <button onclick="prev()">← Previous</button>
+    <button onclick="next()">Next →</button>
+  </div>
+
+  <script src="register-sw.js"></script>
+  <script>
+    const alphabet = [
+      {letter:"A", word:"Apple 🍎"}, {letter:"B", word:"Ball ⚽"}, {letter:"C", word:"Cat 🐱"},
+      {letter:"D", word:"Dog 🐶"},   {letter:"E", word:"Elephant 🐘"}, {letter:"F", word:"Fish 🐟"},
+      {letter:"G", word:"Giraffe 🦒"}, {letter:"H", word:"Hat 🎩"}, {letter:"I", word:"Ice Cream 🍦"},
+      {letter:"J", word:"Jelly 🍮"}, {letter:"K", word:"Kite 🪁"}, {letter:"L", word:"Lion 🦁"},
+      {letter:"M", word:"Monkey 🐒"}, {letter:"N", word:"Nest 🪺"}, {letter:"O", word:"Orange 🍊"},
+      {letter:"P", word:"Penguin 🐧"}, {letter:"Q", word:"Queen 👑"}, {letter:"R", word:"Rabbit 🐰"},
+      {letter:"S", word:"Sun ☀️"},   {letter:"T", word:"Tiger 🐅"}, {letter:"U", word:"Umbrella ☂️"},
+      {letter:"V", word:"Violin 🎻"}, {letter:"W", word:"Whale 🐳"}, {letter:"X", word:"Xylophone 🎶"},
+      {letter:"Y", word:"Yak 🐃"},   {letter:"Z", word:"Zebra 🦓"}
+    ];
+
+    let idx = 0;
+    const letterEl = document.getElementById("letter");
+    const wordEl   = document.getElementById("word");
+
+    function update() {
+      letterEl.textContent = alphabet[idx].letter;
+      wordEl.textContent   = alphabet[idx].word;
+    }
+
+    function next() { idx = (idx + 1) % alphabet.length; update(); }
+    function prev() { idx = (idx - 1 + alphabet.length) % alphabet.length; update(); }
+
+    update();
+
+    // Try fullscreen (works best after user interaction on some browsers)
+    document.addEventListener("click", () => {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    }, {once: true});
+  </script>
+</body>
+</html>

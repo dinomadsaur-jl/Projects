@@ -1,0 +1,14 @@
+{
+  "_info": "PyWA config \u2014 all fields optional. Delete any you don't need.",
+  "name": "Demo App",
+  "short_name": null,
+  "version": "1.0.0",
+  "theme": "light",
+  "theme_color": null,
+  "accent": null,
+  "bg_color": null,
+  "output_dir": "pwa_output",
+  "port": 0,
+  "no_open": false,
+  "no_serve": false
+}

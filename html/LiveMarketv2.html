@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Analysis Dashboard - With Data Simulation Check</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: #a8a8a8;
+            font-size: 1.1em;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .status-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .status-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .status-badge.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.offline {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.loading {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-badge.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .chart-container {
+            padding: 20px;
+            min-height: 800px;
+            background: white;
+        }
+        
+        .test-panel {
+            background: #f0f4f8;
+            padding: 20px 30px;
+            border-bottom: 1px solid #dde7f0;
+        }
+        
+        .test-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .test-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #ccc;
+        }
+        
+        .test-card.passed {
+            border-left-color: #28a745;
+        }
+        
+        .test-card.failed {
+            border-left-color: #dc3545;
+        }
+        
+        .test-card.running {
+            border-left-color: #ffc107;
+        }
+        
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .test-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .test-status {
+            font-size: 0.8em;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+        
+        .test-status.passed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .test-status.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .test-status.running {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+        
+        .test-details pre {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            overflow-x: auto;
+            margin-top: 5px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #f5c6cb;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .cache-info {
+            padding: 15px 30px;
+            background: #e9ecef;
+            font-size: 0.9em;
+            color: #495057;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .last-updated {
+            font-family: monospace;
+        }
+        
+        .offline-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+    </style>
+    
+    <!-- Load Pyodide and Plotly -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Market Analysis Dashboard</h1>
+            <p>Gold • Silver • DXY • Real-time Analysis • Offline-capable PWA</p>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-info">
+                <span id="onlineStatus" class="status-badge">📡 Checking connection...</span>
+                <span id="cacheStatus" class="status-badge">💾 Cache: Unknown</span>
+                <span id="dataStatus" class="status-badge loading">⏳ Loading Python...</span>
+            </div>
+            <button id="refreshBtn" class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+        </div>
+        
+        <!-- Test Panel for Data Fetch Simulation -->
+        <div class="test-panel">
+            <h3>
+                <span>🔍 Data Fetch Simulation Check</span>
+                <span id="simulationStatus" class="status-badge">⏳ Not Started</span>
+            </h3>
+            <div id="testGrid" class="test-grid">
+                <div id="testGold" class="test-card">
+                    <div class="test-header">
+                        <span class="test-name">Gold (GC=F)</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-details">Waiting for test...</div>
+                </div>
+                <div id="testSilver" class="test-card">
+                    <div class="test-header">
+                        <span class="test-name">Silver (SI=F)</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-details">Waiting for test...</div>
+                </div>
+                <div id="testDXY" class="test-card">
+                    <div class="test-header">
+                        <span class="test-name">DXY (DX-Y.NYB)</span>
+                        <span class="test-status">Pending</span>
+                    </div>
+                    <div class="test-details">Waiting for test...</div>
+                </div>
+            </div>
+            <div id="testSummary" style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                Click "Run Simulation" to test data fetching
+            </div>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button id="runSimulationBtn" class="refresh-btn" style="background: #28a745;" onclick="runSimulation()">▶️ Run Simulation</button>
+                <button id="clearCacheBtn" class="refresh-btn" style="background: #dc3545;" onclick="clearCache()">🗑️ Clear Cache</button>
+            </div>
+        </div>
+        
+        <div id="chartContainer" class="chart-container">
+            <div style="text-align: center; padding: 100px 20px;">
+                <div class="loading-spinner" style="width: 50px; height: 50px;"></div>
+                <h3 style="color: #666; margin-top: 20px;">Initializing analysis engine...</h3>
+                <p style="color: #999; margin-top: 10px;">Loading Pyodide and Python libraries</p>
+            </div>
+        </div>
+        
+        <div class="cache-info">
+            <span id="lastUpdated" class="last-updated">Last updated: Never</span>
+            <span id="dataSource" class="offline-notice">🌐 Live data mode</span>
+        </div>
+        
+        <div class="footer">
+            <p>💾 This app works offline • Data is cached in your browser • Refresh page for latest data</p>
+        </div>
+    </div>
+
+    <script>
+        // Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+
+        // Online/offline detection
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        function updateOnlineStatus() {
+            const onlineBadge = document.getElementById('onlineStatus');
+            const dataSource = document.getElementById('dataSource');
+            
+            if (navigator.onLine) {
+                onlineBadge.className = 'status-badge online';
+                onlineBadge.innerHTML = '📡 Online';
+                dataSource.innerHTML = '🌐 Live data mode';
+                dataSource.className = 'offline-notice';
+            } else {
+                onlineBadge.className = 'status-badge offline';
+                onlineBadge.innerHTML = '📴 Offline';
+                dataSource.innerHTML = '💾 Using cached data';
+                dataSource.className = 'offline-notice';
+            }
+        }
+
+        // Global variables
+        let pyodide = null;
+        
+        // IndexedDB for caching
+        const DB_NAME = 'MarketAnalysisDB';
+        const STORE_NAME = 'charts';
+        
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        async function cacheChart(html) {
+            try {
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                
+                await store.put({
+                    id: 'latest',
+                    html: html,
+                    timestamp: new Date().toISOString()
+                });
+                
+                document.getElementById('lastUpdated').innerHTML = 
+                    `Last updated: ${new Date().toLocaleString()}`;
+                    
+                const cacheBadge = document.getElementById('cacheStatus');
+                cacheBadge.className = 'status-badge success';
+                cacheBadge.innerHTML = '💾 Cache: Saved';
+                
+            } catch (error) {
+                console.error('Cache error:', error);
+            }
+        }
+
+        async function getCachedChart() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                
+                return new Promise((resolve) => {
+                    const request = store.get('latest');
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => resolve(null);
+                });
+            } catch {
+                return null;
+            }
+        }
+
+        async function clearCache() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                await store.delete('latest');
+                
+                document.getElementById('cacheStatus').className = 'status-badge warning';
+                document.getElementById('cacheStatus').innerHTML = '💾 Cache: Cleared';
+                document.getElementById('lastUpdated').innerHTML = 'Last updated: Never';
+                
+                alert('Cache cleared successfully');
+            } catch (error) {
+                alert('Error clearing cache: ' + error);
+            }
+        }
+
+        async function initializePyodide() {
+            const dataStatus = document.getElementById('dataStatus');
+            dataStatus.innerHTML = '⏳ Loading Pyodide...';
+            
+            try {
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/",
+                });
+                
+                dataStatus.innerHTML = '⏳ Loading micropip...';
+                
+                await pyodide.loadPackage('micropip');
+                const micropip = pyodide.pyimport('micropip');
+                
+                dataStatus.innerHTML = '⏳ Installing packages...';
+                
+                await micropip.install([
+                    'pandas',
+                    'numpy',
+                    'scipy',
+                    'plotly'
+                ]);
+                
+                dataStatus.innerHTML = '⏳ Verifying...';
+                
+                dataStatus.className = 'status-badge success';
+                dataStatus.innerHTML = '✅ Python ready';
+                
+                return true;
+            } catch (error) {
+                console.error('Pyodide initialization error:', error);
+                dataStatus.className = 'status-badge error';
+                dataStatus.innerHTML = '❌ Python failed';
+                return false;
+            }
+        }
+
+        // Simulation function to test data fetching
+        async function runSimulation() {
+            const simStatus = document.getElementById('simulationStatus');
+            simStatus.className = 'status-badge loading';
+            simStatus.innerHTML = '⏳ Running simulation...';
+            
+            // Reset test cards
+            const testCards = ['testGold', 'testSilver', 'testDXY'];
+            testCards.forEach(id => {
+                const card = document.getElementById(id);
+                card.className = 'test-card running';
+                card.querySelector('.test-status').className = 'test-status running';
+                card.querySelector('.test-status').innerHTML = 'Running';
+                card.querySelector('.test-details').innerHTML = 'Testing connection...';
+            });
+            
+            document.getElementById('testSummary').innerHTML = 'Running data fetch simulation...';
+            
+            try {
+                // Ensure Pyodide is ready
+                if (!pyodide) {
+                    await initializePyodide();
+                }
+                
+                // Python code for simulation
+                const simCode = `
+import asyncio
+from pyodide.http import pyfetch
+import pandas as pd
+from datetime import datetime, timedelta
+
+async def test_ticker(ticker, name):
+    """Test fetching data for a single ticker"""
+    try:
+        print(f"Testing {name} ({ticker})...")
+        
+        now = datetime.now()
+        start = now - timedelta(days=30)  # Just get 30 days for testing
+        
+        p1 = int(start.timestamp())
+        p2 = int(now.timestamp())
+        
+        # Try both endpoints
+        endpoints = [
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}",
+            f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}"
+        ]
+        
+        headers = {"User-Agent": "Mozilla/5.0"}
+        params = {
+            "period1": p1,
+            "period2": p2,
+            "interval": "1d",
+            "includePrePost": "false"
+        }
+        
+        for url in endpoints:
+            try:
+                response = await pyfetch(url, headers=headers, params=params)
+                if response.status == 200:
+                    data = await response.json()
+                    
+                    if 'chart' in data and 'result' in data['chart'] and data['chart']['result']:
+                        result = data['chart']['result'][0]
+                        if 'timestamp' in result and 'indicators' in result:
+                            timestamps = result['timestamp']
+                            closes = result['indicators']['quote'][0]['close']
+                            
+                            # Filter out None values
+                            valid_data = [(t, c) for t, c in zip(timestamps, closes) if c is not None]
+                            
+                            if valid_data:
+                                dates = [datetime.fromtimestamp(t) for t, _ in valid_data]
+                                prices = [c for _, c in valid_data]
+                                
+                                return {
+                                    'success': True,
+                                    'endpoint': url,
+                                    'data_points': len(valid_data),
+                                    'first_date': dates[0].strftime('%Y-%m-%d'),
+                                    'last_date': dates[-1].strftime('%Y-%m-%d'),
+                                    'first_price': prices[0],
+                                    'last_price': prices[-1]
+                                }
+            except Exception as e:
+                continue
+        
+        return {'success': False, 'error': 'All endpoints failed'}
+        
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+async def run_all_tests():
+    """Test all tickers"""
+    tickers = [
+        ('GC=F', 'Gold'),
+        ('SI=F', 'Silver'),
+        ('DX-Y.NYB', 'DXY')
+    ]
+    
+    results = {}
+    for symbol, name in tickers:
+        results[name] = await test_ticker(symbol, name)
+        await asyncio.sleep(1)  # Rate limiting
+    
+    return results
+`;
+
+                await pyodide.runPythonAsync(simCode);
+                
+                // Run the simulation
+                const results = await pyodide.runPythonAsync(`
+import asyncio
+import json
+results = asyncio.ensure_future(run_all_tests())
+await results
+`);
+                
+                const simResults = results.toJs();
+                
+                // Update UI with results
+                let allPassed = true;
+                let summary = [];
+                
+                for (const [name, result] of Object.entries(simResults)) {
+                    const cardId = `test${name}`;
+                    const card = document.getElementById(cardId);
+                    const resultObj = result.toJs ? result.toJs() : result;
+                    
+                    if (resultObj.success) {
+                        card.className = 'test-card passed';
+                        card.querySelector('.test-status').className = 'test-status passed';
+                        card.querySelector('.test-status').innerHTML = '✅ Passed';
+                        card.querySelector('.test-details').innerHTML = `
+                            <strong>Data Points:</strong> ${resultObj.data_points}<br>
+                            <strong>Range:</strong> ${resultObj.first_date} to ${resultObj.last_date}<br>
+                            <strong>Latest Price:</strong> $${resultObj.last_price.toFixed(2)}<br>
+                            <small>Endpoint: ${resultObj.endpoint.split('/')[2]}</small>
+                        `;
+                        summary.push(`${name}: ✅ ${resultObj.data_points} points, latest $${resultObj.last_price.toFixed(2)}`);
+                    } else {
+                        card.className = 'test-card failed';
+                        card.querySelector('.test-status').className = 'test-status failed';
+                        card.querySelector('.test-status').innerHTML = '❌ Failed';
+                        card.querySelector('.test-details').innerHTML = `
+                            <strong>Error:</strong> ${resultObj.error}<br>
+                            <small>Check network connection</small>
+                        `;
+                        summary.push(`${name}: ❌ Failed - ${resultObj.error}`);
+                        allPassed = false;
+                    }
+                }
+                
+                // Update summary
+                simStatus.className = allPassed ? 'status-badge success' : 'status-badge warning';
+                simStatus.innerHTML = allPassed ? '✅ All tests passed' : '⚠️ Some tests failed';
+                
+                document.getElementById('testSummary').innerHTML = `
+                    <strong>Simulation Results:</strong><br>
+                    ${summary.join('<br>')}
+                `;
+                
+            } catch (error) {
+                console.error('Simulation error:', error);
+                simStatus.className = 'status-badge error';
+                simStatus.innerHTML = '❌ Simulation error';
+                
+                document.getElementById('testSummary').innerHTML = `
+                    <strong>Error running simulation:</strong><br>
+                    ${error.message}
+                `;
+            }
+        }
+
+        async function runAnalysis() {
+            const chartContainer = document.getElementById('chartContainer');
+            const dataStatus = document.getElementById('dataStatus');
+            
+            try {
+                dataStatus.innerHTML = '⏳ Fetching market data...';
+                
+                // Python code for full analysis
+                const pythonCode = `
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from datetime import datetime, timedelta
+from scipy.signal import argrelextrema
+import asyncio
+from pyodide.http import pyfetch
+import json
+
+# ────────────────────────────────────────────────
+# Configuration
+# ────────────────────────────────────────────────
+TICKERS = {
+    'Gold': 'GC=F',
+    'Silver': 'SI=F',
+    'DXY': 'DX-Y.NYB'
+}
+
+SMA_PERIOD = 20
+SMA_REVERSAL_THRESHOLD = 0.015
+SELECTED_WINDOW = 365 * 5 + 60
+RECENT_DAYS = 365 * 2
+ROLLING_CORR_WINDOW = 60
+
+# Colors
+COLOR_GOLD = '#D4AF37'
+COLOR_SILVER = '#708090'
+COLOR_RATIO = '#800080'
+COLOR_DXY = '#003366'
+COLOR_CORR = '#FF6347'
+GRID_COLOR = 'rgb(220, 220, 220)'
+
+# ────────────────────────────────────────────────
+# Data Fetching
+# ────────────────────────────────────────────────
+async def fetch_yahoo_data(ticker, start_date, end_date, interval):
+    try:
+        print(f"Fetching {ticker} ({interval})")
+        p1 = int(start_date.timestamp())
+        p2 = int(end_date.timestamp())
+        
+        # Try multiple endpoints
+        endpoints = [
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}",
+            f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}"
+        ]
+        
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        params = {
+            "period1": p1,
+            "period2": p2,
+            "interval": interval,
+            "includePrePost": "false",
+            "events": "history"
+        }
+        
+        for url in endpoints:
+            try:
+                r = await pyfetch(url, headers=headers, params=params)
+                
+                if r.status == 200:
+                    data = await r.json()
+                    
+                    if 'chart' in data and 'result' in data['chart'] and data['chart']['result']:
+                        result = data['chart']['result'][0]
+                        
+                        if result.get('timestamp') and result.get('indicators'):
+                            timestamps = result['timestamp']
+                            closes = result['indicators']['quote'][0]['close']
+                            
+                            # Filter out None values
+                            valid_data = [(t, c) for t, c in zip(timestamps, closes) if c is not None]
+                            
+                            if valid_data:
+                                dates = [datetime.fromtimestamp(t) for t, _ in valid_data]
+                                prices = [c for _, c in valid_data]
+                                
+                                series = pd.Series(prices, index=dates, name=ticker)
+                                print(f"→ {ticker} returned {len(series)} points")
+                                return series
+                            
+            except Exception as e:
+                print(f"Endpoint {url} failed: {e}")
+                continue
+        
+        print(f"All endpoints failed for {ticker}")
+        return pd.Series(dtype=float)
+        
+    except Exception as e:
+        print(f"Error fetching {ticker}: {e}")
+        return pd.Series(dtype=float)
+
+# ────────────────────────────────────────────────
+# SMA Reversal Detection
+# ────────────────────────────────────────────────
+def find_sma_reversals(df, raw_col, sma_col, threshold=SMA_REVERSAL_THRESHOLD):
+    valid_data = df[[raw_col, sma_col]].dropna()
+    if valid_data.empty:
+        return []
+
+    reversals = []
+    last_sma_val = valid_data[sma_col].iloc[0]
+    last_date = valid_data.index[0]
+    trend = 0
+
+    for date, row in valid_data.iterrows():
+        curr_sma = row[sma_col]
+
+        if trend == 0:
+            if curr_sma >= last_sma_val * (1 + threshold):
+                trend = 1
+                last_sma_val = curr_sma
+                last_date = date
+            elif curr_sma <= last_sma_val * (1 - threshold):
+                trend = -1
+                last_sma_val = curr_sma
+                last_date = date
+
+        elif trend == 1:
+            if curr_sma > last_sma_val:
+                last_sma_val = curr_sma
+                last_date = date
+            elif curr_sma < last_sma_val * (1 - threshold):
+                raw_price = df.loc[last_date, raw_col]
+                reversals.append((last_date, raw_price, 'peak'))
+                trend = -1
+                last_sma_val = curr_sma
+                last_date = date
+
+        elif trend == -1:
+            if curr_sma < last_sma_val:
+                last_sma_val = curr_sma
+                last_date = date
+            elif curr_sma > last_sma_val * (1 + threshold):
+                raw_price = df.loc[last_date, raw_col]
+                reversals.append((last_date, raw_price, 'trough'))
+                trend = 1
+                last_sma_val = curr_sma
+                last_date = date
+
+    return reversals
+
+# ────────────────────────────────────────────────
+# Main Analysis
+# ────────────────────────────────────────────────
+async def run_analysis():
+    print("\\n--- Analyzing ~5 years of data ---")
+    now = datetime.now()
+    full_start = now - timedelta(days=SELECTED_WINDOW + 200)
+    recent_start = now - timedelta(days=RECENT_DAYS)
+
+    data_frames = []
+    for name, symbol in TICKERS.items():
+        print(f"\\n{name} ({symbol})...")
+        s_weekly = await fetch_yahoo_data(symbol, full_start, now, '1wk')
+        await asyncio.sleep(1)
+        s_recent = await fetch_yahoo_data(symbol, recent_start, now, '1d')
+        await asyncio.sleep(1)
+
+        if s_weekly.empty and s_recent.empty:
+            print(f"Skipping {name} - no data")
+            continue
+
+        combined = pd.concat([s_weekly, s_recent])
+        combined = combined[~combined.index.duplicated(keep='last')].sort_index()
+        data_frames.append(combined.rename(name))
+
+    if not data_frames:
+        print("No data retrieved.")
+        return None, "No data retrieved"
+
+    df = pd.concat(data_frames, axis=1)
+    df = df.interpolate(method='time')
+    
+    cutoff = now - timedelta(days=SELECTED_WINDOW)
+    df = df[df.index >= cutoff]
+
+    if df.empty:
+        print("No data after cutoff.")
+        return None, "No data after cutoff"
+
+    # Indicators
+    df['Ratio'] = df['Gold'] / df['Silver']
+
+    for col in ['Gold', 'Silver', 'DXY', 'Ratio']:
+        df[f'{col}_SMA'] = df[col].rolling(SMA_PERIOD).mean()
+
+    df['Corr'] = df['Gold'].rolling(ROLLING_CORR_WINDOW).corr(df['DXY'])
+
+    # Create figure
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        row_heights=[0.65, 0.35],
+        vertical_spacing=0.06,
+        specs=[[{"secondary_y": True}], [{"secondary_y": True}]]
+    )
+
+    # Top chart
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Gold'], name="Gold (raw)", 
+                  line=dict(color=COLOR_GOLD, width=0.8), opacity=0.4),
+        row=1, col=1, secondary_y=False
+    )
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Gold_SMA'], name="Gold SMA", 
+                  line=dict(color=COLOR_GOLD, width=2.2)),
+        row=1, col=1, secondary_y=False
+    )
+
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Silver'], name="Silver (raw)", 
+                  line=dict(color=COLOR_SILVER, width=0.8), opacity=0.4),
+        row=1, col=1, secondary_y=True
+    )
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Silver_SMA'], name="Silver SMA", 
+                  line=dict(color=COLOR_SILVER, width=1.8)),
+        row=1, col=1, secondary_y=True
+    )
+
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Ratio'], name="G/S Ratio (raw)", 
+                  line=dict(color=COLOR_RATIO, width=0.8), opacity=0.4),
+        row=1, col=1, secondary_y=True
+    )
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Ratio_SMA'], name="G/S Ratio SMA", 
+                  line=dict(color=COLOR_RATIO, width=2.8)),
+        row=1, col=1, secondary_y=True
+    )
+
+    # Bottom chart
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['DXY'], name="DXY (raw)", 
+                  line=dict(color=COLOR_DXY, width=0.8), opacity=0.4),
+        row=2, col=1, secondary_y=False
+    )
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['DXY_SMA'], name="DXY SMA", 
+                  line=dict(color=COLOR_DXY, width=2.2)),
+        row=2, col=1, secondary_y=False
+    )
+
+    fig.add_trace(
+        go.Scatter(x=df.index, y=df['Corr'], name="Gold-DXY Corr", 
+                  line=dict(color=COLOR_CORR, width=1.8, dash='dot')),
+        row=2, col=1, secondary_y=True
+    )
+
+    fig.add_hline(y=0, line_width=1, line_color="gray", row=2, col=1, secondary_y=True)
+
+    # Layout
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    fig.update_layout(
+        title={
+            'text': f"<b>Market Analysis (5yr)</b><br>Updated: {timestamp}",
+            'x': 0.5,
+            'font': {'size': 20}
+        },
+        template="plotly_white",
+        height=900,
+        showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
+    )
+
+    fig.update_xaxes(showgrid=True, gridcolor=GRID_COLOR)
+    fig.update_yaxes(showgrid=True, gridcolor=GRID_COLOR, zeroline=False)
+
+    fig.update_yaxes(title_text="<b>Gold Price ($)</b>", title_font=dict(color=COLOR_GOLD), row=1, col=1, secondary_y=False)
+    fig.update_yaxes(title_text="<b>G/S Ratio / Silver</b>", title_font=dict(color=COLOR_RATIO), row=1, col=1, secondary_y=True)
+    fig.update_yaxes(title_text="<b>DXY</b>", title_font=dict(color=COLOR_DXY), row=2, col=1, secondary_y=False)
+    fig.update_yaxes(title_text="<b>Correlation</b>", title_font=dict(color=COLOR_CORR), range=[-1.1, 1.1], row=2, col=1, secondary_y=True)
+
+    print("Chart generated successfully")
+    return fig.to_html(include_plotlyjs='cdn', full_html=False), "Success"
+`;
+
+                // Execute Python code
+                await pyodide.runPythonAsync(pythonCode);
+                
+                // Run the analysis
+                const result = await pyodide.runPythonAsync(`
+import asyncio
+result = asyncio.ensure_future(run_analysis())
+await result
+`);
+                
+                const [html, message] = result.toJs();
+                
+                if (html) {
+                    chartContainer.innerHTML = html;
+                    
+                    // Cache the chart
+                    await cacheChart(html);
+                    
+                    dataStatus.innerHTML = '✅ Data loaded';
+                } else {
+                    throw new Error(message);
+                }
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                
+                // Show error message
+                chartContainer.innerHTML = `
+                    <div class="error-message">
+                        <h3>❌ Error Loading Data</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Attempting to load cached data...</p>
+                    </div>
+                `;
+                
+                // Try to load from cache
+                const cached = await getCachedChart();
+                if (cached) {
+                    setTimeout(() => {
+                        chartContainer.innerHTML = cached.html;
+                        document.getElementById('lastUpdated').innerHTML = 
+                            `Last updated: ${new Date(cached.timestamp).toLocaleString()} (cached)`;
+                    }, 100);
+                }
+                
+                dataStatus.innerHTML = '⚠️ Using cached data';
+            }
+        }
+
+        async function refreshData() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+            
+            await runAnalysis();
+            
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '🔄 Refresh Data';
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            updateOnlineStatus();
+            
+            // Try to load cached chart first
+            const cached = await getCachedChart();
+            if (cached) {
+                document.getElementById('chartContainer').innerHTML = cached.html;
+                document.getElementById('lastUpdated').innerHTML = 
+                    `Last updated: ${new Date(cached.timestamp).toLocaleString()} (cached)`;
+                document.getElementById('cacheStatus').innerHTML = '💾 Cache: Available';
+            }
+            
+            // Initialize Pyodide
+            const pyodideReady = await initializePyodide();
+            
+            // Auto-run simulation when Pyodide is ready
+            if (pyodideReady) {
+                setTimeout(runSimulation, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

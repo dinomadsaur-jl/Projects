@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Livemarketv11</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Livemarketv11">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" href="icon-192.png">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #1a1a2e;
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --surface: #f5f5f5;
+    --font: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.app-header {
+    background: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    flex-wrap: wrap;
+}
+
+@media all and (display-mode: standalone) {
+    .app-header { display: none; }
+}
+
+.header-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.header-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.refresh-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.refresh-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.install-hint {
+    background: var(--surface);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 8px;
+    font-size: 14px;
+    display: none;
+}
+
+.install-hint.show { display: block; }
+
+.loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.95);
+    color: white;
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+}
+
+.loading.show { display: flex; }
+
+.spinner {
+    border: 4px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top: 4px solid white;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-details {
+    color: #ff8888;
+    font-size: 12px;
+    margin-top: 10px;
+    max-width: 80%;
+    word-break: break-word;
+}
+
+#output {
+    width: 100%;
+    min-height: calc(100vh - 120px);
+    padding: 0;
+}
+
+.console-container {
+    background: #1e1e1e;
+    color: #f0f0f0;
+    padding: 20px;
+    font-family: 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 100%;
+}
+
+.console-line {
+    margin: 2px 0;
+    border-bottom: 1px solid #333;
+    padding: 4px 0;
+}
+
+.console-timestamp {
+    color: #888;
+    font-size: 11px;
+    margin-right: 10px;
+}
+
+.console-output {
+    color: #00ff00;
+}
+
+.console-output-print {
+    color: #ffffff;
+}
+
+.console-error {
+    color: #ff6b6b;
+    background: rgba(255,107,107,0.1);
+    padding: 8px;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+.console-html {
+    background: white;
+    color: black;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.error {
+    color: #ff4444;
+    padding: 20px;
+    background: #ffeeee;
+    border-radius: 8px;
+    margin: 20px;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+.network-status {
+    font-size: 12px;
+    margin-top: 10px;
+    color: #aaa;
+}
+
+.package-list {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #88ff88;
+}
+
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <span class="header-title">Livemarketv11</span>
+        <div class="header-controls">
+            <button class="refresh-btn" onclick="clearOutput()">🗑️ Clear</button>
+            <button class="refresh-btn" onclick="retryLoading()">↻ Retry</button>
+            <button class="refresh-btn" onclick="toggleVerbose()">📋 <span id="verboseStatus">ON</span></button>
+        </div>
+    </div>
+    
+    <div class="install-hint" id="installHint">
+        📱 Tap menu → Add to Home screen
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div id="loadingStatus">Initializing Python environment...</div>
+        <div id="packageStatus" class="package-list"></div>
+        <div id="loadingDetails" class="error-details"></div>
+        <div id="networkStatus" class="network-status">Checking network...</div>
+    </div>
+    
+    <div id="output"></div>
+
+    <script>
+        // State variables
+        let pyodide = null;
+        let isReady = false;
+        let outputLines = [];
+        let loadingAttempts = 0;
+        let verbose = true;
+        
+        // Embedded data
+        const PYTHON_CODE = "\n# PyWA - Python code with CORS proxy\nimport sys\nimport requests\nimport json\nfrom js import window\n\n# CORS proxy for Yahoo Finance\noriginal_get = requests.get\n\ndef fetch_with_proxy(url):\n    try:\n        proxy_url = f\"https://api.allorigins.win/raw?url={url}\"\n        print(f\"\ud83d\udce1 Using proxy for: {url[:50]}...\")\n        response = requests.get(proxy_url, timeout=30)\n        print(f\"\ud83d\udce1 Proxy response: {response.status_code}\")\n        return response\n    except Exception as e:\n        print(f\"\u26a0\ufe0f Proxy error: {e}\")\n        return original_get(url, timeout=30)\n\ndef patched_get(url, **kwargs):\n    if 'yahoo.com' in url or 'finance' in url:\n        return fetch_with_proxy(url)\n    return original_get(url, **kwargs)\n\nrequests.get = patched_get\nprint(\"\u2705 CORS proxy enabled\")\n\nprint(\"=\" * 50)\nprint(\"\ud83d\ude80 Starting user code execution\")\nprint(\"=\" * 50)\n\nimport requests\nimport pandas as pd\nimport numpy as np\nimport plotly.graph_objects as go\nfrom plotly.subplots import make_subplots\nimport time\nimport os\nimport subprocess\nimport webbrowser\nfrom datetime import datetime, timedelta\nfrom scipy.signal import argrelextrema\n\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n# Configuration\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nTICKERS = {\n    'Gold': 'GC=F',\n    'Silver': 'SI=F',\n    'DXY': 'DX-Y.NYB'\n}\n\nSMA_PERIOD = 20\nSMA_REVERSAL_THRESHOLD = 0.015\n\nSELECTED_WINDOW = 365 * 5 + 60\nRECENT_DAYS = 365 * 2\n\nHTML_FILENAME = \"market_analysis_5yr.html\"\n\nROLLING_CORR_WINDOW = 60\n\n# Colors\nCOLOR_GOLD = '#D4AF37'\nCOLOR_SILVER = '#708090'  # clearer slate gray\nCOLOR_RATIO = '#800080'\nCOLOR_DXY = '#003366'\nCOLOR_CORR = '#FF6347'\nGRID_COLOR = 'rgb(220, 220, 220)'\n\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n# Data Fetching\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef fetch_yahoo_data(ticker, start_date, end_date, interval):\n    try:\n        print(f\"Fetching {ticker} ({interval})\")\n        p1 = int(start_date.timestamp())\n        p2 = int(end_date.timestamp())\n        url = f\"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}\"\n        headers = {\"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\"}\n        params = {\n            \"period1\": p1,\n            \"period2\": p2,\n            \"interval\": interval,\n            \"includePrePost\": \"false\",\n            \"includeAdjustedClose\": \"true\",\n            \"events\": \"history\"\n        }\n        \n        r = requests.get(url, headers=headers, params=params, timeout=35)\n        r.raise_for_status()\n        data = r.json()\n        \n        result = data['chart']['result'][0]\n        if not result.get('timestamp'):\n            raise ValueError(\"No timestamp in response\")\n        \n        timestamps = result['timestamp']\n        closes = result['indicators']['quote'][0]['close']\n        \n        dates = pd.to_datetime(timestamps, unit='s')\n        series = pd.Series(closes, index=dates, name=ticker)\n        cleaned = series.dropna()\n        print(f\"\u2192 {ticker} returned {len(cleaned)} points\")\n        return cleaned\n    except Exception as e:\n        print(f\"Error fetching {ticker}: {e}\")\n        return pd.Series(dtype=float)\n\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n# SMA Reversal Detection\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef find_sma_reversals(df, raw_col, sma_col, threshold=SMA_REVERSAL_THRESHOLD):\n    valid_data = df[[raw_col, sma_col]].dropna()\n    if valid_data.empty:\n        return []\n\n    reversals = []\n    last_sma_val = valid_data[sma_col].iloc[0]\n    last_date = valid_data.index[0]\n    trend = 0\n\n    for date, row in valid_data.iterrows():\n        curr_sma = row[sma_col]\n\n        if trend == 0:\n            if curr_sma >= last_sma_val * (1 + threshold):\n                trend = 1\n                last_sma_val = curr_sma\n                last_date = date\n            elif curr_sma <= last_sma_val * (1 - threshold):\n                trend = -1\n                last_sma_val = curr_sma\n                last_date = date\n\n        elif trend == 1:\n            if curr_sma > last_sma_val:\n                last_sma_val = curr_sma\n                last_date = date\n            elif curr_sma < last_sma_val * (1 - threshold):\n                raw_price = df.loc[last_date, raw_col]\n                reversals.append((last_date, raw_price, 'peak'))\n                trend = -1\n                last_sma_val = curr_sma\n                last_date = date\n\n        elif trend == -1:\n            if curr_sma < last_sma_val:\n                last_sma_val = curr_sma\n                last_date = date\n            elif curr_sma > last_sma_val * (1 + threshold):\n                raw_price = df.loc[last_date, raw_col]\n                reversals.append((last_date, raw_price, 'trough'))\n                trend = 1\n                last_sma_val = curr_sma\n                last_date = date\n\n    return reversals\n\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n# Main Analysis\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef run_analysis():\n    print(\"\\n--- Analyzing ~5 years of data ---\")\n    now = datetime.now()\n    full_start = now - timedelta(days=SELECTED_WINDOW + 200)\n    recent_start = now - timedelta(days=RECENT_DAYS)\n\n    data_frames = []\n    for name, symbol in TICKERS.items():\n        print(f\"\\n{name} ({symbol})...\")\n        s_weekly = fetch_yahoo_data(symbol, full_start, now, '1wk')\n        time.sleep(1.2)\n        s_recent = fetch_yahoo_data(symbol, recent_start, now, '1d')\n        time.sleep(1.2)\n\n        if s_weekly.empty and s_recent.empty:\n            print(f\"Skipping {name} - no data\")\n            continue\n\n        combined = pd.concat([s_weekly, s_recent])\n        combined = combined[~combined.index.duplicated(keep='last')].sort_index()\n        data_frames.append(combined.rename(name))\n\n    if not data_frames:\n        print(\"No data retrieved.\")\n        return None\n\n    df = pd.concat(data_frames, axis=1)\n    df = df.interpolate(method='time')\n    \n    cutoff = now - timedelta(days=SELECTED_WINDOW)\n    df = df[df.index >= cutoff]\n\n    if df.empty:\n        print(\"No data after cutoff.\")\n        return None\n\n    # Indicators\n    df['Ratio'] = df['Gold'] / df['Silver']\n\n    for col in ['Gold', 'Silver', 'DXY', 'Ratio']:\n        df[f'{col}_SMA'] = df[col].rolling(SMA_PERIOD).mean()\n\n    df['Corr'] = df['Gold'].rolling(ROLLING_CORR_WINDOW).corr(df['DXY'])\n\n    # Last values\n    last_gold   = df['Gold'].iloc[-1]   if 'Gold' in df else np.nan\n    last_silver = df['Silver'].iloc[-1] if 'Silver' in df else np.nan\n    last_ratio  = df['Ratio'].iloc[-1]  if 'Ratio' in df else np.nan\n    last_corr   = df['Corr'].iloc[-1]   if 'Corr' in df else np.nan\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    # Plotting\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    fig = make_subplots(\n        rows=2, cols=1,\n        shared_xaxes=True,\n        row_heights=[0.65, 0.35],\n        vertical_spacing=0.06,\n        specs=[[{\"secondary_y\": True}], [{\"secondary_y\": True}]]\n    )\n\n    # \u2500\u2500 Top chart \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Gold'], name=\"Gold (raw)\", line=dict(color=COLOR_GOLD, width=0.8), opacity=0.4),\n        row=1, col=1, secondary_y=False\n    )\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Gold_SMA'], name=\"Gold SMA\", line=dict(color=COLOR_GOLD, width=2.2)),\n        row=1, col=1, secondary_y=False\n    )\n\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Silver'], name=\"Silver (raw)\", line=dict(color=COLOR_SILVER, width=0.8), opacity=0.4),\n        row=1, col=1, secondary_y=True\n    )\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Silver_SMA'], name=\"Silver SMA\", line=dict(color=COLOR_SILVER, width=1.8)),\n        row=1, col=1, secondary_y=True\n    )\n\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Ratio'], name=\"G/S Ratio (raw)\", line=dict(color=COLOR_RATIO, width=0.8), opacity=0.4),\n        row=1, col=1, secondary_y=True\n    )\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Ratio_SMA'], name=\"G/S Ratio SMA\", line=dict(color=COLOR_RATIO, width=2.8)),\n        row=1, col=1, secondary_y=True\n    )\n\n    # Reversal annotations\n    for col, color, yref in [('Gold', COLOR_GOLD, 'y'), ('Silver', COLOR_SILVER, 'y2'), ('Ratio', COLOR_RATIO, 'y2')]:\n        sma_col = f'{col}_SMA'\n        reversals = find_sma_reversals(df, col, sma_col)\n        for r_date, r_raw, r_type in reversals:\n            ay = -35 if r_type == 'peak' else 35\n            symbol = \"triangle-down\" if r_type == 'peak' else \"triangle-up\"\n\n            fig.add_annotation(\n                x=r_date, y=r_raw,\n                text=f\"{r_raw:.2f}\",\n                showarrow=True,\n                arrowhead=2,\n                arrowcolor=color,\n                ax=0, ay=ay,\n                bgcolor=\"white\",\n                bordercolor=color,\n                font=dict(size=9, color=\"black\"),\n                row=1, col=1, yref=yref\n            )\n\n            fig.add_trace(\n                go.Scatter(\n                    x=[r_date], y=[r_raw],\n                    mode='markers',\n                    marker=dict(symbol=symbol, size=10, color=color),\n                    showlegend=False,\n                    hoverinfo='skip'\n                ),\n                row=1, col=1, secondary_y=(yref == 'y2')\n            )\n\n    # \u2500\u2500 Bottom chart \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['DXY'], name=\"DXY (raw)\", line=dict(color=COLOR_DXY, width=0.8), opacity=0.4),\n        row=2, col=1, secondary_y=False\n    )\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['DXY_SMA'], name=\"DXY SMA\", line=dict(color=COLOR_DXY, width=2.2)),\n        row=2, col=1, secondary_y=False\n    )\n\n    dxy_reversals = find_sma_reversals(df, 'DXY', 'DXY_SMA')\n    for r_date, r_raw, r_type in dxy_reversals:\n        ay = -35 if r_type == 'peak' else 35\n        symbol = \"triangle-down\" if r_type == 'peak' else \"triangle-up\"\n\n        fig.add_annotation(\n            x=r_date, y=r_raw,\n            text=f\"{r_raw:.2f}\",\n            showarrow=True,\n            arrowhead=2,\n            arrowcolor=COLOR_DXY,\n            ax=0, ay=ay,\n            bgcolor=\"white\",\n            bordercolor=COLOR_DXY,\n            font=dict(size=9, color=\"black\"),\n            row=2, col=1, secondary_y=False\n        )\n\n        fig.add_trace(\n            go.Scatter(\n                x=[r_date], y=[r_raw],\n                mode='markers',\n                marker=dict(symbol=symbol, size=10, color=COLOR_DXY),\n                showlegend=False,\n                hoverinfo='skip'\n            ),\n            row=2, col=1, secondary_y=False\n        )\n\n    fig.add_trace(\n        go.Scatter(x=df.index, y=df['Corr'], name=\"Gold-DXY Corr (rolling)\", \n                   line=dict(color=COLOR_CORR, width=1.8, dash='dot'), opacity=0.9),\n        row=2, col=1, secondary_y=True\n    )\n\n    fig.add_hline(y=0, line_width=1, line_color=\"gray\", row=2, col=1, secondary_y=True)\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    # Layout \u2013 tidy title/legend + fixed correlation box between plots\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    corr_status = \"Decoupled\" if abs(last_corr) < 0.3 else (\"Inverse\" if last_corr < 0 else \"Direct\")\n    \n    timestamp = datetime.now().strftime(\"%Y-%m-%d %H:%M\")\n\n    fig.update_layout(\n        title={\n            'text': f\"<b>Market Analysis (5yr) - Weekly SMA Direction Changes</b><br>Updated: {timestamp}\",\n            'x': 0.5,\n            'y': 0.99,  # moved higher\n            'font': {'size': 20},\n            'pad': {'t': 30}  # extra padding above title\n        },\n        template=\"plotly_white\",\n        plot_bgcolor='#f8fbff',  # subtle light tinted background\n        paper_bgcolor='white',\n        autosize=True,\n        hovermode=\"x unified\",\n        legend={\n            'orientation': \"h\",\n            'yanchor': \"bottom\",\n            'y': 0.96,  # raised slightly to avoid title overlap\n            'xanchor': \"center\",\n            'x': 0.5,\n            'font': {'size': 10},\n            'bgcolor': \"rgba(255,255,255,0.9)\",\n            'bordercolor': \"lightgray\",\n            'borderwidth': 1\n        },\n        margin=dict(l=60, r=60, t=140, b=80),  # increased top margin for title + legend\n        xaxis_range=[cutoff, now],\n        xaxis=dict(fixedrange=False)\n    )\n\n    # Fixed correlation overlay \u2013 resized & positioned between plots\n    fig.add_shape(\n        type=\"rect\",\n        xref=\"paper\", yref=\"paper\",\n        x0=0.68, y0=0.34, x1=0.91, y1=0.36,  # smaller & centered vertically\n        fillcolor=\"rgba(255,255,255,0.97)\",\n        line=dict(color=\"black\", width=1.2),\n        layer=\"above\"\n    )\n    fig.add_annotation(\n        x=0.9, y=0.35, xref=\"paper\", yref=\"paper\",\n        text=f\"<b>Gold/DXY Corr: {last_corr:.2f} ({corr_status})</b>\",\n        showarrow=False,\n        font=dict(size=12, color=\"black\"),\n        align=\"center\"\n    )\n\n    fig.update_xaxes(showgrid=True, gridcolor=GRID_COLOR, rangeslider_visible=False)\n    fig.update_yaxes(showgrid=True, gridcolor=GRID_COLOR, zeroline=False)\n\n    fig.update_yaxes(title_text=\"<b>Gold Price ($)</b>\", title_font=dict(color=COLOR_GOLD), row=1, col=1, secondary_y=False)\n    fig.update_yaxes(title_text=\"<b>G/S Ratio</b>\", title_font=dict(color=COLOR_RATIO), row=1, col=1, secondary_y=True)\n    fig.update_yaxes(title_text=\"<b>DXY</b>\", title_font=dict(color=COLOR_DXY), row=2, col=1, secondary_y=False)\n    fig.update_yaxes(title_text=\"<b>Correlation</b>\", title_font=dict(color=COLOR_CORR), range=[-1.1, 1.1], row=2, col=1, secondary_y=True)\n\n    # Last price annotations on lines\n    for col, color, yref, sec_y in [\n        ('Gold', COLOR_GOLD, 'y', False),\n        ('Silver', COLOR_SILVER, 'y2', True),\n        ('Ratio', COLOR_RATIO, 'y2', True),\n        ('DXY', COLOR_DXY, 'y3', False)\n    ]:\n        last_val = df[col].iloc[-1] if col in df else np.nan\n        if np.isnan(last_val):\n            continue\n\n        text_format = f\"{last_val:,.0f}\" if col in ['Gold', 'DXY'] else f\"{last_val:.2f}\"\n\n        fig.add_annotation(\n            x=df.index[-1], y=last_val,\n            text=text_format,\n            showarrow=False,\n            xanchor='left',\n            ax=20,\n            font=dict(color=color, size=11, weight='bold'),\n            row=1 if 'DXY' not in col else 2,\n            col=1,\n            yref=yref,\n            secondary_y=sec_y\n        )\n\n    print(\"Generating HTML...\")\n    fig.write_html(HTML_FILENAME, include_plotlyjs='cdn', full_html=True, default_width='100%', default_height='100%')\n    return HTML_FILENAME\n\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n# Execution\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\ndef open_html(file_path):\n    abs_path = os.path.abspath(file_path)\n    print(f\"\\nOpening: {abs_path}\")\n    try:\n        subprocess.run([\"termux-open\", abs_path], check=False)\n    except:\n        try:\n            webbrowser.open(f\"file://{abs_path}\")\n        except:\n            print(\"Could not auto-open file.\")\n\nif __name__ == \"__main__\":\n    html_file = run_analysis()\n    if html_file and os.path.exists(html_file):\n        print(\"\\nChart generated successfully.\")\n        open_html(html_file)\n    else:\n        print(\"\\nFailed to generate chart.\")\n\nprint(\"=\" * 50)\nprint(\"\u2705 User code execution complete\")\nprint(\"=\" * 50)\n\nsys.stdout.flush()\nsys.stderr.flush()\n";
+        const PACKAGES = ["scipy", "requests", "numpy", "plotly", "pandas"];
+        
+        // Show install hint on mobile
+        if (/Android|iPhone/i.test(navigator.userAgent)) {
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                document.getElementById('installHint').classList.add('show');
+            }
+        }
+        
+        // Toggle verbose mode
+        function toggleVerbose() {
+            verbose = !verbose;
+            document.getElementById('verboseStatus').textContent = verbose ? 'ON' : 'OFF';
+            addOutputLine(verbose ? '📢 Verbose logging enabled' : '🔇 Verbose logging disabled', 'system');
+        }
+        
+        // Check network connectivity
+        function checkNetwork() {
+            const networkStatus = document.getElementById('networkStatus');
+            if (navigator.onLine) {
+                networkStatus.textContent = '📶 Network: Online';
+                networkStatus.style.color = '#88ff88';
+            } else {
+                networkStatus.textContent = '📶 Network: Offline';
+                networkStatus.style.color = '#ff8888';
+            }
+        }
+        
+        // Add line to console output
+        function addOutputLine(text, type = 'stdout') {
+            if (!verbose && type === 'stdout') return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            outputLines.push({ timestamp, text, type });
+            
+            if (outputLines.length > 1000) {
+                outputLines.shift();
+            }
+            
+            updateOutput();
+        }
+        
+        // Clear output
+        function clearOutput() {
+            outputLines = [];
+            updateOutput();
+            addOutputLine('🗑️ Output cleared', 'system');
+        }
+        
+        // Update display
+        function updateOutput() {
+            const output = document.getElementById('output');
+            let html = '<div class="console-container">';
+            
+            outputLines.forEach(line => {
+                const escapedText = line.text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                if (line.type === 'html') {
+                    html += '<div class="console-html">' + line.text + '</div>';
+                } else if (line.type === 'stderr') {
+                    html += '<div class="console-error">[ERROR] ' + escapedText + '</div>';
+                } else if (line.type === 'system') {
+                    html += '<div class="console-line"><span class="console-timestamp">[' + line.timestamp + ']</span> ' + 
+                           '<span style="color: #8888ff;">🔧 ' + escapedText + '</span></div>';
+                } else if (line.type === 'print') {
+                    html += '<div class="console-line"><span class="console-timestamp">[' + line.timestamp + ']</span> ' + 
+                           '<span class="console-output-print">📝 ' + escapedText + '</span></div>';
+                } else {
+                    html += '<div class="console-line"><span class="console-timestamp">[' + line.timestamp + ']</span> ' + 
+                           '<span class="console-output">' + escapedText + '</span></div>';
+                }
+            });
+            
+            html += '</div>';
+            output.innerHTML = html;
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+        
+        // Retry loading
+        function retryLoading() {
+            loadingAttempts++;
+            addOutputLine('🔄 Retrying initialization (attempt ' + (loadingAttempts + 1) + ')...', 'system');
+            init();
+        }
+        
+        // Initialize Pyodide
+        async function init() {
+            const loading = document.getElementById('loading');
+            const status = document.getElementById('loadingStatus');
+            const packageStatus = document.getElementById('packageStatus');
+            const details = document.getElementById('loadingDetails');
+            
+            loading.classList.add('show');
+            status.textContent = 'Initializing...';
+            packageStatus.innerHTML = '';
+            details.textContent = '';
+            
+            addOutputLine('🚀 PyWA starting up...', 'system');
+            addOutputLine('📱 Device: ' + navigator.userAgent, 'system');
+            addOutputLine('🌐 Network: ' + (navigator.onLine ? 'Online' : 'Offline'), 'system');
+            
+            if (PACKAGES.length > 0) {
+                addOutputLine('📦 Required packages: ' + PACKAGES.join(', '), 'system');
+                packageStatus.innerHTML = '📦 Packages: ' + PACKAGES.join(', ');
+            }
+            
+            try {
+                status.textContent = 'Loading Pyodide...';
+                addOutputLine('📦 Loading Pyodide...', 'system');
+                
+                pyodide = await loadPyodide({
+                    indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/",
+                });
+                
+                addOutputLine('✅ Pyodide loaded', 'system');
+                status.textContent = 'Pyodide loaded';
+                
+                if (PACKAGES.length > 0) {
+                    status.textContent = 'Loading packages...';
+                    addOutputLine('📚 Loading micropip...', 'system');
+                    
+                    await pyodide.loadPackage('micropip');
+                    const micropip = pyodide.pyimport('micropip');
+                    
+                    for (const pkg of PACKAGES) {
+                        status.textContent = `Installing ${pkg}...`;
+                        packageStatus.innerHTML = `📦 Installing ${pkg}...`;
+                        addOutputLine(`📦 Installing ${pkg}...`, 'system');
+                        
+                        try {
+                            await micropip.install(pkg);
+                            addOutputLine(`✅ ${pkg} installed`, 'system');
+                        } catch (e) {
+                            addOutputLine(`⚠️ Could not install ${pkg}: ${e}`, 'stderr');
+                        }
+                    }
+                    
+                    packageStatus.innerHTML = '✅ All packages installed';
+                    addOutputLine('✅ All packages installed', 'system');
+                }
+                
+                isReady = true;
+                status.textContent = 'Ready!';
+                addOutputLine('✅ Python environment ready', 'system');
+                setTimeout(() => loading.classList.remove('show'), 500);
+                
+                // Auto-run
+                runPython();
+                
+            } catch (error) {
+                const errorMsg = `Failed to load Pyodide: ${error}`;
+                addOutputLine(`❌ ${errorMsg}`, 'stderr');
+                status.textContent = 'Loading failed';
+                details.textContent = error.toString();
+                setTimeout(() => loading.classList.remove('show'), 1000);
+            }
+        }
+        
+        // Run Python code
+        async function runPython() {
+            if (!isReady) {
+                await init();
+                return;
+            }
+            
+            const loading = document.getElementById('loading');
+            const status = document.getElementById('loadingStatus');
+            const btn = document.querySelector('.refresh-btn:nth-child(2)');
+            
+            loading.classList.add('show');
+            btn.disabled = true;
+            status.textContent = 'Running Python...';
+            
+            addOutputLine('\n' + '='.repeat(50), 'system');
+            addOutputLine('🚀 Starting Python execution', 'system');
+            addOutputLine('='.repeat(50), 'system');
+            
+            try {
+                // Setup Python output capture
+                await pyodide.runPythonAsync(`
+import sys
+from io import StringIO
+
+class JSCapture:
+    def __init__(self):
+        self.buffer = []
+    
+    def write(self, text):
+        if text and text.strip():
+            self.buffer.append(text)
+            try:
+                import js
+                js.addOutputLine(text.rstrip(), 'print')
+            except:
+                pass
+    
+    def flush(self):
+        pass
+
+sys.stdout = JSCapture()
+sys.stderr = JSCapture()
+print("PyWA: Python environment ready")
+                `);
+                
+                addOutputLine('📝 Executing user code...', 'system');
+                addOutputLine('-' .repeat(40), 'system');
+                
+                await pyodide.runPythonAsync(PYTHON_CODE);
+                
+                addOutputLine('-' .repeat(40), 'system');
+                addOutputLine('✅ Python execution complete', 'system');
+                addOutputLine('='.repeat(50), 'system');
+                
+            } catch (error) {
+                addOutputLine(`❌ Error: ${error}`, 'stderr');
+            }
+            
+            loading.classList.remove('show');
+            btn.disabled = false;
+        }
+        
+        // Start initialization
+        setTimeout(() => {
+            checkNetwork();
+            init();
+        }, 500);
+        
+        // Auto-refresh when installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            setInterval(runPython, 5 * 60 * 1000);
+        }
+    </script>
+</body>
+</html>
