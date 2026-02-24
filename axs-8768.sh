@@ -1,4 +1,4 @@
-
+cd "/storage/emulated/0/ MyDocuments/Projects"
 rm -f ~/.shortcuts/axs-8768 && cat > ~/.shortcuts/axs-8768 << 'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 echo "=== AXS Port 8768 Manager ==="
