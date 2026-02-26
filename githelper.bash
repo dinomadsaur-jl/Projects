@@ -1,5 +1,5 @@
 # ============================================
-# COMPLETE GITHELPER INSTALL WITH FILE BROWSER
+# COMPLETE GITHELPER INSTALL WITH AUTO-FIX REMOTE
 # ============================================
 
 echo "🗑️ Removing old githelper..."
@@ -9,14 +9,14 @@ source ~/.bashrc 2>/dev/null
 echo "✅ Old githelper removed"
 echo ""
 
-echo "📦 Installing new githelper with File Browser..."
+echo "📦 Installing new githelper with Auto-Fix Remote feature..."
 echo ""
 
 # Create the new githelper
 cat > ~/githelper.sh << 'EOF'
 #!/bin/bash
 # 📱 GIT ALL-IN-ONE HELPER FOR MYDOCUMENTS/PROJECTS
-# Version with File Browser for Acode + Auto-Setup
+# Version with Auto-Fix Remote URL
 
 # Colors for better visibility
 RED='\033[0;31m'
@@ -34,7 +34,66 @@ PROJECTS_PATH="/storage/emulated/0/ MyDocuments/Projects"
 # Your GitHub info
 GITHUB_USER="dinomadsaur-jl"
 GITHUB_EMAIL="dinomadsaur@gmail.com"
-GITHUB_REPO="my-projects"
+GITHUB_REPO="Projects"
+
+# Function to auto-fix remote URL
+auto_fix_remote() {
+    if [ ! -d ".git" ]; then
+        return
+    fi
+    
+    # Check current remote
+    current_remote=$(git remote get-url origin 2>/dev/null)
+    if [ -z "$current_remote" ]; then
+        return
+    fi
+    
+    # Try to fetch and see if there's a redirect message
+    fetch_output=$(git fetch 2>&1)
+    
+    if echo "$fetch_output" | grep -q "repository moved"; then
+        echo -e "${YELLOW}⚠️ Remote repository has moved!${NC}"
+        
+        # Extract new URL from the message
+        new_url=$(echo "$fetch_output" | grep "git@github.com:" | head -1 | awk '{print $NF}')
+        
+        if [ -n "$new_url" ]; then
+            echo -e "${GREEN}✅ Found new URL: $new_url${NC}"
+            echo -e "${YELLOW}Updating remote...${NC}"
+            
+            git remote set-url origin "$new_url"
+            echo -e "${GREEN}✅ Remote updated to: $(git remote get-url origin)${NC}"
+            
+            # Also update GITHUB_REPO variable
+            if [[ "$new_url" =~ github\.com[:/]([^/]+)/(.+)\.git ]]; then
+                new_repo="${BASH_REMATCH[2]}"
+                if [ -n "$new_repo" ] && [ "$new_repo" != "$GITHUB_REPO" ]; then
+                    GITHUB_REPO="$new_repo"
+                    echo -e "${GREEN}✅ Repo name updated to: $GITHUB_REPO${NC}"
+                    
+                    # Option to update the script permanently
+                    echo -e "${YELLOW}Update githelper.sh permanently with new repo name? (y/n):${NC}"
+                    read update_script
+                    if [ "$update_script" = "y" ]; then
+                        sed -i "s/GITHUB_REPO=\".*\"/GITHUB_REPO=\"$new_repo\"/" "$0"
+                        echo -e "${GREEN}✅ githelper.sh updated permanently${NC}"
+                    fi
+                fi
+            fi
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Function to check and fix remote before any git operation
+check_and_fix_remote() {
+    if [ ! -d ".git" ]; then
+        return
+    fi
+    
+    auto_fix_remote
+}
 
 # Function to draw line
 draw_line() {
@@ -57,8 +116,9 @@ show_header() {
 check_folder() {
     if [ ! -d "$PROJECTS_PATH" ]; then
         echo -e "${RED}❌ Projects folder not found at: $PROJECTS_PATH${NC}"
-        echo -e "${YELLOW}Please check the path and update the script.${NC}"
-        return 1
+        echo -e "${YELLOW}Please enter the correct path:${NC}"
+        read -r new_path
+        PROJECTS_PATH="$new_path"
     fi
     cd "$PROJECTS_PATH" 2>/dev/null
     echo -e "${GREEN}✅ In projects folder: $(pwd)${NC}"
@@ -84,26 +144,31 @@ show_menu() {
     echo -e "${CYAN}║${NC}  ${GREEN}11)${NC} 🔑 SSH Key Management          ${CYAN}║${NC}"
     echo -e "${CYAN}║${NC}  ${GREEN}12)${NC} 🆕 Setup Git in This Folder    ${CYAN}║${NC}"
     echo -e "${CYAN}║${NC}  ${PURPLE}13)${NC} 🤖 Auto-Setup New Device       ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}  ${PURPLE}14)${NC} 🔧 Fix Remote URL (Manual)     ${CYAN}║${NC}"
     echo -e "${CYAN}║${NC}  ${RED}0)${NC} 🚪 Exit                          ${CYAN}║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════╝${NC}"
     echo ""
-    echo -e "${BLUE}Enter your choice [0-13]: ${NC}"
+    echo -e "${BLUE}Enter your choice [0-14]: ${NC}"
 }
 
-# Function for status
+# Function for status (with auto-fix)
 do_status() {
     echo -e "\n${CYAN}📊 GIT STATUS:${NC}"
     draw_line
     if [ ! -d ".git" ]; then
         echo -e "${RED}❌ Not a git repository. Run option 12 first.${NC}"
     else
+        # Try to auto-fix remote first
+        auto_fix_remote
+        
         git status -s
         echo ""
         echo -e "${GREEN}🌿 Current branch: $(git branch --show-current 2>/dev/null)${NC}"
+        echo -e "${GREEN}🔗 Remote: $(git remote get-url origin 2>/dev/null || echo 'Not set')${NC}"
     fi
 }
 
-# Function for full push
+# Function for full push (with auto-fix)
 do_full_push() {
     echo -e "\n${CYAN}📦 FULL PUSH:${NC}"
     draw_line
@@ -112,6 +177,9 @@ do_full_push() {
         echo -e "${RED}❌ Not a git repository. Run option 12 first.${NC}"
         return
     fi
+    
+    # Auto-fix remote before push
+    auto_fix_remote
     
     git status -s
     echo ""
@@ -124,11 +192,23 @@ do_full_push() {
     
     git add .
     git commit -m "$commit_msg"
-    git push
+    
+    # Try push, if fails due to remote issue, fix and retry
+    echo -e "${GREEN}☁️ Pushing to GitHub...${NC}"
+    push_output=$(git push 2>&1)
+    if echo "$push_output" | grep -q "repository moved"; then
+        echo -e "${YELLOW}⚠️ Remote issue detected! Auto-fixing...${NC}"
+        auto_fix_remote
+        echo -e "${GREEN}✅ Retrying push...${NC}"
+        git push
+    else
+        echo "$push_output"
+    fi
+    
     echo -e "\n${GREEN}✅ Done!${NC}"
 }
 
-# Function for quick push
+# Function for quick push (with auto-fix)
 do_quick_push() {
     echo -e "\n${CYAN}⚡ QUICK PUSH:${NC}"
     draw_line
@@ -138,15 +218,30 @@ do_quick_push() {
         return
     fi
     
+    # Auto-fix remote before push
+    auto_fix_remote
+    
     git status -s
     commit_msg="Update $(date '+%Y-%m-%d %H:%M')"
     git add .
     git commit -m "$commit_msg"
-    git push
+    
+    # Try push, if fails due to remote issue, fix and retry
+    echo -e "${GREEN}☁️ Pushing to GitHub...${NC}"
+    push_output=$(git push 2>&1)
+    if echo "$push_output" | grep -q "repository moved"; then
+        echo -e "${YELLOW}⚠️ Remote issue detected! Auto-fixing...${NC}"
+        auto_fix_remote
+        echo -e "${GREEN}✅ Retrying push...${NC}"
+        git push
+    else
+        echo "$push_output"
+    fi
+    
     echo -e "\n${GREEN}✅ Quick push done!${NC}"
 }
 
-# Function for pull
+# Function for pull (with auto-fix)
 do_pull() {
     echo -e "\n${CYAN}📥 PULLING FROM GITHUB:${NC}"
     draw_line
@@ -156,8 +251,63 @@ do_pull() {
         return
     fi
     
-    git pull
+    # Auto-fix remote before pull
+    auto_fix_remote
+    
+    pull_output=$(git pull 2>&1)
+    if echo "$pull_output" | grep -q "repository moved"; then
+        echo -e "${YELLOW}⚠️ Remote issue detected! Auto-fixing...${NC}"
+        auto_fix_remote
+        echo -e "${GREEN}✅ Retrying pull...${NC}"
+        git pull
+    else
+        echo "$pull_output"
+    fi
+    
     echo -e "\n${GREEN}✅ Pull complete!${NC}"
+}
+
+# Manual fix remote function
+do_fix_remote() {
+    echo -e "\n${CYAN}🔧 MANUAL REMOTE FIX${NC}"
+    draw_line
+    
+    if [ ! -d ".git" ]; then
+        echo -e "${RED}❌ Not a git repository.${NC}"
+        return
+    fi
+    
+    echo -e "${YELLOW}Current remote:${NC}"
+    git remote -v
+    echo ""
+    
+    echo -e "${YELLOW}Enter new remote URL (or press Enter to auto-detect):${NC}"
+    read new_url
+    
+    if [ -z "$new_url" ]; then
+        # Try to auto-detect from GitHub
+        echo -e "${BLUE}Attempting to auto-detect correct URL...${NC}"
+        
+        # Try fetching to get error message
+        fetch_output=$(git fetch 2>&1)
+        if echo "$fetch_output" | grep -q "git@github.com:"; then
+            new_url=$(echo "$fetch_output" | grep "git@github.com:" | head -1 | awk '{print $NF}')
+            echo -e "${GREEN}Found: $new_url${NC}"
+        else
+            # Default to known correct URL
+            new_url="git@github.com:$GITHUB_USER/$GITHUB_REPO.git"
+            echo -e "${BLUE}Using default: $new_url${NC}"
+        fi
+    fi
+    
+    echo -e "${YELLOW}Update remote to: $new_url ? (y/n):${NC}"
+    read confirm
+    
+    if [ "$confirm" = "y" ]; then
+        git remote set-url origin "$new_url"
+        echo -e "${GREEN}✅ Remote updated!${NC}"
+        git remote -v
+    fi
 }
 
 # Function for recent commits
@@ -301,6 +451,7 @@ browse_files() {
             files+=("$file")
             idx=$((folder_idx + file_idx + 2))
             
+            # File icons
             if [[ "$file" == *.sh ]]; then icon="⚡"
             elif [[ "$file" == *.py ]]; then icon="🐍"
             elif [[ "$file" == *.html ]]; then icon="🌐"
@@ -309,6 +460,7 @@ browse_files() {
             elif [[ "$file" == *.json ]]; then icon="🔧"
             else icon="📄"
             fi
+            
             echo -e "${CYAN}║${NC} ${PURPLE}[$idx]${NC} $icon $file"
             file_idx=$((file_idx + 1))
         done < <(ls -p "$current_dir" 2>/dev/null | grep -v / | sort)
@@ -345,14 +497,14 @@ browse_files() {
     done
 }
 
-# Function for file browser
+# File browser function
 do_file_browser() {
     echo -e "\n${CYAN}📱 FILE BROWSER${NC}"
     draw_line
     browse_files "$(pwd)"
 }
 
-# Function for SSH key management
+# SSH key management
 do_ssh() {
     echo -e "\n${CYAN}🔑 SSH KEY MANAGEMENT${NC}"
     draw_line
@@ -385,7 +537,7 @@ do_ssh() {
     esac
 }
 
-# Function for setting up git
+# Setup git in current folder
 do_setup() {
     echo -e "\n${CYAN}🆕 SETUP GIT IN THIS FOLDER${NC}"
     draw_line
@@ -438,7 +590,7 @@ IGNORE
     fi
 }
 
-# Function for auto-setup new device
+# Auto-setup new device
 do_auto_setup() {
     echo -e "\n${PURPLE}🤖 AUTO-SETUP NEW DEVICE${NC}"
     draw_line
@@ -454,7 +606,7 @@ pkg update -y && pkg install -y git openssh
 termux-setup-storage
 
 # Create projects folder
-mkdir -p /storage/emulated/0/MyDocuments/Projects
+mkdir -p "/storage/emulated/0/MyDocuments/Projects"
 
 # SSH key
 ssh-keygen -t ed25519 -C "dinomadsaur@gmail.com" -f ~/.ssh/id_ed25519 -N ""
@@ -468,9 +620,9 @@ echo ""
 read -p "✅ Added the key? (yes/no): " added
 
 if [ "$added" = "yes" ]; then
-    cd /storage/emulated/0/MyDocuments/Projects
-    git clone git@github.com:dinomadsaur-jl/my-projects.git
-    cd my-projects
+    cd "/storage/emulated/0/MyDocuments/Projects" || exit
+    git clone git@github.com:dinomadsaur-jl/Projects.git
+    cd Projects || exit
     echo ""
     echo "✅ Setup complete!"
     echo "Run 'git status' to check."
@@ -480,6 +632,8 @@ SETUP
     chmod +x "$PROJECTS_PATH/setup_new_device.sh"
     echo -e "${GREEN}✅ Setup script created at:${NC}"
     echo "$PROJECTS_PATH/setup_new_device.sh"
+    echo ""
+    echo -e "${YELLOW}Copy this script to new device and run: bash setup_new_device.sh${NC}"
 }
 
 # Main loop
@@ -503,6 +657,7 @@ while true; do
         11) do_ssh ;;
         12) do_setup ;;
         13) do_auto_setup ;;
+        14) do_fix_remote ;;
         *) echo -e "${RED}Invalid choice${NC}" ;;
     esac
     
@@ -523,10 +678,12 @@ echo "🚀 To run it, just type:"
 echo "   githelper"
 echo ""
 echo "📱 NEW FEATURES:"
-echo "   • Option 10: File Browser - navigate folders and open files in Acode"
-echo "   • Option 13: Auto-Setup script for new devices"
-echo "   • Better colors and formatting"
+echo "   • 🤖 Auto-Fix Remote - automatically detects and fixes moved repositories"
+echo "   • 📱 File Browser - navigate folders and open files in Acode"
+echo "   • 🔧 Manual Remote Fix (Option 14)"
+echo "   • Auto-detects when GitHub renames/moves your repo"
 echo ""
 echo "📍 Your projects folder: /storage/emulated/0/ MyDocuments/Projects"
+echo "📦 GitHub repo: dinomadsaur-jl/Projects"
 echo ""
 echo "👉 Type 'githelper' to start!"
