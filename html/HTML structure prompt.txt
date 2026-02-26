@@ -1,0 +1,1 @@
+"Create a well-structured HTML layout using Flexbox and Grid for positioning, proper Box Model spacing (margin, padding, border), semantic HTML elements, and responsive design with media queries and relative units. The layout should be clean, modern, and adapt to different screen sizes."
