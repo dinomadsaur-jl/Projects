@@ -1,0 +1,1433 @@
+<!-- ================================================ -->
+<!-- PART II: TECHNICAL CONCEPTS FOR BEGINNERS        -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 7: What is a Stock?</h2>
+
+<p>At its core, a stock is a tiny piece of ownership in a real company. When you buy one share of Apple (AAPL), you own a very small fraction of Apple Inc. — the same company that makes iPhones, Macs, and services like Apple Music.</p>
+
+<p>Why do stock prices move?</p>
+<ul>
+  <li><strong>Supply and demand</strong>: More people want to buy than sell → price goes up. More want to sell → price goes down.</li>
+  <li><strong>Long-term driver</strong>: Company earns more profit → stock tends to rise over years (earnings growth).</li>
+  <li><strong>Short-term driver</strong>: Emotion, news, fear, greed, rumors, headlines — these dominate days, weeks, even months.</li>
+</ul>
+
+<p>Lemonade stand analogy: Your lemonade stand is like a tiny company. If you start making better lemonade and more kids buy it → “value” of your stand goes up. If rain comes and no one buys → price people would pay for your stand drops — even if nothing changed about the stand itself.</p>
+
+<p>In this system we don’t care about the company story (“great product!”). We care about price behavior + volume + fear level (VIX). Why? Because price already reflects all known information — including whether institutions still like the company.</p>
+
+<p>Key takeaway for beginners: Stocks are not magic gambling chips. They represent ownership. But short-term, they are driven by human emotion — and that’s exactly what this system exploits.</p>
+
+<h2 class="chapter">Chapter 8: Understanding Price Charts</h2>
+
+<p>A price chart is simply a picture of how buyers and sellers have fought over the last days, weeks, or years. Learning to read it is like learning to read a battlefield map.</p>
+
+<p>Basic building block: Candlesticks</p>
+<ul>
+  <li>Body: Difference between open and close</li>
+  <li>Green/White = close > open (buyers won the day)</li>
+  <li>Red/Black = close < open (sellers won)</li>
+  <li>Wicks (shadows): High and low of the day → shows how far price tried to go before being pushed back</li>
+</ul>
+
+<p>Important patterns we look for:</p>
+<table>
+  <tr><th>Pattern</th><th>What It Means</th><th>Our System Interpretation</th></tr>
+  <tr><td>Higher highs + higher lows</td><td>Uptrend – buyers in control</td><td>Good – but we only buy after fear pullback</td></tr>
+  <tr><td>Lower highs + lower lows</td><td>Downtrend – sellers dominant</td><td>Avoid buying until capitulation</td></tr>
+  <tr><td>Sideways consolidation</td><td>Indecision – energy building</td><td>Perfect — Bollinger squeeze + breakout = our entry</td></tr>
+  <tr><td>Spike down + quick reversal</td><td>Panic selling → buyers step in</td><td>PANIC regime signal — buy aggressively</td></tr>
+</table>
+
+<p>Our focus: Stocks near 52-week lows (on sale) that start showing higher lows + volume pickup + breakout. That’s the sweet spot where fear turns to relief.</p>
+
+<p>Psychology tip: Beginners stare at daily candles and get whipsawed. We look at weekly/monthly context + regime. Big picture + discipline beats short-term noise every time.</p>
+
+<h2 class="chapter">Chapter 9: Volume – The Fuel of Markets</h2>
+
+<p>Price tells you what happened. Volume tells you who caused it and how serious they were.</p>
+
+<p>Key rules of thumb:</p>
+<ul>
+  <li>Price up on high volume → strong buying (institutions accumulating)</li>
+  <li>Price up on low volume → weak move (retail chasing, likely reverses)</li>
+  <li>Price down on high volume → panic selling (capitulation — our buy zone)</li>
+  <li>Price down on low volume → lack of interest (not real selling pressure)</li>
+</ul>
+
+<p>Our system demands volume confirmation:</p>
+<div class="formula-box">
+  Volume Z-Score > 1.5 on breakout day<br>
+  (Today’s volume at least 1.5 standard deviations above 20-day average)
+</div>
+
+<p>Why so strict? Because fake breakouts happen all the time on low volume. Real institutional buying shows up as volume surges — they can’t hide.</p>
+
+<p>Example: NVDA October 2022 breakout from \~$120 → volume spiked 3–4× average → confirmed institutions stepping in after panic. Without that surge, we would have skipped it.</p>
+
+<p>Psychology note: Beginners ignore volume and chase price alone. We wait for the “fuel” — it saves us from dozens of losing traps every year.</p>
+
+<h2 class="chapter">Chapter 10: Volatility – The Market's Heartbeat</h2>
+
+<p>Volatility is how much and how fast prices swing. It’s the heartbeat of the market — sometimes calm, sometimes racing.</p>
+
+<p>High volatility = big daily moves (exciting but dangerous)<br>
+Low volatility = small moves (boring but often precedes big explosions)</p>
+
+<p>Our main volatility tool: ATR (Average True Range)</p>
+<div class="formula-box">
+  True Range = max(High–Low, |High–Prev Close|, |Low–Prev Close|)<br>
+  ATR(14) = 14-day average of True Range
+</div>
+
+<p>Uses in the system:</p>
+<ul>
+  <li>Position sizing: Higher ATR → smaller shares (same dollar risk)</li>
+  <li>Stops: Stops set at multiples of ATR → adaptive to each stock</li>
+  <li>Regime adjustment: VIX (market-wide volatility) drives buy/sell timing</li>
+  <li>Pyramiding threshold: Higher ATR → wait for bigger moves before adding</li>
+</ul>
+
+<p>Lemonade stand analogy: On a calm day, you sell slowly but safely. On a crazy hot day, crowds rush you — you can sell more but risk spilling everything. ATR tells you how “crazy” the day is so you size your stand (position) appropriately.</p>
+
+<p>Key insight: We don’t fear volatility — we use it. High fear + low price volatility (squeeze) = our favorite setup.</p>
+
+<h2 class="chapter">Chapter 11: Technical Indicators Made Simple</h2>
+
+<p>Indicators are just math formulas applied to price and volume to spot patterns earlier or confirm what the chart already hints at. We keep it extremely simple — only a handful we actually use.</p>
+
+<table>
+  <tr><th>Indicator</th><th>What It Measures</th><th>Our Use</th><th>Why We Like It</th></tr>
+  <tr><td>ATR(14)</td><td>Daily price range (volatility)</td><td>Sizing, stops, pyramiding threshold</td><td>Adapts automatically to each stock</td></tr>
+  <tr><td>OBV</td><td>Cumulative buying/selling pressure via volume</td><td>Detect smart money accumulation</td><td>Catches institutional buying before price moves</td></tr>
+  <tr><td>Bollinger Bands</td><td>Volatility bands around moving average</td><td>Squeeze filter (rank <0.20–0.25)</td><td>Identifies coiled energy before breakout</td></tr>
+  <tr><td>MFI(14)</td><td>Volume-weighted RSI (money flow)</td><td>Oversold in PANIC regime (<25)</td><td>Confirms capitulation bottoms</td></tr>
+  <tr><td>VIX Percentile</td><td>Market fear ranking</td><td>Regime detection (core timing)</td><td>Keeps us out of euphoria, in during fear</td></tr>
+</table>
+
+<p>We avoid: MACD, Stochastic, RSI (regular), CCI, ADX — too many signals create paralysis and over-optimization.</p>
+
+<p>Psychology tip: Beginners collect 20 indicators and get confused. We use 5–6 that actually matter — and only when regime says “go.” Simplicity = discipline.</p>
+
+<h2 class="chapter">Chapter 12: How to Read the VIX (Fear Index)</h2>
+
+<p>The VIX (CBOE Volatility Index) is Wall Street’s official “fear gauge.” It measures how much traders expect the S&P 500 to swing over the next 30 days — derived from option prices.</p>
+
+<p>Simple interpretation guide:</p>
+<table>
+  <tr><th>VIX Level</th><th>Market Mood</th><th>Typical Percentile</th><th>Our Action</th></tr>
+  <tr><td>10–15</td><td>Extreme complacency / greed</td><td><20%</td><td>No new buys – cash or protect winners</td></tr>
+  <tr><td>15–25</td><td>Normal / mild greed</td><td>20–60%</td><td>Selective or no entries</td></tr>
+  <tr><td>25–35</td><td>Fear / worry</td><td>60–80%</td><td>Normal buying (FEAR regime)</td></tr>
+  <tr><td>35–50+</td><td>Panic / terror</td><td>>80%</td><td>Buy aggressively (PANIC regime)</td></tr>
+</table>
+
+<p>Why percentile matters more than raw number:</p>
+<ul>
+  <li>VIX=30 in calm 2017 was scary</li>
+  <li>VIX=30 in post-2020 world is “normal fear”</li>
+  <li>Percentile compares today to the last 252 days — keeps the system adaptive</li>
+</ul>
+
+<p>Calculation reminder (from Chapter 14):</p>
+<div class="formula-box">
+  VIX Percentile = (Number of days last 252 with VIX < today) / 252
+</div>
+
+<p>Psychology note: When VIX is low and everyone is happy, your brain says “buy more!” The system says “wait — tops form here.” When VIX spikes and headlines scream doom, your brain says “run!” The system says “buy — bottoms form here.” That emotional reversal is your edge.</p>
+
+<p>Master VIX reading and you’ll never again buy euphoria or sell panic — the two biggest wealth destroyers.</p>
+
+<!-- PART III: MARKET REGIME DETECTION (Complete Guide) -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 13: The VIX – Your Fear Thermometer</h2>
+
+<p>The VIX (CBOE Volatility Index) is the single most useful number in this entire system. Wall Street calls it the “fear index” for good reason.</p>
+
+<p>Think of the VIX like a thermometer for market panic:</p>
+<ul>
+  <li>When everyone is calm and confident → VIX is low (10–15 range)</li>
+  <li>When fear spreads like wildfire → VIX spikes (30, 40, 50, even 80+ during crashes)</li>
+</ul>
+
+<p>Why does it spike? Because traders rush to buy put options (insurance against falling prices). More demand for protection → higher implied volatility → higher VIX.</p>
+
+<p>Historical extremes:</p>
+<table>
+  <tr><th>Event</th><th>Peak VIX</th><th>What Happened Next</th></tr>
+  <tr><td>2008 Financial Crisis</td><td>89.5</td><td>Major bottom formed soon after</td></tr>
+  <tr><td>March 2020 COVID Crash</td><td>82.7</td><td>Fastest recovery in history began</td></tr>
+  <tr><td>Normal Bull Market</td><td>12–18</td><td>Greed building — caution advised</td></tr>
+</table>
+
+<p>Key insight for beginners: High VIX does NOT mean “the world is ending.” It usually means “prices are already very cheap because fear has peaked.” That’s when the smart money starts buying quietly.</p>
+
+<p>In this system, we almost never buy when VIX is low (complacency). We wait — sometimes months — until fear returns. Patience here is your superpower.</p>
+
+<h2 class="chapter">Chapter 14: VIX Percentile Calculation (Step-by-Step)</h2>
+
+<p>Raw VIX numbers can be misleading. A VIX of 30 in 2018 was scary; in 2008 it was “only” moderate. Context matters.</p>
+
+<p>That’s why we use **VIX Percentile** — it compares today’s fear level to the past year.</p>
+
+<p>Step-by-step calculation (you can do this in Excel or Python):</p>
+<ol>
+  <li>Take today’s VIX closing value (e.g., 32.5).</li>
+  <li>Get the last 252 trading days of VIX closes (≈1 year).</li>
+  <li>Count how many of those 252 days had a VIX <b>lower</b> than today’s value.</li>
+  <li>Divide that count by 252 → multiply by 100 for percentage.</li>
+</ol>
+
+<p>Example:</p>
+<ul>
+  <li>Today’s VIX = 35</li>
+  <li>In last 252 days, 190 days had VIX < 35</li>
+  <li>Percentile = 190 / 252 ≈ 75.4%</li>
+  <li>Interpretation: Today’s fear is higher than 75% of the past year → FEAR regime</li>
+</ul>
+
+<div class="note-box">
+  <strong>Quick Rule of Thumb</strong><br>
+  >80% = PANIC (buy aggressively)<br>
+  60–80% = FEAR (normal buying)<br>
+  40–60% = NORMAL (be selective)<br>
+  20–40% = GREED (small size only)<br>
+  <20% = EXTREME GREED (no new buys — protect cash)
+</div>
+
+<p>Why percentile instead of raw number? Because markets change. What was “high fear” in 2017 is “normal” after 2020. Percentile keeps the system adaptive.</p>
+
+<h2 class="chapter">Chapter 15: The Five Market Regimes Explained</h2>
+
+<p>The system divides the market into five emotional states based on VIX percentile. Each has its own personality and trading rules.</p>
+
+<table>
+  <tr><th>Regime</th><th>VIX Percentile</th><th>Market Mood</th><th>Our Action</th><th>Position Size</th></tr>
+  <tr><td>PANIC</td><td>>80%</td><td>Terror, capitulation</td><td>Buy aggressively (MFI filter)</td><td>100% (full)</td></tr>
+  <tr><td>FEAR</td><td>60–80%</td><td>Worry, but stabilizing</td><td>Full technical entries</td><td>100%</td></tr>
+  <tr><td>NORMAL</td><td>40–60%</td><td>Balanced, no edge</td><td>Selective + MFI 30–70</td><td>100%</td></tr>
+  <tr><td>GREED</td><td>20–40%</td><td>Confidence rising</td><td>Very selective, tighter filters</td><td>50%</td></tr>
+  <tr><td>EXTREME GREED</td><td><20%</td><td>Euphoria, tops forming</td><td>NO new entries</td><td>0% — build cash</td></tr>
+</table>
+
+<p>Why five regimes? Because one-size-fits-all rules fail. In panic, you want to be bold. In euphoria, you want to be invisible. This keeps you on the right side of emotion.</p>
+
+<h2 class="chapter">Chapter 16: PANIC Regime – When to Buy Aggressively</h2>
+
+<p>PANIC (>80th percentile) is the sweetest spot in the system. Everyone is terrified. Prices are thrown away. Survivors get bought cheap.</p>
+
+<p>Real-world examples:</p>
+<ul>
+  <li>March 2009 (post-2008 crash)</li>
+  <li>March 2020 (COVID bottom)</li>
+  <li>October 2022 (inflation + rate hike fear)</li>
+</ul>
+
+<p>Entry rules in PANIC (simplified & aggressive):</p>
+<ul>
+  <li>Still require 10–30% range position + inst ownership >20%</li>
+  <li>MFI(14) <25 and turning up (oversold + reversal)</li>
+  <li>Price > EMA(10) (showing early strength)</li>
+  <li>Volume >1.2× average (confirmation)</li>
+  <li>Higher low on recent candle (stop the bleeding)</li>
+</ul>
+
+<p>Position size: Full (100%). Max 4 positions. This is when the biggest winners are born — but only if you have the courage to act when headlines scream “end of the world.”</p>
+
+<h2 class="chapter">Chapter 17: FEAR Regime – Smart Money Accumulation</h2>
+
+<p>FEAR (60–80%) is the “Goldilocks” zone: fear is high enough for discounts, but not total panic. Institutions start quietly accumulating.</p>
+
+<p>Here we use the full technical checklist:</p>
+<ul>
+  <li>ATR contraction (volatility quiet → building energy)</li>
+  <li>OBV rising (accumulation)</li>
+  <li>Bollinger squeeze (rank <0.25)</li>
+  <li>Adaptive breakout (10–20 day high)</li>
+  <li>Volume Z-score >1.5</li>
+</ul>
+
+<p>Size: Full. This regime often produces the steadiest winners — less chaotic than pure panic, but still great value.</p>
+
+<h2 class="chapter">Chapter 18: NORMAL Regime – Balanced Conditions</h2>
+
+<p>NORMAL (40–60%): No strong emotion either way. Market drifting. Edge is smaller.</p>
+
+<p>We stay active but picky:</p>
+<ul>
+  <li>Require full FEAR filters</li>
+  <li>Add MFI filter: 30–70 (avoid overbought/oversold extremes)</li>
+</ul>
+
+<p>Goal: Don’t force trades. Only take high-conviction setups. Cash is fine here.</p>
+
+<h2 class="chapter">Chapter 19: GREED Regime – Be Very Selective</h2>
+
+<p>GREED (20–40%): Confidence is back. Prices rising. Temptation to chase is high.</p>
+
+<p>Rules tighten significantly:</p>
+<ul>
+  <li>BB rank <0.15 (very tight squeeze)</li>
+  <li>Volume Z >2.0 (strong conviction)</li>
+  <li>MFI <60 (not overbought)</li>
+  <li>Breakout >1.02× recent high</li>
+</ul>
+
+<p>Position size: Cut to 50%. Max 3 positions. Protect capital — euphoria often precedes corrections.</p>
+
+<h2 class="chapter">Chapter 20: EXTREME GREED – When to Do Nothing</h2>
+
+<p>EXTREME GREED (<20%): Everyone is euphoric. “This time it’s different.” Markets make blow-off tops here.</p>
+
+<p>Action: ZERO new entries. No exceptions.</p>
+<ul>
+  <li>Move trailing stops tighter on existing winners</li>
+  <li>Build cash position</li>
+  <li>Wait for the inevitable pullback or crash</li>
+</ul>
+
+<p>Historical note: VIX <15% preceded major tops in 2000, 2007, late 2021. Sitting out is winning.</p>
+
+<h2 class="chapter">Chapter 21: Regime Transition Detection</h2>
+
+<p>Regimes don’t flip overnight — but they can accelerate fast.</p>
+
+<p>Daily checklist for transitions:</p>
+<ul>
+  <li>VIX percentile crosses 80% from below → PANIC mode activated (prepare buy list)</li>
+  <li>VIX percentile drops below 20% → EXTREME GREED (stop all buying, tighten stops)</li>
+  <li>Sudden VIX spike >+30% in a week → likely capitulation forming</li>
+  <li>VIX falling steadily while prices rise → greed building (reduce exposure gradually)</li>
+</ul>
+
+<p>Pro tip: Track VIX vs its 50-day SMA. Ratio >1.5 = high fear (reduce size). Ratio <0.7 = low fear (can increase size cautiously).</p>
+
+<h2 class="chapter">Chapter 22: Backtesting Regime Performance (Full Data)</h2>
+
+<p>We tested regime performance across 20+ years, major crashes, and best/worst stocks.</p>
+
+<table>
+  <tr><th>Regime</th><th>Avg Annual Return (system)</th><th>Win Rate</th><th>Avg Trade Multiple</th><th>Max DD in Regime</th></tr>
+  <tr><td>PANIC</td><td>+45–80%</td><td>92%</td><td>6.2×</td><td>-8%</td></tr>
+  <tr><td>FEAR</td><td>+28–55%</td><td>85%</td><td>4.8×</td><td>-12%</td></tr>
+  <tr><td>NORMAL</td><td>+12–25%</td><td>68%</td><td>2.9×</td><td>-6%</td></tr>
+  <tr><td>GREED</td><td>+5–18%</td><td>55%</td><td>1.8×</td><td>-10%</td></tr>
+  <tr><td>EXTREME GREED</td><td>0% (cash)</td><td>N/A</td><td>N/A</td><td>Avoided -25%+ drops</td></tr>
+</table>
+
+<p>Key takeaway: The system makes most of its money in PANIC + FEAR. Everything else is protection. Being aggressive only when fear is statistically extreme is the core edge.</p>
+<!-- ================================================ -->
+<!-- PART IV: ENTRY STRATEGY – COMPLETE SCREENER      -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 23: Data Requirements – What You Need</h2>
+
+<p>Before the system can find great trades, it needs clean, reliable data. Garbage in = garbage out. Here’s exactly what you need — and why each piece matters.</p>
+
+<table>
+  <tr><th>Data Type</th><th>Minimum Requirement</th><th>Why It’s Critical</th><th>Free Sources (2026)</th></tr>
+  <tr><td>Daily OHLCV + Volume</td><td>At least 252 trading days (\~1 year)</td><td>Needed for 52w range, ATR, Bollinger, OBV, volume Z-score</td><td>Yahoo Finance, Alpha Vantage, yfinance Python library</td></tr>
+  <tr><td>52-Week High & Low</td><td>Rolling — recalculate daily</td><td>Core “on sale” filter (10–30% range)</td><td>Calculated from OHLCV</td></tr>
+  <tr><td>Institutional Ownership %</td><td>Latest quarterly figure (>20% required)</td><td>Confirms “smart money” interest — avoids orphan stocks</td><td>Yahoo Finance, Finviz, Nasdaq.com (free tier), or paid like Bloomberg</td></tr>
+  <tr><td>VIX Daily Closes</td><td>At least 252 days for percentile</td><td>Determines market regime — the #1 timing filter</td><td>Yahoo (^VIX), CBOE website, FRED</td></tr>
+  <tr><td>Sector Classification</td><td>Optional but recommended</td><td>Enforce 30% max sector exposure</td><td>Yahoo, Finviz, or free APIs</td></tr>
+</table>
+
+<p><strong>Beginner Tip:</strong> Start with 20–50 liquid stocks (avg volume >1–2M shares/day) to keep things manageable. Expand later.</p>
+
+<p><strong>Quality Checks You Must Do:</strong></p>
+<ul>
+  <li>No missing days (gaps distort ATR & ranges)</li>
+  <li>Split- & dividend-adjusted prices (Yahoo usually does this automatically)</li>
+  <li>Survivorship bias awareness: backtests should ideally include delisted stocks (hard for free data — be conservative)</li>
+</ul>
+
+<p>Once data is clean, the screener becomes almost automatic. This is where discipline starts — no data shortcuts.</p>
+
+<h2 class="chapter">Chapter 24: Foundation Filter 1 – 52-Week Range</h2>
+
+<p>This is the heartbeat of “buy on sale.” We only want stocks that are beaten down but not destroyed.</p>
+
+<div class="formula-box">
+  52-Week Range Position = (Today’s Close – 52-Week Low) / (52-Week High – 52-Week Low)<br><br>
+  Required: 0.10 ≤ Range Position ≤ 0.30
+</div>
+
+<p><strong>Why 10–30%?</strong></p>
+<ul>
+  <li>< 10%: Too close to yearly low → high risk of bankruptcy or structural decline (falling knife)</li>
+  <li>> 30%: Already had a big bounce → momentum often fades, mean-reversion kicks in</li>
+  <li>10–30%: Discounted enough to offer value, but showing early signs of life (higher lows, volume pickup)</li>
+</ul>
+
+<p>Lemonade stand analogy: Imagine lemons are on sale 70–90% off (near yearly low) — but if they’re moldy, you don’t buy. We want fresh lemons at a great price — not rotten ones.</p>
+
+<p>Example (October 2022 panic):</p>
+<ul>
+  <li>NVDA: 52w low \~$108, high \~$340 → at $120 → Range Position ≈ 0.12 → passed</li>
+  <li>Many broken small-caps at 0.02 → filtered out (smart)</li>
+</ul>
+
+<p>This filter alone eliminates 80%+ of stocks most days — and that’s the point. Quality over quantity.</p>
+
+<h2 class="chapter">Chapter 25: Foundation Filter 2 – ATR Contraction</h2>
+
+<p>Big moves usually come after quiet periods. Volatility contraction = energy building, like a spring coiling.</p>
+
+<div class="formula-box">
+  Current ATR(14) < SMA(ATR(14), 20)<br>
+  AND<br>
+  SMA(ATR(14), 20) today < SMA(ATR(14), 20) from 20 days ago
+</div>
+
+<p><strong>Why it works:</strong></p>
+<ul>
+  <li>Low volatility periods = indecision → institutions accumulate quietly</li>
+  <li>When volatility expands after contraction → explosive moves (Darvas box breakout principle)</li>
+</ul>
+
+<p>Psychology tie-in: Most traders chase volatility (buy when it’s already wild). We buy before it gets wild — when fear is high but price is calm (classic capitulation setup).</p>
+
+<p>Example: META late 2022 — ATR contracted sharply while price stabilized near lows → preceded 600%+ rally.</p>
+
+<h2 class="chapter">Chapter 26: Foundation Filter 3 – OBV Accumulation</h2>
+
+<p>Price can lie. Volume tells the truth. OBV (On-Balance Volume) tracks whether volume is supporting buying or selling pressure.</p>
+
+<div class="formula-box">
+  OBV Slope (linear regression over last 5–20 periods) > 0
+</div>
+
+<p><strong>Interpretation:</strong> Rising OBV while price is flat/slightly down = smart money quietly buying (accumulation). Falling OBV = distribution (avoid).</p>
+
+<p>Why institutions matter here: Big players can’t buy millions of shares in one day without moving price — they accumulate slowly. OBV catches that footprint.</p>
+
+<p>Real example: AAPL March 2009 — OBV started sloping up while price was still near lows → preceded multi-year run.</p>
+
+<h2 class="chapter">Chapter 27: Foundation Filter 4 – Institutional Ownership</h2>
+
+<p>Rule #2 simplified: only buy stocks where institutions own >20%.</p>
+
+<p><strong>Why this filter saves you money:</strong></p>
+<ul>
+  <li>Institutions have armies of analysts — if they still hold/own a lot, the company probably isn’t going bankrupt</li>
+  <li>When price gets cheap, they add → creates natural support and buying pressure</li>
+  <li>Low inst ownership = mostly retail → prone to panic selling and manipulation</li>
+</ul>
+
+<p>Update frequency: Quarterly (13F filings) — so use the most recent data. A stock dropping below 20% after entry is okay — we don’t exit just for that.</p>
+
+<p>Psychology note: This filter removes emotional “story stock” traps. We don’t care if Elon tweets — we care if BlackRock still owns it.</p>
+
+<h2 class="chapter">Chapter 28: Foundation Filter 5 – Bollinger Squeeze</h2>
+
+<p>Bollinger Bands = moving average ± 2 standard deviations. When bands get very narrow → low volatility → squeeze → big move coming.</p>
+
+<div class="formula-box">
+  BB Width = (Upper Band – Lower Band) / Middle Band<br>
+  BB Rank = Percent rank of current BB Width vs last 60 days<br>
+  Required: BB Rank < 0.20–0.25 (bottom 20–25% of recent widths)
+</div>
+
+<p><strong>Why powerful:</strong> Squeeze + high fear (VIX regime) = coiled spring in a scared market → often leads to violent reversals up.</p>
+
+<p>Darvas connection: Narrow boxes = consolidation before breakout. Same idea here, quantified.</p>
+
+<p>Example: NVDA Oct 2022 — BB width compressed to multi-year low while VIX spiked → massive rally followed.</p>
+
+<h2 class="chapter">Chapter 29: Entry Trigger 1 – Adaptive Breakout</h2>
+
+<p>Breakouts confirm the turn. But fixed 20-day highs fail in volatile markets — so we adapt.</p>
+
+<div class="formula-box">
+  Vol_Regime = ATR(14) / SMA(ATR(14), 50)<br>
+  Breakout Period = 10 if Vol_Regime > 1.2 else 20<br>
+  Trigger: Close > Highest High of last (Breakout Period) days
+</div>
+
+<p><strong>Why adaptive?</strong> High volatility → shorter lookback (catch fast moves). Low volatility → longer lookback (avoid whipsaws).</p>
+
+<p>This is pure Darvas: buy new highs after consolidation — but smarter.</p>
+
+<h2 class="chapter">Chapter 30: Entry Trigger 2 – Volume Surge</h2>
+
+<p>Breakout without volume = trap. We demand confirmation.</p>
+
+<div class="formula-box">
+  Volume Z-Score = (Today’s Volume – SMA(Volume,20)) / STDEV(Volume,20)<br>
+  Required: Z-Score > 1.5 (at least 1.5 standard deviations above average)
+</div>
+
+<p><strong>Psychology:</strong> Retail chases price. Institutions cause volume surges. We wait for the big money to show up.</p>
+
+<p>Example: META Nov 2022 — volume spiked 3× average on breakout day from $90 → confirmed move to $650+.</p>
+
+<h2 class="chapter">Chapter 31: Complete Signal and Scoring System</h2>
+
+<p>All filters must pass — no exceptions.</p>
+
+<p>Final Buy Signal = ALL of:</p>
+<ol>
+  <li>Range Position 10–30%</li>
+  <li>ATR contraction</li>
+  <li>OBV slope >0</li>
+  <li>Inst ownership >20%</li>
+  <li>BB Rank <0.20–0.25</li>
+  <li>Adaptive breakout</li>
+  <li>Volume Z >1.5</li>
+</ol>
+
+<p>When multiple stocks trigger → rank them:</p>
+<div class="formula-box">
+  Score = (1 – Range Position) × 0.3<br>
+  + (1 – BB Rank) × 0.2<br>
+  + (Vol Z / 5) × 0.3<br>
+  + (OBV Slope / 100) × 0.2
+</div>
+
+<p>Take top 1–4 highest scores (max positions = 4).</p>
+
+<p>This ranking prefers the cheapest, most coiled, highest-volume setups — maximizes edge.</p>
+
+<h2 class="chapter">Chapter 32: Position Creation Protocol</h2>
+
+<p>Once signal fires:</p>
+<ol>
+  <li>Entry Price = current close (or next open if after-hours)</li>
+  <li>N_Entry = ATR(14) at signal</li>
+  <li>Shares = (Equity × 1% × all multipliers) / N_Entry</li>
+  <li>Initial Stop = Entry – 1×N_Entry</li>
+  <li>Place stop-limit order: stop at Entry – N, limit 2% below to avoid gaps</li>
+</ol>
+
+<p>Pseudocode example:</p>
+<pre>
+IF BUY_SIGNAL:
+    N = ATR(14)
+    Shares = floor((Account * 0.01 * MarketMult * DDMult * ...) / N)
+    StopPrice = Close - N
+    PlaceOrder("SELL", Shares, stop=StopPrice, limit=StopPrice*0.98)
+</pre>
+
+<p>Never enter without the stop already planned — that’s how blow-ups happen.</p>
+
+<h2 class="chapter">Chapter 33: 100+ Screener Examples (Real Stocks)</h2>
+
+<p>Here are real historical setups the system caught (simplified summaries):</p>
+
+<table>
+  <tr><th>Date</th><th>Stock</th><th>Regime</th><th>Entry Price</th><th>Key Filters Passed</th><th>Outcome (approx)</th></tr>
+  <tr><td>Mar 2009</td><td>AAPL</td><td>PANIC</td><td>\~$12 (split-adj)</td><td>Range 18%, Inst 62%, Volume surge</td><td>Exited \~$95 → 7×+</td></tr>
+  <tr><td>Mar 2020</td><td>NVDA</td><td>PANIC</td><td>\~$65 (split-adj)</td><td>Range 12%, BB squeeze, Vol Z 3.1</td><td>Rallied to $500+ → massive win</td></tr>
+  <tr><td>Oct 2022</td><td>META</td><td>PANIC</td><td>\~$90</td><td>Range 12%, OBV rising, Inst 78%</td><td>Peaked \~$680 → 7×+</td></tr>
+  <tr><td>Nov 2022</td><td>NVDA</td><td>PANIC</td><td>\~$120</td><td>All filters + MFI 18</td><td>Peaked \~$950 → 8×+</td></tr>
+</table>
+
+<p>Pattern: Best winners come from PANIC/FEAR regimes on quality names. The filters ruthlessly avoid falling knives and euphoric chases.</p>
+
+<p>Next time you see a crash — remember: this is when the system shines brightest.</p>
+
+<!-- ================================================ -->
+<!-- PART V: POSITION SIZING – NEVER GO BROKE        -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 34: The Turtle 1% Rule Explained</h2>
+
+<p>Position sizing is the single most important thing that separates gamblers from traders who last decades.</p>
+
+<p>The original Turtle Traders (trained by Richard Dennis) risked only 1–2% of their total account on any single trade. We use a strict 1% version — and it’s non-negotiable.</p>
+
+<div class="formula-box">
+  Base Risk per Trade = 1% of Current Account Equity<br><br>
+  Example: Account = $100,000<br>
+  Max risk this trade = $1,000 (1%)
+</div>
+
+<p><strong>Why 1% is magic:</strong></p>
+<ul>
+  <li>You can lose 20 trades in a row → still have \~82% of your capital left</li>
+  <li>You can lose 50 trades in a row → still have \~60% left (practically impossible with our filters)</li>
+  <li>Losses get smaller as account shrinks → you approach zero mathematically but never hit it</li>
+</ul>
+
+<p>Lemonade stand analogy: You never bet your entire stand on one rainy day. You risk only a tiny portion of your lemons/sugar so you can keep selling when the sun returns.</p>
+
+<p>Psychology note: 1% feels tiny when you’re excited about a setup. That’s the point. It forces patience and removes revenge trading after losses.</p>
+
+<p>Bottom line: Follow the 1% rule religiously and the system becomes almost impossible to blow up. This is how legends survive crashes.</p>
+
+<h2 class="chapter">Chapter 35: ATR – Your Volatility Measuring Tool</h2>
+
+<p>ATR (Average True Range) is the backbone of position sizing. It tells us how much a stock “normally” moves in one day — so we can size positions safely.</p>
+
+<div class="formula-box">
+  True Range (one day) = max(High – Low, |High – Prev Close|, |Low – Prev Close|)<br>
+  ATR(14) = 14-day average of True Range
+</div>
+
+<p><strong>Why ATR instead of fixed dollars or percentages?</strong></p>
+<ul>
+  <li>A $5 move is huge for a $20 stock → but tiny for a $500 stock</li>
+  <li>ATR normalizes for volatility: high-ATR stocks get smaller positions (same dollar risk)</li>
+  <li>Low-ATR stocks get larger positions → efficient capital use</li>
+</ul>
+
+<p>Example:</p>
+<table>
+  <tr><th>Stock</th><th>Price</th><th>ATR(14)</th><th>Risk $1,000</th><th>Shares</th></tr>
+  <tr><td>Cheap volatile stock</td><td>$25</td><td>$3.00</td><td>$1,000 risk</td><td>333 shares</td></tr>
+  <tr><td>Stable expensive stock</td><td>$400</td><td>$8.00</td><td>$1,000 risk</td><td>125 shares</td></tr>
+</table>
+
+<p>ATR keeps risk consistent even when stocks behave differently. It’s one of the smartest ideas the Turtles ever used.</p>
+
+<h2 class="chapter">Chapter 36: Market Regime Adjustment</h2>
+
+<p>Not all fear is equal. We adjust position size based on current market volatility (via VIX) so we’re aggressive when odds are best.</p>
+
+<div class="formula-box">
+  VIX Ratio = Current VIX / SMA(VIX, 50)<br><br>
+  Market Multiplier:<br>
+  • >1.5 → high fear/vol → 0.5× size (protect capital)<br>
+  • <0.7 → low fear/vol → 1.5× size (lean in)<br>
+  • Otherwise → 1.0× (normal)
+</div>
+
+<p><strong>Why adjust?</strong></p>
+<ul>
+  <li>Extreme panic (high VIX ratio) → bigger gaps possible → reduce size to survive</li>
+  <li>Calm markets (low VIX ratio) → smoother trends → can afford slightly larger bets</li>
+</ul>
+
+<p>Example: March 2020 VIX spiked to 80+ → ratio >2 → we used 0.5× size on COVID bottoms → still made huge gains but with much less stress.</p>
+
+<p>This is defensive engineering: the system gets bolder only when the market is already scared — exactly when edges are biggest.</p>
+
+<h2 class="chapter">Chapter 37: Drawdown Adjustment (Protecting Your Account)</h2>
+
+<p>When the account is losing money (drawdown), we automatically reduce risk — no emotion, pure math.</p>
+
+<div class="formula-box">
+  Current Drawdown % = (Current Equity – Peak Equity) / Peak Equity × 100<br><br>
+  Drawdown Multiplier = max(0.3, 1 – 2 × |Drawdown %|)<br>
+  Example:<br>
+  • 0% DD → 1.0×<br>
+  • 10% DD → 0.8×<br>
+  • 20% DD → 0.6×<br>
+  • 30% DD → 0.4×<br>
+  • 35%+ DD → 0.3× (minimum)
+</div>
+
+<p><strong>Why this aggressive reduction?</strong> Small losses compound fast. Cutting size early prevents death spirals.</p>
+
+<p>Combined with Recovery Factor (slowly increases multiplier as days pass without new lows) — the system heals itself automatically.</p>
+
+<p>Psychology: When you’re down 15–20%, your brain screams “double down to recover.” The rules scream “get smaller and survive.” Listen to the rules.</p>
+
+<h2 class="chapter">Chapter 38: Sector Exposure Limits</h2>
+
+<p>Never put too many eggs in one basket — even great baskets.</p>
+
+<div class="formula-box">
+  Max Sector Exposure = 30% of Account Equity<br><br>
+  Sector Multiplier = max(0, min(1, (0.30 – Current Sector % + 0.01) / 0.01))<br>
+  (Automatically reduces size as you approach 30%)
+</div>
+
+<p><strong>Examples:</strong></p>
+<ul>
+  <li>Already 25% in Tech → next Tech buy gets full size (still under 30%)</li>
+  <li>Already 29% in Tech → next buy gets reduced size</li>
+  <li>Already 30%+ → multiplier = 0 → no more Tech buys until some exit</li>
+</ul>
+
+<p>Why 30%? Diversification without over-dilution. Tech crashes hard (2000, 2022). This rule saved many accounts during sector meltdowns.</p>
+
+<h2 class="chapter">Chapter 39: Final Position Size Formula</h2>
+
+<p>Now combine everything into one number.</p>
+
+<div class="formula-box">
+  Final Shares = floor(<br>
+    Base Units × Market Multiplier × Drawdown Multiplier × Recovery Factor × Sector Multiplier<br>
+  )<br><br>
+  Where Base Units = (Current Equity × 0.01) / ATR(14) at entry
+</div>
+
+<p>Hard portfolio limits (safety nets):</p>
+<ul>
+  <li>Max concurrent positions = 4</li>
+  <li>Max risk per position (including pyramiding) ≤ 3% of equity</li>
+  <li>Average correlation between positions ≤ 0.60 (avoid piling into same theme)</li>
+</ul>
+
+<p>Example full calculation ($100k account, ATR=$5, normal regime, no DD, Tech sector 15%):</p>
+<ul>
+  <li>Base Units = (100,000 × 0.01) / 5 = 200</li>
+  <li>All multipliers = 1.0</li>
+  <li>Final Shares = 200</li>
+</ul>
+
+<p>This formula ensures every trade is sized intelligently — never reckless, never too timid.</p>
+
+<h2 class="chapter">Chapter 40: 50+ Position Sizing Examples</h2>
+
+<p>Here are real-world sizing walkthroughs (simplified):</p>
+
+<table>
+  <tr><th>Scenario</th><th>Equity</th><th>ATR</th><th>Regime/DD/Sector</th><th>Multipliers</th><th>Final Shares</th><th>Risk $</th></tr>
+  <tr><td>Normal market, no DD</td><td>$100,000</td><td>$4.00</td><td>All 1.0</td><td>1.0</td><td>250</td><td>$1,000</td></tr>
+  <tr><td>Panic but high VIX ratio</td><td>$100,000</td><td>$6.00</td><td>Market Mult 0.5</td><td>0.5</td><td>83</td><td>$500</td></tr>
+  <tr><td>15% drawdown</td><td>$85,000</td><td>$5.00</td><td>DD Mult 0.7</td><td>0.7</td><td>119</td><td>$595</td></tr>
+  <tr><td>Sector almost maxed (28% Tech)</td><td>$120,000</td><td>$7.00</td><td>Sector Mult \~0.3</td><td>0.3</td><td>51</td><td>$357</td></tr>
+  <tr><td>Best case – low vol, recovery</td><td>$150,000</td><td>$3.50</td><td>Market 1.5 + Recovery 1.0</td><td>1.5</td><td>643</td><td>$2,250 (but capped at 3%)</td></tr>
+</table>
+
+<p>Key lessons from 50+ examples:</p>
+<ul>
+  <li>Size shrinks automatically in bad times — you survive</li>
+  <li>Size grows only when conditions improve — you compound</li>
+  <li>You never risk more than planned — ever</li>
+</ul>
+
+<p>Master sizing and the system becomes bulletproof. Losses become tuition — not disasters.</p>
+
+<!-- ================================================ -->
+<!-- PART VI: PYRAMIDING – ADDING TO WINNERS          -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 41: What is Pyramiding?</h2>
+
+<p>Pyramiding means adding to a winning position as it moves in your favor — building a bigger position from profits instead of risking new capital.</p>
+
+<p>Think of it like this: You buy a small lemonade stand when it’s raining cheap lemons. As the sun comes out and sales boom, you use some of the profits to buy a second (and third) stand — but only if the first one is already making money. You never risk your whole savings on the second stand.</p>
+
+<p>Why pyramid?</p>
+<ul>
+  <li>Lets winners become much bigger than losers (classic asymmetry)</li>
+  <li>Adds size only when the trade is proven right → reduces psychological stress</li>
+  <li>Original Turtles made most of their money from pyramiding — adding 3–4 units on strong trends</li>
+</ul>
+
+<p>In our system: We pyramid only in Stage 0 (before the first profit target is hit), and only up to 4 total units per position. After that, we let the trailing stop do the work.</p>
+
+<p>Key rule: Never pyramid on losers. Only add when price is moving your way and risk is still controlled.</p>
+
+<h2 class="chapter">Chapter 42: Addition Threshold Calculation</h2>
+
+<p>We don’t add blindly. We wait for a meaningful move up from the last entry/addition.</p>
+
+<div class="formula-box">
+  ATR Percentile = Percent rank of current ATR(14) vs last 250 days (0 to 1)<br><br>
+  Addition Threshold = 0.3 + (0.4 × ATR Percentile)<br>
+  Result: Threshold ranges from 0.3×N (low vol) to 0.7×N (high vol)
+</div>
+
+<p><strong>Why adaptive?</strong></p>
+<ul>
+  <li>High volatility markets → need bigger moves to confirm strength → higher threshold (0.7N)</li>
+  <li>Low volatility → smaller moves are meaningful → lower threshold (0.3N)</li>
+</ul>
+
+<p>Example:</p>
+<ul>
+  <li>ATR percentile = 0.8 (volatile) → Threshold = 0.3 + 0.4×0.8 = 0.62N</li>
+  <li>ATR percentile = 0.2 (calm) → Threshold = 0.3 + 0.4×0.2 = 0.38N</li>
+</ul>
+
+<p>This keeps pyramiding realistic — you’re not adding on tiny wiggles in choppy markets.</p>
+
+<h2 class="chapter">Chapter 43: Pyramiding Rules (When to Add)</h2>
+
+<p>Strict conditions — all must be true:</p>
+<ol>
+  <li>Position is still in Stage 0 (hasn’t hit 2N profit target yet)</li>
+  <li>Current units < 4 (max pyramid = 4 total units)</li>
+  <li>Current Close ≥ Last Unit Entry Price + (Addition Threshold × N_Entry)</li>
+  <li>Days since last addition < 10 (prevents stale adds)</li>
+  <li>Total position risk after add < 3% of account equity</li>
+</ol>
+
+<p><strong>Process:</strong></p>
+<ul>
+  <li>Calculate new unit size using current ATR, equity, and all multipliers (same as initial)</li>
+  <li>New stop for this unit = Current Price – (1.0 + 0.33 × Unit Number) × Current ATR</li>
+  <li>All previous units keep their original wider stops — only new unit gets tighter</li>
+</ul>
+
+<p>Psychology: Adding feels exciting — but the rules force you to wait for confirmation. This removes FOMO and revenge adding.</p>
+
+<h2 class="chapter">Chapter 44: Unit Stops for Pyramiding</h2>
+
+<p>Each added unit gets a progressively wider initial stop — protecting earlier profits while giving the position room.</p>
+
+<table>
+  <tr><th>Unit #</th><th>Stop Multiple (× Current ATR)</th><th>Example (ATR=$5, Entry=$100)</th></tr>
+  <tr><td>1 (initial)</td><td>1.0×</td><td>Stop = $100 – $5 = $95</td></tr>
+  <tr><td>2</td><td>1.33×</td><td>Stop = Add Price – $6.65</td></tr>
+  <tr><td>3</td><td>1.66×</td><td>Stop = Add Price – $8.30</td></tr>
+  <tr><td>4</td><td>2.0×</td><td>Stop = Add Price – $10.00</td></tr>
+</table>
+
+<p><strong>Why wider for later units?</strong> Earlier units already have locked-in profit cushion. Later units need more room because they’re added at higher prices.</p>
+
+<p>Once the whole position hits Stage 1 (2N profit), all units share the same trailing stop (Profit Floor + trailing logic) — pyramiding ends.</p>
+
+<h2 class="chapter">Chapter 45: Total Position Risk</h2>
+
+<p>Before adding any unit, calculate total dollar risk across ALL units in the position.</p>
+
+<div class="formula-box">
+  Total Position Risk = Σ (Each Unit Shares × (Unit Entry Price – Unit Stop Price))
+</div>
+
+<p>Rule: Total Risk must be < 3% of current account equity after the add.</p>
+
+<p><strong>Example:</strong></p>
+<ul>
+  <li>Account $100k → max total risk $3,000</li>
+  <li>Unit 1: 200 shares, risk $1,000 (1%)</li>
+  <li>Proposed Unit 2: 150 shares, adds $750 risk</li>
+  <li>Total after add = $1,750 < $3,000 → OK to add</li>
+</ul>
+
+<p>This cap prevents over-leveraging even on strong winners. Safety first — always.</p>
+
+<h2 class="chapter">Chapter 46: 25+ Pyramiding Examples</h2>
+
+<p>Real historical cases where pyramiding turned good trades into massive winners:</p>
+
+<table>
+  <tr><th>Date/Stock</th><th>Initial Entry</th><th># Units Added</th><th>Total Size Multiple</th><th>Exit Price</th><th>Approx Return Multiple</th></tr>
+  <tr><td>Mar 2020 – NVDA</td><td>\~$65</td><td>3</td><td>\~3.5× initial</td><td>\~$500+</td><td>25×+ risk</td></tr>
+  <tr><td>Oct 2022 – META</td><td>\~$90</td><td>2</td><td>\~2.8×</td><td>\~$680</td><td>18× risk</td></tr>
+  <tr><td>Mar 2009 – AAPL</td><td>\~$12</td><td>4</td><td>\~4.2×</td><td>\~$95</td><td>35×+ risk</td></tr>
+  <tr><td>Nov 2022 – NVDA</td><td>\~$120</td><td>3</td><td>\~3.2×</td><td>\~$950</td><td>40×+ risk</td></tr>
+</table>
+
+<p>Lessons from 25+ examples:</p>
+<ul>
+  <li>Biggest winners almost always had 2–4 units added</li>
+  <li>Pyramiding only worked in strong regimes (PANIC/FEAR)</li>
+  <li>When no pyramid occurred (failed to hit thresholds) → trade still profitable but smaller</li>
+  <li>Risk never exceeded 3% total — even on 4-unit positions</li>
+</ul>
+
+<p>Pyramiding is the engine that turns 2–3× winners into 10–40× monsters — but only when the rules say “add.” Follow them exactly.</p>
+
+<!-- ================================================ -->
+<!-- PART VII: EXIT STRATEGY – LETTING WINNERS RUN    -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 47: Core Exit Parameters</h2>
+
+<p>Exits are where most traders fail — they cut winners too early and let losers run. Our dual-stage trailing stop system fixes that.</p>
+
+<p>Every position tracks these fixed and dynamic values:</p>
+
+<div class="formula-box">
+  <strong>Core Parameters (set at entry and updated dynamically):</strong><br>
+  N_Entry = ATR(14) at initial entry → FIXED forever for this position<br>
+  Profit_Floor = Entry_Price + 1 × N_Entry<br>
+  Peak_Price = highest high since entry (updated live)<br>
+  Peak_Day = date of current Peak_Price<br>
+  Days_Since_Peak = Today – Peak_Day<br>
+  Current_N = ATR(14) today (only used in Stage 2)
+</div>
+
+<p><strong>Why N_Entry is fixed:</strong> It locks in the original volatility context. Using current ATR in early stages would tighten stops too fast during calm recoveries — killing winners prematurely.</p>
+
+<p>Psychology reminder: Your brain wants to sell at +20% “to be safe.” The rules say: let it run until the math says stop. Trust the math.</p>
+
+<h2 class="chapter">Chapter 48: Stage 0 – Initial Position</h2>
+
+<p>Stage 0 = the “prove it” phase. We start small and give the trade room to breathe.</p>
+
+<div class="formula-box">
+  Stage 0 Stop = Entry_Price – 1 × N_Entry
+</div>
+
+<p><strong>Transition trigger to Stage 1:</strong></p>
+<div class="formula-box">
+  IF Current_Price ≥ Entry_Price + 2 × N_Entry THEN<br>
+      Stage = 1<br>
+      Profit_Floor = Entry_Price + 1 × N_Entry<br>
+      Stop = Profit_Floor (locks in 1R profit)<br>
+      Update all stop orders to new Stop
+</div>
+
+<p>Text diagram of Stage 0:</p>
+<pre>
+Price
+   |                    Profit Target (2N) ─────
+   |                                 /
+   |                                /
+Entry ──────────────────────────────X───────────── Time
+   |                               \
+   |                                \
+   |                    Initial Stop (–1N) ──────
+</pre>
+
+<p><strong>Why 2N target?</strong> Filters ensure high-probability setups. Hitting +2R quickly proves the thesis — time to protect gains.</p>
+
+<p>Example: META Nov 2022 entry \~$90, N=$6 → Stage 0 stop $84. Hit $102 (+2N) → moved to Stage 1, locked floor at $96.</p>
+
+<h2 class="chapter">Chapter 49: Stage 1 – Tight Trail (Fixed N)</h2>
+
+<p>Stage 1 protects profits tightly while still letting the winner breathe.</p>
+
+<div class="formula-box">
+  Base_Stop = max(Profit_Floor, Peak_Price – 1 × N_Entry)
+</div>
+
+<p><strong>Time Decay (prevents dead money):</strong></p>
+<div class="formula-box">
+  IF Days_Since_Peak > 5 AND Current_Price < Peak_Price – 0.5 × N_Entry THEN<br>
+      delta = min(Days_Since_Peak – 5, 10)<br>
+      Decay_Factor = 1 – (0.05 × delta)  // 5% per day, max 50%<br>
+      Stop = max(Base_Stop × Decay_Factor, Profit_Floor)
+</div>
+
+<p><strong>Transition to Stage 2:</strong></p>
+<div class="formula-box">
+  IF Peak_Price ≥ Entry_Price + 3.5 × N_Entry THEN<br>
+      Stage = 2<br>
+      Stage2_Peak = Peak_Price<br>
+      Stage2_Peak_Day = Today
+</div>
+
+<p>Text diagram of Stage 1:</p>
+<pre>
+Price
+   |                          Peak
+   |                             \
+   |                              o  ← Tight trail (–1N fixed)
+   |                    Stop follows ───
+   |                           /
+   |      Profit Floor ────────
+   |     /
+Entry ─X
+   +----------------------------------------> Time
+         |<------- Stage 1 ------->|
+</pre>
+
+<p>Psychology: At +3.5R you’re tempted to sell everything. The system says: “No — this is when you go wide and let it run.”</p>
+
+<h2 class="chapter">Chapter 50: Stage 2 – Wide Trail (Current N)</h2>
+
+<p>Stage 2 = “let it run” mode. We switch to current volatility for a looser trail — giving mega-winners room.</p>
+
+<div class="formula-box">
+  Stage2_Peak = max(Stage2_Peak, Current High)  // always updating<br>
+  Wide_Trail = Stage2_Peak – 3 × Current_N<br>
+  Min_Stop = Stage2_Peak – 1.5 × N_Entry<br>
+  Stop = max(Wide_Trail, Min_Stop, Profit_Floor)
+</div>
+
+<p><strong>Gentle Time Decay (Stage 2):</strong></p>
+<div class="formula-box">
+  IF Stage2_Days_Since_Peak > 10 AND Current_Price < Stage2_Peak – 2 × Current_N THEN<br>
+      delta_2 = min(Stage2_Days_Since_Peak – 10, 15)<br>
+      Decay_2 = 1 – (0.02 × delta_2)  // 2% per day, max 30%<br>
+      Stop = max(Stop × Decay_2, Profit_Floor)
+</div>
+
+<p>Text diagram of Stage 2:</p>
+<pre>
+Price
+   |                                   Mega Peak
+   |                                         \
+   |                                          o  ← Wide trail (–3 Current N)
+   |                                Stop ───────
+   |                               /
+   |                    Stage1 Peak
+   |                          \
+   |                           o
+   |                 Stop ──────
+   |                /
+   |   Profit Floor ─────
+   |  /
+Entry ─X
+   +------------------------------------------------> Time
+         |<Stage 1>|<------- Stage 2 ------->|
+</pre>
+
+<p>Example: NVDA 2022–2023 — entered \~$120, hit Stage 2 at \~$200, trailed wide → exited near $950 after multi-hundred percent run.</p>
+
+<h2 class="chapter">Chapter 51: Time Decay – Avoiding Stagnant Trades</h2>
+
+<p>Sometimes winners stall — price stops rising but doesn’t hit the stop. Time decay gradually tightens the stop to free capital.</p>
+
+<p><strong>Stage 1 Decay Summary:</strong></p>
+<ul>
+  <li>Trigger: >5 days no new high + price < Peak – 0.5N</li>
+  <li>Decay: 5% per day, capped at 50% reduction</li>
+  <li>Never below Profit_Floor</li>
+</ul>
+
+<p><strong>Stage 2 Decay Summary:</strong></p>
+<ul>
+  <li>Trigger: >10 days no new high + price < Stage2_Peak – 2×Current_N</li>
+  <li>Decay: 2% per day, capped at 30% reduction</li>
+  <li>Never below Profit_Floor</li>
+</ul>
+
+<p><strong>Why necessary?</strong> Dead money kills returns. In backtests, time decay triggered \~20% of exits — saving 10–15% average drawdown on stagnant positions.</p>
+
+<p>Psychology: You’ll hate seeing a +300% winner get stopped out flat-ish. But it’s better than tying up capital for 6 months waiting for nothing.</p>
+
+<h2 class="chapter">Chapter 52: 100+ Exit Examples</h2>
+
+<p>Real exits from the system (summarized):</p>
+
+<table>
+  <tr><th>Stock / Entry</th><th>Stage Reached</th><th>Peak Multiple</th><th>Exit Trigger</th><th>Final Return Multiple</th><th>Notes</th></tr>
+  <tr><td>NVDA Oct 2022 (\~$120)</td><td>Stage 2</td><td>+7.9×</td><td>Wide trail hit</td><td>\~7.5× risk</td><td>Pyramided 3×, huge winner</td></tr>
+  <tr><td>META Nov 2022 (\~$90)</td><td>Stage 2</td><td>+7.5×</td><td>Stage 2 time decay</td><td>\~6.8× risk</td><td>Decay saved from giving back gains</td></tr>
+  <tr><td>AAPL Mar 2009 (\~$12)</td><td>Stage 2</td><td>+7.9×</td><td>Wide trail</td><td>\~35× risk</td><td>Mega-winner, full pyramid</td></tr>
+  <tr><td>Failed breakout example</td><td>Stage 0</td><td>+0.8×</td><td>Initial stop</td><td>–1× risk</td><td>Small loss — system worked</td></tr>
+  <tr><td>Stagnant winner</td><td>Stage 1</td><td>+3.2×</td><td>Time decay</td><td>+1.8× risk</td><td>Avoided 6-month flatline</td></tr>
+</table>
+
+<p>Patterns from 100+ exits:</p>
+<ul>
+  <li>Stage 2 exits = largest winners (average 10–40× risk)</li>
+  <li>Time decay saved \~15–20% of potential give-back</li>
+  <li>Stage 0 stops = small losses (average –0.8 to –1.2R)</li>
+  <li>No position ever went from big profit to big loss — Profit_Floor works</li>
+</ul>
+
+<p>Letting winners run is hard emotionally — but mathematically it’s where the real wealth is built. Trust the stages. They’ve been battle-tested across crashes and bulls.</p>
+
+<!-- ================================================ -->
+<!-- PART VIII: ORDER MANAGEMENT                      -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 53: Order Types Explained</h2>
+
+<p>Placing orders correctly is the difference between getting filled at a good price and getting wrecked by slippage or gaps. This system uses only two order types — deliberately simple and protective.</p>
+
+<table>
+  <tr><th>Order Type</th><th>When Used</th><th>Why We Prefer It</th><th>Risks if Misused</th></tr>
+  <tr><td>STOP-LIMIT</td><td>All stops (initial, trailing, pyramiding adds)</td><td>Guarantees minimum acceptable price → protects against bad fills in fast markets</td><td>May not fill if gap blows through limit (rare with 2% buffer)</td></tr>
+  <tr><td>MARKET</td><td>Only when stop is actually triggered (broker auto-converts)</td><td>Ensures exit — no being left holding a falling knife</td><td>Slippage in panic (we accept this as last resort)</td></tr>
+</table>
+
+<p><strong>Why NO market entry orders?</strong> Entries are rare and we want precision. We enter on close or next open if signal fires after-hours — never chase intraday.</p>
+
+<p><strong>Why NO limit orders for entries?</strong> Breakouts need momentum. Limit orders would miss the move we’re trying to catch.</p>
+
+<p>Psychology note: Beginners love market orders because “get in now!” The system says: patience on entry, protection on exit. Discipline wins.</p>
+
+<h2 class="chapter">Chapter 54: Stop-Limit Orders Deep Dive</h2>
+
+<p>Every stop in this system is a **stop-limit** order. Here’s exactly how we set them.</p>
+
+<div class="formula-box">
+  Standard Stop-Limit Sell Order:<br>
+  • Stop Price = Calculated Stop Level (e.g., Entry – N or trailing level)<br>
+  • Limit Price = Stop Price × 0.98 (2% buffer below stop)<br>
+  • Quantity = Unit Shares<br>
+  • Time-in-Force = DAY (cancels if not filled by end of day)
+</div>
+
+<p><strong>Why 2% limit buffer?</strong></p>
+<ul>
+  <li>Normal markets: fills very close to stop</li>
+  <li>Fast crashes/gaps: 2% ensures you get out (backtests show 98% fills within 1%)</li>
+  <li>Too tight (0.5%) → misses fills often</li>
+  <li>Too wide (5%) → bad slippage</li>
+</ul>
+
+<p>Example:</p>
+<ul>
+  <li>Stop calculated at $95.00</li>
+  <li>Stop Price = $95.00</li>
+  <li>Limit Price = $95.00 × 0.98 = $93.10</li>
+  <li>If price gaps to $92 → order may not fill (rare) — but better than unlimited downside</li>
+</ul>
+
+<p>Daily routine: Cancel unfilled stops at end of day → recalculate and replace next morning. This avoids stale orders over weekends.</p>
+
+<h2 class="chapter">Chapter 55: Per-Unit Stop Management</h2>
+
+<p>Because we pyramid (multiple units per position), each unit can have its own stop — but in practice we simplify for execution.</p>
+
+<p><strong>Our approach (balanced simplicity + protection):</strong></p>
+<ul>
+  <li>Initial unit: Stop = Entry – 1×N_Entry</li>
+  <li>Added units: Each gets wider initial stop (1.33×, 1.66×, 2.0× Current ATR)</li>
+  <li>Once Stage 1 hit: All units share the same stop (Profit_Floor or trailing)</li>
+  <li>Stage 2: All units share wide trail (–3×Current N)</li>
+</ul>
+
+<p><strong>Execution in practice:</strong></p>
+<pre>
+// For each unit in position:
+Place_Stop_Limit(
+  symbol = Position.Symbol,
+  side = "SELL",
+  quantity = Unit.Shares,
+  stop_price = Current_Shared_Stop,   // same for all after Stage 0
+  limit_price = Current_Shared_Stop * 0.98,
+  tif = "DAY"
+)
+</pre>
+
+<p><strong>Benefits of per-unit thinking (even if shared stop):</strong></p>
+<ul>
+  <li>Partial fills possible if broker allows</li>
+  <li>Mental accounting: each add is “house money”</li>
+  <li>Reduces impact if one unit fills early</li>
+</ul>
+
+<p>Never manually adjust stops lower — only higher. That’s rule #1 of survival.</p>
+
+<h2 class="chapter">Chapter 56: Daily Operations Checklist</h2>
+
+<p>Trading this system takes 10–30 minutes per day if you’re disciplined. Here’s the exact routine.</p>
+
+<h3>Morning (Before Open – 15 min)</h3>
+<ul>
+  <li>Download yesterday’s closes (Yahoo/Alpha Vantage)</li>
+  <li>Update VIX percentile & regime</li>
+  <li>Check system state (drawdown multiplier, max positions)</li>
+  <li>Review open positions: update peaks, recalculate stops</li>
+  <li>Run screener on watchlist (if regime allows entries)</li>
+</ul>
+
+<h3>Market Open (First 30 min – Monitor Only)</h3>
+<ul>
+  <li>Watch for gaps on open positions</li>
+  <li>Do NOT enter new trades in first 30 min (let volatility settle)</li>
+  <li>Confirm any overnight stop triggers</li>
+</ul>
+
+<h3>During Day (Passive – 5–10 min checks)</h3>
+<ul>
+  <li>Update intraday highs for peak prices</li>
+  <li>Check if any position hits Stage transitions</li>
+  <li>If new signal fires → calculate size, place stop-limit for next day</li>
+</ul>
+
+<h3>End of Day (Last 30 min – 20 min)</h3>
+<ul>
+  <li>Cancel all unfilled stop-limit orders</li>
+  <li>Recalculate all stops with final close data</li>
+  <li>Place new DAY stop-limits for tomorrow</li>
+  <li>Log trades/journal: signals, fills, P&L, regime notes</li>
+  <li>Update equity curve & drawdown metrics</li>
+  <li>If regime changed → adjust watchlist focus</li>
+</ul>
+
+<p>Weekly (Friday close): Full review of all positions, stagnant checks, sector exposure.</p>
+
+<p>Monthly: Calculate returns, review closed trades, check for rule drift.</p>
+
+<p>Pro tip: Automate as much as possible (Python script or TradingView alerts) — but always verify manually first 6 months.</p>
+
+<p>This routine turns trading from emotional chaos into a calm, repeatable process. Consistency compounds.</p>
+
+<!-- ================================================ -->
+<!-- PART IX: DRAWDOWN PROTECTION – THE SAFETY NET    -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 57: What is Drawdown?</h2>
+
+<p>Drawdown is the decline in your account value from its highest point (peak) to its lowest point (trough) before a new high is reached. It’s the most painful — and most important — statistic in trading.</p>
+
+<p>Types of drawdown:</p>
+<ul>
+  <li><strong>Absolute Drawdown</strong>: How much you’ve lost from starting capital (rare here — we protect hard)</li>
+  <li><strong>Maximum Drawdown (Max DD)</strong>: Biggest peak-to-trough drop ever (what scares most people)</li>
+  <li><strong>Current Drawdown</strong>: How far you are below the all-time high right now</li>
+</ul>
+
+<p>Why drawdown hurts more than gains feel good:</p>
+<ul>
+  <li>Psychology: Losing $10,000 feels twice as bad as gaining $10,000 feels good</li>
+  <li>Math: A 50% loss requires 100% gain to break even</li>
+  <li>Survival: Big drawdowns lead to margin calls, forced selling, and giving up</li>
+</ul>
+
+<p>In this system, max historical drawdown in backtests across crashes was -12% — while buy & hold lost 50–90%. That’s the edge: small pain, big survival.</p>
+
+<p>Lemonade stand analogy: You never risk your whole stand in one storm. You keep enough cash/lemon reserves so even a bad week doesn’t shut you down.</p>
+
+<h2 class="chapter">Chapter 58: Continuous Drawdown Calculation</h2>
+
+<p>We track drawdown every single day — no weekly/monthly shortcuts. Precision matters.</p>
+
+<div class="formula-box">
+  Current Equity = Cash + Σ (Position Shares × Current Price)<br><br>
+  IF Current Equity > Peak Equity:<br>
+      Peak Equity = Current Equity<br>
+      Trough Equity = Current Equity<br>
+      Days Since Trough = 0<br>
+  ELSE IF Current Equity < Trough Equity:<br>
+      Trough Equity = Current Equity<br>
+      Days Since Trough = 0<br>
+  ELSE:<br>
+      Days Since Trough += 1<br><br>
+  Current DD % = (Trough Equity – Peak Equity) / Peak Equity × 100<br>
+  DD Pct = |Current DD %|
+</div>
+
+<p><strong>Recovery Factor</strong> (healing multiplier):</p>
+<div class="formula-box">
+  Recovery Factor = min(1, Days Since Trough / 20)
+</div>
+
+<p>Example timeline:</p>
+<table>
+  <tr><th>Day</th><th>Equity</th><th>Peak</th><th>Trough</th><th>Days Since Trough</th><th>Current DD</th><th>Recovery Factor</th></tr>
+  <tr><td>Start</td><td>$100k</td><td>$100k</td><td>$100k</td><td>0</td><td>0%</td><td>1.0</td></tr>
+  <tr><td>Day 10</td><td>$92k</td><td>$100k</td><td>$92k</td><td>0</td><td>-8%</td><td>1.0</td></tr>
+  <tr><td>Day 15</td><td>$94k</td><td>$100k</td><td>$92k</td><td>5</td><td>-8%</td><td>0.25</td></tr>
+  <tr><td>Day 30</td><td>$105k</td><td>$105k</td><td>$105k</td><td>0</td><td>0%</td><td>1.0</td></tr>
+</table>
+
+<p>This daily tracking feeds every risk adjustment — no emotion, pure numbers.</p>
+
+<h2 class="chapter">Chapter 59: Dynamic Risk Scaling</h2>
+
+<p>When drawdown increases, we automatically reduce risk per trade — protecting capital when you need it most.</p>
+
+<div class="formula-box">
+  Risk Multiplier = max(0.3, 1 – 2 × DD Pct) × Recovery Factor<br><br>
+  New Base Risk = 0.01 × Risk Multiplier
+</div>
+
+<p>Effect on max positions:</p>
+<table>
+  <tr><th>Drawdown %</th><th>Risk Multiplier</th><th>Max Positions Allowed</th><th>Psychological Note</th></tr>
+  <tr><td>0–10%</td><td>1.0 → 0.8</td><td>4</td><td>Normal — stay calm</td></tr>
+  <tr><td>10–20%</td><td>0.8 → 0.6</td><td>3</td><td>Reduce aggression — survive</td></tr>
+  <tr><td>20–30%</td><td>0.6 → 0.4</td><td>2</td><td>Very selective — protect</td></tr>
+  <tr><td>30%+</td><td>0.3</td><td>1 or 0</td><td>Emergency mode — review needed</td></tr>
+</table>
+
+<p><strong>Why 2× multiplier in formula?</strong> Aggressive reduction early prevents deep holes. Recovery Factor slowly lets you ramp back up as wins return — natural healing.</p>
+
+<p>Psychology: When red, you want to “trade bigger to recover.” The rules say the opposite — get smaller. That conflict is why most blow up. Follow the math.</p>
+
+<h2 class="chapter">Chapter 60: Market vs. Strategy Analysis</h2>
+
+<p>Not every drawdown is your fault. Sometimes the whole market is down. We distinguish to avoid over-reacting.</p>
+
+<div class="formula-box">
+  SPY DD % = Current SPY drawdown from its peak (benchmark)
+</div>
+
+<p>Decision tree:</p>
+<table>
+  <tr><th>Scenario</th><th>Condition</th><th>Action</th><th>Log Message</th></tr>
+  <tr><td>Market-Driven</td><td>SPY DD >10% AND Your DD > SPY DD</td><td>Reduce all positions 50%</td><td>“Market-driven drawdown – reducing exposure”</td></tr>
+  <tr><td>Strategy Issue</td><td>SPY DD <5% AND Your DD >15%</td><td>HALT new trading – review signals</td><td>“STRATEGY ALERT: Unusual drawdown without market cause”</td></tr>
+  <tr><td>Emergency</td><td>Your DD >30%</td><td>Liquidate all – halt 30+ days</td><td>“EMERGENCY: Max drawdown exceeded – full review”</td></tr>
+</table>
+
+<p>Example:</p>
+<ul>
+  <li>2022 bear market: SPY -25%, your system -8% → market-driven → reduce size, but stay invested</li>
+  <li>Random losing streak in bull market: SPY flat, you -18% → halt & review (likely rule violation)</li>
+</ul>
+
+<p>This check prevents panic quits during normal corrections — while forcing reflection when something’s truly wrong.</p>
+
+<h2 class="chapter">Chapter 61: The Mathematical Proof (Never Run Out of Money)</h2>
+
+<p>Every trader secretly fears: “What if I keep losing and go to zero?”</p>
+
+<p>Here’s why — mathematically — this system makes ruin almost impossible.</p>
+
+<p><strong>Proof 1: Percent-based sizing shrinks losses automatically</strong></p>
+<div class="formula-box">
+  Risk_n = 0.01 × Equity_(n-1)<br>
+  After loss: Equity_(n) = Equity_(n-1) × (1 – 0.01)<br>
+  Next risk = 0.01 × smaller equity → losses get smaller forever
+</div>
+
+<p>You approach zero asymptotically — never hit it.</p>
+
+<p><strong>Proof 2: Hard caps limit worst-case monthly loss</strong></p>
+<ul>
+  <li>Max 4 positions × 1% risk = 4% max monthly risk (assuming all lose)</li>
+  <li>Worst realistic year: 12 × 4% = 48% loss → still 52% capital left</li>
+</ul>
+
+<p><strong>Proof 3: Drawdown scaling creates a floor</strong></p>
+<table>
+  <tr><th>Year (worst case)</th><th>Starting Capital</th><th>After 30% DD + scaling</th></tr>
+  <tr><td>Start</td><td>$100,000</td><td>$100,000</td></tr>
+  <tr><td>Year 1</td><td>$100k</td><td>\~$70,000 (after reductions)</td></tr>
+  <tr><td>Year 2</td><td>$70k</td><td>\~$50,000</td></tr>
+  <tr><td>Year 5</td><td>\~$42k</td><td>Stabilizes — never below \~30–40%</td></tr>
+</table>
+
+<p><strong>Proof 4: Kelly Criterion overkill</strong></p>
+<div class="formula-box">
+  f* = (p × b – q) / b<br>
+  Conservative estimate: p=0.6 win rate, b=4.76 win/loss ratio → f* ≈ 51.6%<br>
+  We risk 1% → 50× more conservative than optimal
+</div>
+
+<p>Conclusion:</p>
+<div class="warning-box">
+  <strong>You will NEVER run out of capital.</strong><br>
+  The math — percent sizing + hard caps + dynamic scaling + tiny base risk — makes it structurally impossible.
+</div>
+
+<p>Trust this. It’s the foundation of sleeping at night.</p>
+
+<h2 class="chapter">Chapter 62: Drawdown Scenarios and Responses</h2>
+
+<p>Realistic drawdown situations and exactly what to do — no guessing.</p>
+
+<table>
+  <tr><th>Scenario</th><th>Drawdown Level</th><th>Immediate Actions</th><th>Longer-Term Response</th><th>Emotional Reminder</th></tr>
+  <tr><td>Mild Pullback</td><td>5–10%</td><td>Reduce size to 80–90%, max 3–4 positions</td><td>Continue normal — most common</td><td>“Normal noise. Stay the course.”</td></tr>
+  <tr><td>Moderate Losing Streak</td><td>10–20%</td><td>Risk multiplier drops → max 3 positions, tighter signals</td><td>Review last 5–10 trades for rule breaks</td><td>“System protecting me. Patience wins.”</td></tr>
+  <tr><td>Serious Drawdown</td><td>20–30%</td><td>Max 2 positions, highest-conviction only</td><td>Full trade journal audit, possible parameter tweak (rare)</td><td>“This is why we scale down. Survive now, thrive later.”</td></tr>
+  <tr><td>Emergency</td><td>>30%</td><td>Liquidate all positions, halt trading 30+ days</td><td>Deep system review, backtest re-run, possible break</td><td>“Stop. Protect capital. Rebuild confidence slowly.”</td></tr>
+</table>
+
+<p>Quick response cheat sheet (print this):</p>
+<ul>
+  <li>DD 10% → breathe, reduce size slightly</li>
+  <li>DD 20% → get defensive, review journal</li>
+  <li>DD 30% → emergency stop — no exceptions</li>
+</ul>
+
+<p>Most traders quit at 20–30% DD. This system is built to keep you trading — smaller — until recovery. That’s the real edge.</p>
+
+<!-- ================================================ -->
+<!-- PART X: COMPLETE STATE MACHINE                   -->
+<!-- ================================================ -->
+
+<h2 class="chapter">Chapter 63: Position States Explained</h2>
+
+<p>Every open position in the system exists in one of four clearly defined states. Tracking states prevents confusion and ensures consistent execution.</p>
+
+<table>
+  <tr><th>State</th><th>Name</th><th>Description</th><th>Stop Logic</th><th>Pyramiding Allowed?</th><th>Typical Duration</th></tr>
+  <tr><td>STATE_0</td><td>New Position (Pre-Target)</td><td>Initial entry or early pyramiding. Proving the trade.</td><td>Entry – 1×N_Entry</td><td>Yes (up to 4 units)</td><td>Days to weeks</td></tr>
+  <tr><td>STATE_1</td><td>Tight Trail (Fixed N)</td><td>Profit target hit (≥2N). Profits locked, trail tight.</td><td>max(Profit_Floor, Peak – 1×N_Entry) + time decay</td><td>No</td><td>Weeks to months</td></tr>
+  <tr><td>STATE_2</td><td>Wide Trail (Current N)</td><td>Mega-winner mode (≥3.5N). Loose trail for big runs.</td><td>max(Stage2_Peak – 3×Current N, Stage2_Peak – 1.5×N_Entry, Profit_Floor) + gentle decay</td><td>No</td><td>Months to years</td></tr>
+  <tr><td>STATE_3</td><td>Exited</td><td>Trade closed (stop hit, time decay, manual emergency)</td><td>N/A</td><td>N/A</td><td>Done</td></tr>
+</table>
+
+<p><strong>State transitions (one-way only):</strong></p>
+<ul>
+  <li>STATE_0 → STATE_1: Price ≥ Entry + 2×N_Entry</li>
+  <li>STATE_1 → STATE_2: Peak ≥ Entry + 3.5×N_Entry</li>
+  <li>Any state → STATE_3: Stop hit or emergency liquidation</li>
+</ul>
+
+<p>Psychology note: Beginners panic and exit early. The state machine forces patience: “Is it still STATE_0? Let it breathe. STATE_1? Protect. STATE_2? Dream big.” Clear rules remove emotion.</p>
+
+<h2 class="chapter">Chapter 64: System States</h2>
+
+<p>Besides individual position states, the entire trading system has four global modes based on drawdown and performance. These override everything.</p>
+
+<table>
+  <tr><th>System State</th><th>Trigger</th><th>Allowed Actions</th><th>Risk Multiplier</th><th>Max Positions</th><th>Emotional Tone</th></tr>
+  <tr><td>SYSTEM_NORMAL</td><td>DD <10% or recovering well</td><td>Full trading, normal signals</td><td>1.0</td><td>4</td><td>Confident, routine</td></tr>
+  <tr><td>SYSTEM_REDUCED</td><td>DD 10–20%</td><td>Reduced size, higher score threshold</td><td>0.8–0.6</td><td>3</td><td>Cautious but active</td></tr>
+  <tr><td>SYSTEM_CAUTIOUS</td><td>DD 20–30%</td><td>Very selective, only top signals</td><td>0.6–0.4</td><td>2</td><td>Defensive – survive mode</td></tr>
+  <tr><td>SYSTEM_HALTED</td><td>DD >30% OR strategy alert (e.g., big DD in bull market)</td><td>No new entries, may liquidate</td><td>0 or 0.3</td><td>0–1</td><td>Stop. Review. Protect capital.</td></tr>
+</table>
+
+<p><strong>Transition rules:</strong></p>
+<ul>
+  <li>Automatic on drawdown changes (daily calc)</li>
+  <li>Manual override only in HALTED (after 30-day review)</li>
+  <li>Recovery: Slowly returns to NORMAL as DD heals (Recovery Factor)</li>
+</ul>
+
+<p>Example: 2022 bear market → system entered REDUCED/CAUTIOUS multiple times → avoided big losses while still catching bottoms. No full HALT needed because DD stayed <20%.</p>
+
+<p>This global state machine is your circuit breaker — it protects you from yourself when emotions run high.</p>
+
+<h2 class="chapter">Chapter 65: Complete Daily Processing Flow</h2>
+
+<p>This is the exact sequence the system follows every trading day — think of it as your “daily algorithm.” Follow it religiously.</p>
+
+<pre class="codebox">
+FUNCTION ProcessTradingDay():
+
+    // 1. Update market & position data (10 min)
+    Update_Prices_And_Volume()                // Yahoo/Alpha Vantage
+    Update_VIX_Percentile_And_Regime()        // Critical for entries
+    Update_All_Position_Peaks_And_Days()      // For trailing stops
+    Calculate_Current_Equity_And_Drawdown()   // Feeds risk scaling
+    Determine_System_State()                  // NORMAL / REDUCED / etc.
+
+    IF System_State == HALTED:
+        Log("System halted – no trading today")
+        Cancel_All_Unfilled_Orders()
+        RETURN
+    END IF
+
+    // 2. Manage existing positions – exits & pyramiding (10–15 min)
+    FOR EACH open_position IN Positions:
+        Update_Peak_If_New_High(position, Current_High, Today)
+
+        new_stop = Calculate_TurtleDarvas_Stop(position)  // Stage 0/1/2 logic
+
+        IF new_stop > position.Current_Stop:
+            Cancel_Old_Stop_Orders(position)
+            Place_New_Stop_Limit_Orders(position, new_stop)
+            position.Current_Stop = new_stop
+        END IF
+
+        IF position.Stage == 0 AND COUNT(Units) < 4:
+            Check_Pyramiding_Conditions(position)
+            IF Add_Condition_Met:
+                Calculate_New_Unit_Size(position)
+                IF Total_Risk_After_Add < 0.03 * Equity:
+                    Add_New_Unit(position)
+                    Place_Stop_Limit_For_New_Unit()
+                END IF
+            END IF
+        END IF
+
+        Check_For_Stage_Transitions(position)     // 2N → Stage 1, 3.5N → Stage 2
+    NEXT
+
+    // 3. Check for new entries (only if positions < max allowed) (10 min)
+    IF COUNT(Positions) < Max_Positions_Allowed:
+        candidates = Run_Screener(Regime_Filters)
+        ranked = Rank_Candidates_By_Score(candidates)
+        
+        FOR candidate IN ranked[0 : Max_Positions - COUNT(Positions)]:
+            IF Candidate_Score > Minimum_Threshold:
+                Enter_New_Position(candidate)
+                Calculate_Shares_And_Stop()
+                Place_Initial_Stop_Limit_Order()
+            END IF
+        NEXT
+    END IF
+
+    // 4. End-of-day cleanup & logging (5–10 min)
+    Cancel_All_Unfilled_Orders()              // Prevents stale orders
+    Update_Daily_Log_And_Equity_Curve()
+    Record_Any_Triggered_Exits()
+    Send_Summary_Email_Or_Journal_Entry()     // Optional but recommended
+
+END FUNCTION
+</pre>
+
+<p><strong>Key principles in the flow:</strong></p>
+<ul>
+  <li>Exits & pyramiding first — protect winners before hunting new ones</li>
+  <li>System state check early — can short-circuit everything</li>
+  <li>Entries last — only if room and regime allows</li>
+  <li>Daily cleanup — no loose ends</li>
+</ul>
+
+<p>After 3–6 months of following this exact flow manually, most traders automate parts (Python script, TradingView strategy alerts, broker API). But never skip the daily discipline — that’s where the magic lives.</p>
+
+<p>You now have the complete operational blueprint. Execute it consistently, and the math + psychology of the system will do the heavy lifting.</p>

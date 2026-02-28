@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Market Analysis - Gold Silver DXY</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.1.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            padding:
+                env(safe-area-inset-top,  0px)
+                env(safe-area-inset-right, 6px)
+                env(safe-area-inset-bottom, 0px)
+                env(safe-area-inset-left,  6px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 10px 12px 8px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .header h1 {
+            font-size: clamp(12px, 2.8vw, 22px);
+            color: #001f3f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .refresh-btn {
+            background: #003366;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: clamp(11px, 2vw, 14px);
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-height: 34px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .refresh-btn:disabled { background: #999; cursor: not-allowed; }
+
+        .status {
+            padding: 8px 10px;
+            margin: 6px 0;
+            border-radius: 5px;
+            font-size: 13px;
+            display: none;
+        }
+        .status.error   { display: block; background: #ffebee; color: #c62828; }
+        .status.success { display: block; background: #e8f5e8; color: #2e7d32; }
+        .status.info    { display: block; background: #e3f2fd; color: #1565c0; }
+
+        #chart { width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Market Analysis (5yr) - SMA Direction Changes</h1>
+            <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">⟳ Refresh</button>
+        </div>
+        <div id="status" class="status"></div>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        // ── Config ───────────────────────────────────────
+        const CONFIG = {
+            COLORS: {
+                GOLD:   '#D4AF37',
+                SILVER: '#708090',
+                RATIO:  '#800080',
+                DXY:    '#003366',
+                CORR:   '#FF6347'
+            },
+            SMA_PERIOD: 20,
+            CORR_WINDOW: 60,
+            TICKERS: {
+                Gold:   'GC=F',
+                Silver: 'SI=F',
+                DXY:    'DX-Y.NYB'
+            }
+        };
+
+        // ── Responsive helpers ───────────────────────────
+        function isPhone()     { return window.innerWidth  < 480; }
+        function isTablet()    { return window.innerWidth  >= 480 && window.innerWidth < 1024; }
+        function isLandscape() { return window.innerWidth  > window.innerHeight; }
+
+        function chartHeight() {
+            const vh  = window.innerHeight;
+            const ph  = isPhone();
+            const lnd = isLandscape();
+            const headerH = ph ? 52 : 62;
+            if (ph  && !lnd) return Math.round(vh - headerH);
+            if (ph  &&  lnd) return Math.round(vh - headerH);
+            if (isTablet() && !lnd) return Math.round(vh * 0.88);
+            return Math.round(Math.max(vh * 0.88, 540));
+        }
+
+        function plotMargins() {
+            const ph  = isPhone();
+            const lnd = isLandscape();
+            const tab = isTablet();
+            if (ph  && lnd)  return { l: 34, r: 34, t: 40, b: 26 };
+            if (ph)          return { l: 36, r: 36, t: 52, b: 28 };
+            if (tab && !lnd) return { l: 52, r: 52, t: 70, b: 36 };
+            return               { l: 70, r: 70, t: 100, b: 50 };
+        }
+
+        function titleFont()  { return isPhone() ? (isLandscape() ? 10 : 12) : isTablet() ? 14 : 16; }
+        function legendFont() { return isPhone() ? 8  : isTablet() ? 9  : 10; }
+        function annotFont()  { return isPhone() ? 8  : 11; }
+        function axisFont()   { return isPhone() ? 8  : 10; }
+
+        // ── Yahoo Finance fetch ──────────────────────────
+        async function fetchYahoo(ticker, interval) {
+            const now    = Math.floor(Date.now() / 1000);
+            const p1     = now - (365 * 6 * 86400); // 6 years back to ensure 5yr after trim
+            const url    = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}` +
+                           `?period1=${p1}&period2=${now}&interval=${interval}` +
+                           `&includePrePost=false&events=history`;
+
+            const res = await fetch(url, {
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+            if (!res.ok) throw new Error(`Yahoo fetch failed for ${ticker}: HTTP ${res.status}`);
+
+            const json   = await res.json();
+            const result = json?.chart?.result?.[0];
+            if (!result) throw new Error(`No data returned for ${ticker}`);
+
+            const timestamps = result.timestamp;
+            const closes     = result.indicators.quote[0].close;
+
+            const rows = [];
+            for (let i = 0; i < timestamps.length; i++) {
+                if (closes[i] == null || isNaN(closes[i])) continue;
+                rows.push({ date: new Date(timestamps[i] * 1000), close: closes[i] });
+            }
+            return rows;
+        }
+
+        // ── Align series onto Gold's date axis ──────────
+        function alignTo(baseDates, rows) {
+            // Build map: timestamp → close
+            const map = new Map(rows.map(r => [r.date.getTime(), r.close]));
+            const keys = [...map.keys()].sort((a, b) => a - b);
+
+            return baseDates.map(bd => {
+                const t = bd.getTime();
+                // Binary search for nearest key within ±5 days
+                let lo = 0, hi = keys.length - 1, best = NaN, bestD = 5 * 86400_000;
+                while (lo <= hi) {
+                    const mid = (lo + hi) >> 1;
+                    const d   = Math.abs(keys[mid] - t);
+                    if (d < bestD) { bestD = d; best = map.get(keys[mid]); }
+                    if (keys[mid] < t) lo = mid + 1; else hi = mid - 1;
+                }
+                return best;
+            });
+        }
+
+        // ── Fetch and build data object ──────────────────
+        async function fetchData() {
+            setStatus('Fetching Gold…', 'info');
+            const goldRows   = await fetchYahoo('GC=F',      '1wk');
+
+            setStatus('Fetching Silver…', 'info');
+            const silverRows = await fetchYahoo('SI=F',      '1wk');
+
+            setStatus('Fetching DXY…', 'info');
+            const dxyRows    = await fetchYahoo('DX-Y.NYB',  '1wk');
+
+            // Trim to 5 years
+            const cutoff = new Date(Date.now() - 365 * 5 * 86400_000);
+            const trimmed = goldRows.filter(r => r.date >= cutoff);
+            if (!trimmed.length) throw new Error('Gold data empty after 5yr trim');
+
+            const dates  = trimmed.map(r => r.date);
+            const gold   = trimmed.map(r => r.close);
+            const silver = alignTo(dates, silverRows.filter(r => r.date >= cutoff));
+            const dxy    = alignTo(dates, dxyRows.filter(r => r.date >= cutoff));
+            const ratio  = gold.map((g, i) => (!isNaN(silver[i]) && silver[i] > 0) ? g / silver[i] : null);
+
+            const P = CONFIG.SMA_PERIOD;
+            function sma(arr) {
+                return arr.map((_, i) => {
+                    if (i < P - 1) return null;
+                    let s = 0, c = 0;
+                    for (let j = 0; j < P; j++) {
+                        const v = arr[i - j];
+                        if (v != null && !isNaN(v)) { s += v; c++; }
+                    }
+                    return c === P ? s / P : null;
+                });
+            }
+
+            const goldSMA   = sma(gold);
+            const silverSMA = sma(silver);
+            const dxySMA    = sma(dxy);
+            const ratioSMA  = sma(ratio);
+
+            const W = CONFIG.CORR_WINDOW;
+            const corr = gold.map((_, i) => {
+                if (i < W - 1) return null;
+                let s1=0, s2=0;
+                for (let j=0; j<W; j++) { s1+=gold[i-j]; s2+=dxy[i-j]; }
+                const m1=s1/W, m2=s2/W;
+                let cov=0, v1=0, v2=0;
+                for (let j=0; j<W; j++) {
+                    const d1=gold[i-j]-m1, d2=dxy[i-j]-m2;
+                    cov+=d1*d2; v1+=d1*d1; v2+=d2*d2;
+                }
+                const den = Math.sqrt(v1 * v2);
+                return den === 0 ? null : cov / den;
+            });
+
+            return { dates, gold, silver, dxy, ratio, goldSMA, silverSMA, dxySMA, ratioSMA, corr };
+        }
+
+        // ── Reversal detection (unchanged from your working code) ─
+        function findReversals(prices, sma, threshold = 0.015) {
+            const reversals = [];
+            let trend = 0, lastSMA = null;
+            for (let i = 0; i < prices.length; i++) {
+                if (sma[i] === null) continue;
+                if (lastSMA === null) { lastSMA = sma[i]; continue; }
+                if (trend === 0) {
+                    if      (sma[i] > lastSMA * (1 + threshold)) trend =  1;
+                    else if (sma[i] < lastSMA * (1 - threshold)) trend = -1;
+                } else if (trend === 1) {
+                    if (sma[i] < lastSMA * (1 - threshold)) { reversals.push({ index: i-1, type: 'peak'   }); trend = -1; }
+                } else {
+                    if (sma[i] > lastSMA * (1 + threshold)) { reversals.push({ index: i-1, type: 'trough' }); trend =  1; }
+                }
+                lastSMA = sma[i];
+            }
+            return reversals;
+        }
+
+        // ── Status helper ────────────────────────────────
+        function setStatus(msg, type) {
+            const el = document.getElementById('status');
+            el.textContent   = msg;
+            el.className     = 'status ' + type;
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        // ── Build chart (same layout as your working version) ─
+        function createPlot(data) {
+            const lastCorr   = data.corr.filter(v => v !== null).at(-1);
+            const corrStatus = Math.abs(lastCorr) < 0.3 ? 'Decoupled' : lastCorr < 0 ? 'Inverse' : 'Direct';
+            const timestamp  = new Date().toLocaleString();
+            const ph         = isPhone();
+
+            const gRev = findReversals(data.gold,   data.goldSMA);
+            const sRev = findReversals(data.silver, data.silverSMA);
+            const rRev = findReversals(data.ratio,  data.ratioSMA);
+            const dRev = findReversals(data.dxy,    data.dxySMA);
+
+            const traces = [
+                { x: data.dates, y: data.gold,      name: 'Gold',          line: { color: CONFIG.COLORS.GOLD,   width: 0.8 }, opacity: 0.4, type: 'scatter', mode: 'lines', yaxis: 'y',  xaxis: 'x'  },
+                { x: data.dates, y: data.goldSMA,   name: 'Gold SMA',      line: { color: CONFIG.COLORS.GOLD,   width: 2.2 },               type: 'scatter', mode: 'lines', yaxis: 'y',  xaxis: 'x'  },
+                { x: data.dates, y: data.silver,    name: 'Silver',        line: { color: CONFIG.COLORS.SILVER, width: 0.8 }, opacity: 0.4, type: 'scatter', mode: 'lines', yaxis: 'y2', xaxis: 'x'  },
+                { x: data.dates, y: data.silverSMA, name: 'Silver SMA',    line: { color: CONFIG.COLORS.SILVER, width: 1.8 },               type: 'scatter', mode: 'lines', yaxis: 'y2', xaxis: 'x'  },
+                { x: data.dates, y: data.ratio,     name: 'G/S Ratio',     line: { color: CONFIG.COLORS.RATIO,  width: 0.8 }, opacity: 0.4, type: 'scatter', mode: 'lines', yaxis: 'y3', xaxis: 'x'  },
+                { x: data.dates, y: data.ratioSMA,  name: 'Ratio SMA',     line: { color: CONFIG.COLORS.RATIO,  width: 2.8 },               type: 'scatter', mode: 'lines', yaxis: 'y3', xaxis: 'x'  },
+                { x: data.dates, y: data.dxy,       name: 'DXY',           line: { color: CONFIG.COLORS.DXY,    width: 0.8 }, opacity: 0.4, type: 'scatter', mode: 'lines', yaxis: 'y4', xaxis: 'x2' },
+                { x: data.dates, y: data.dxySMA,    name: 'DXY SMA',       line: { color: CONFIG.COLORS.DXY,    width: 2.2 },               type: 'scatter', mode: 'lines', yaxis: 'y4', xaxis: 'x2' },
+                { x: data.dates, y: data.corr,      name: 'Gold-DXY Corr', line: { color: CONFIG.COLORS.CORR,   width: 1.8, dash: 'dot' },  type: 'scatter', mode: 'lines', yaxis: 'y5', xaxis: 'x2' }
+            ];
+
+            function addMarkers(revs, dates, vals, yaxis, xaxis, color) {
+                revs.forEach(r => traces.push({
+                    x: [dates[r.index]], y: [vals[r.index]], mode: 'markers',
+                    marker: { symbol: r.type === 'peak' ? 'triangle-down' : 'triangle-up', size: ph ? 8 : 10, color },
+                    showlegend: false, type: 'scatter', yaxis, xaxis
+                }));
+            }
+            addMarkers(gRev, data.dates, data.gold,   'y',  'x',  CONFIG.COLORS.GOLD);
+            addMarkers(sRev, data.dates, data.silver, 'y2', 'x',  CONFIG.COLORS.SILVER);
+            addMarkers(rRev, data.dates, data.ratio,  'y3', 'x',  CONFIG.COLORS.RATIO);
+            addMarkers(dRev, data.dates, data.dxy,    'y4', 'x2', CONFIG.COLORS.DXY);
+
+            const M   = plotMargins();
+            const af  = annotFont();
+            const axf = axisFont();
+            const lastIdx = data.dates.length - 1;
+
+            const layout = {
+                title: {
+                    text: ph
+                        ? `<b>Market Analysis 5yr</b><br><sub>${timestamp}</sub>`
+                        : `<b>Market Analysis (5yr) - SMA Direction Changes</b><br><sub>Updated: ${timestamp}</sub>`,
+                    x: 0.5,
+                    font: { size: titleFont() }
+                },
+                plot_bgcolor:  '#f8fbff',
+                paper_bgcolor: 'white',
+                hovermode:     'x unified',
+                height:        chartHeight(),
+                margin:        M,
+
+                legend: {
+                    orientation: 'h',
+                    x: 0.5, xanchor: 'center',
+                    y: 1.01, yanchor: 'bottom',
+                    font: { size: legendFont() },
+                    bgcolor: 'rgba(255,255,255,0.9)',
+                    bordercolor: 'lightgray', borderwidth: 1,
+                    itemwidth: ph ? 36 : 40
+                },
+
+                xaxis: {
+                    domain: [0, 1], anchor: 'y',
+                    showgrid: true, gridcolor: 'rgb(220,220,220)',
+                    rangeslider: { visible: false },
+                    showticklabels: false
+                },
+                yaxis: {
+                    domain: [0.38, 1.0], anchor: 'x', side: 'left',
+                    title: { text: '<b>Gold ($)</b>', font: { color: CONFIG.COLORS.GOLD, size: axf }, standoff: 2 },
+                    showgrid: true, gridcolor: 'rgb(220,220,220)', zeroline: false, tickfont: { size: axf }
+                },
+                yaxis2: {
+                    domain: [0.38, 1.0], overlaying: 'y', side: 'right',
+                    title: { text: '<b>Silver ($)</b>', font: { color: CONFIG.COLORS.SILVER, size: axf }, standoff: 2 },
+                    showgrid: false, zeroline: false, tickfont: { size: axf }
+                },
+                yaxis3: {
+                    domain: [0.38, 1.0], overlaying: 'y', side: 'right',
+                    title: { text: '<b>G/S Ratio</b>', font: { color: CONFIG.COLORS.RATIO, size: axf }, standoff: 2 },
+                    showgrid: false, zeroline: false, tickfont: { size: axf },
+                    anchor: 'free', position: 1.0
+                },
+
+                xaxis2: {
+                    domain: [0, 1], anchor: 'y4',
+                    showgrid: true, gridcolor: 'rgb(220,220,220)',
+                    rangeslider: { visible: false }, tickfont: { size: axf }
+                },
+                yaxis4: {
+                    domain: [0.0, 0.30], anchor: 'x2', side: 'left',
+                    title: { text: '<b>DXY</b>', font: { color: CONFIG.COLORS.DXY, size: axf }, standoff: 2 },
+                    showgrid: true, gridcolor: 'rgb(220,220,220)', zeroline: false, tickfont: { size: axf }
+                },
+                yaxis5: {
+                    domain: [0.0, 0.30], overlaying: 'y4', side: 'right',
+                    title: { text: '<b>Corr</b>', font: { color: CONFIG.COLORS.CORR, size: axf }, standoff: 2 },
+                    range: [-1.1, 1.1], showgrid: false, zeroline: false, tickfont: { size: axf }
+                },
+
+                annotations: [
+                    {
+                        x: 0.99, y: 0.32, xref: 'paper', yref: 'paper',
+                        text: `<b>Corr: ${lastCorr.toFixed(2)} (${corrStatus})</b>`,
+                        showarrow: false, xanchor: 'right',
+                        font: { size: af },
+                        bgcolor: 'rgba(255,255,255,0.95)',
+                        bordercolor: 'black', borderwidth: 1, borderpad: 5
+                    },
+                    { x: data.dates[lastIdx], y: data.gold[lastIdx],   text: '<b>'+data.gold[lastIdx].toFixed(0)+'</b>',   showarrow: false, xanchor: 'left', font: { color: CONFIG.COLORS.GOLD,   size: af }, xref: 'x',  yref: 'y'  },
+                    { x: data.dates[lastIdx], y: data.silver[lastIdx], text: '<b>'+data.silver[lastIdx].toFixed(2)+'</b>', showarrow: false, xanchor: 'left', font: { color: CONFIG.COLORS.SILVER, size: af }, xref: 'x',  yref: 'y2' },
+                    { x: data.dates[lastIdx], y: data.ratio[lastIdx],  text: '<b>'+data.ratio[lastIdx].toFixed(2)+'</b>',  showarrow: false, xanchor: 'left', font: { color: CONFIG.COLORS.RATIO,  size: af }, xref: 'x',  yref: 'y3' },
+                    { x: data.dates[lastIdx], y: data.dxy[lastIdx],    text: '<b>'+data.dxy[lastIdx].toFixed(2)+'</b>',    showarrow: false, xanchor: 'left', font: { color: CONFIG.COLORS.DXY,    size: af }, xref: 'x2', yref: 'y4' }
+                ]
+            };
+
+            Plotly.react('chart', traces, layout, {
+                responsive: true, displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d']
+            });
+
+            setStatus('', '');
+        }
+
+        // ── Refresh ───────────────────────────────────────
+        async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            try {
+                const data = await fetchData();
+                createPlot(data);
+            } catch (err) {
+                console.error(err);
+                setStatus('Error: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ── Resize handler ────────────────────────────────
+        let _rt;
+        function onResize() {
+            clearTimeout(_rt);
+            _rt = setTimeout(() => {
+                const gd = document.getElementById('chart');
+                if (!gd || !gd.data) return;
+                const M = plotMargins();
+                Plotly.relayout(gd, {
+                    height:             chartHeight(),
+                    'margin.l':         M.l, 'margin.r': M.r,
+                    'margin.t':         M.t, 'margin.b': M.b,
+                    'title.font.size':  titleFont(),
+                    'legend.font.size': legendFont()
+                });
+            }, 150);
+        }
+
+        window.addEventListener('resize', onResize);
+        window.addEventListener('orientationchange', () => setTimeout(onResize, 350));
+
+        // ── Boot ─────────────────────────────────────────
+        window.onload = refreshData;
+    </script>
+</body>
+</html>

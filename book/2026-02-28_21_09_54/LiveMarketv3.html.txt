@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Dashboard • GLD SLV UUP</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); color: #333; margin: 0; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1400px; margin: auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .header { background: #1a1a2e; color: white; padding: 2rem; text-align: center; }
+        .header h1 { margin: 0; font-size: 2.8rem; background: linear-gradient(90deg, #ffd700, #ffa500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .status-bar { padding: 1rem 2rem; background: #f8f9fa; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .badge { padding: 0.5rem 1rem; border-radius: 999px; font-weight: 600; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #cce5ff; color: #004085; }
+        button { background: #667eea; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 999px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #5a67d8; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        #chart { min-height: 800px; padding: 1.5rem; }
+        .error-box { margin: 2rem; padding: 1.5rem; background: #fff5f5; border-left: 5px solid #e53e3e; border-radius: 8px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Market Dashboard</h1>
+            <p>GLD (Gold ETF) • SLV (Silver ETF) • UUP (USD ETF) • Alpha Vantage</p>
+        </div>
+
+        <div class="status-bar">
+            <div>
+                <span id="status" class="badge loading">Initializing...</span>
+                <span id="cache" class="badge">Cache: —</span>
+                <span id="source" class="badge">Source: —</span>
+            </div>
+            <button id="refresh" onclick="loadData()">Refresh Data</button>
+        </div>
+
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        // ── Config ───────────────────────────────────────
+        const ALPHA_KEY = "FQHCROCVBRCEKGK8";
+
+        const SYMBOLS = {
+            Gold:   "GLD",
+            Silver: "SLV",
+            DXY:    "UUP"
+        };
+
+        const FROM = Math.floor((Date.now()/1000) - (365*5 + 60)*86400);
+        const TO   = Math.floor(Date.now()/1000);
+        const MAX_POINTS = 1000;
+
+        let pyodide;
+
+        // ── Cache ────────────────────────────────────────
+        const DB_NAME = "MarketDashCache";
+        async function getDB() {
+            return new Promise((res, rej) => {
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onupgradeneeded = e => e.target.result.createObjectStore("cache", {keyPath: "key"});
+                req.onsuccess = e => res(e.target.result);
+                req.onerror = e => rej(e.target.error);
+            });
+        }
+
+        async function cacheData(value, source) {
+            const db = await getDB();
+            const tx = db.transaction("cache", "readwrite");
+            tx.objectStore("cache").put({key: "latest", value, ts: Date.now(), source});
+            document.getElementById("cache").textContent = `Cache: Saved (${new Date().toLocaleTimeString()})`;
+        }
+
+        async function getCached() {
+            const db = await getDB();
+            return new Promise(r => {
+                const req = db.transaction("cache").objectStore("cache").get("latest");
+                req.onsuccess = () => r(req.result);
+                req.onerror = () => r(null);
+            });
+        }
+
+        // ── Init Pyodide ────────────────────────────────
+        async function initPyodide() {
+            const st = document.getElementById("status");
+            st.textContent = "Loading Pyodide..."; st.className = "badge loading";
+
+            pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.5/full/" });
+            await pyodide.loadPackage(['micropip']);
+            const micropip = pyodide.pyimport('micropip');
+            await micropip.install(['pandas', 'numpy', 'plotly']);
+
+            st.textContent = "Python ready ✓"; st.className = "badge success";
+        }
+
+        // ── Fetch Alpha Vantage ─────────────────────────
+        async function fetchAlpha(symbol, type = "daily") {
+            const func = type === "weekly" ? "TIME_SERIES_WEEKLY" : "TIME_SERIES_DAILY";
+            const url = `https://www.alphavantage.co/query?function=\( {func}&symbol= \){symbol}&apikey=${ALPHA_KEY}`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+
+            if (json["Error Message"] || json["Note"] || json["Information"]) {
+                throw new Error(json["Error Message"] || json["Note"] || json["Information"]);
+            }
+
+            const seriesKey = type === "weekly" ? "Weekly Time Series" : "Time Series (Daily)";
+            const series = json[seriesKey];
+            if (!series) throw new Error(`No ${type} series`);
+
+            const t = [];
+            const c = [];
+            Object.entries(series).slice(0, MAX_POINTS).forEach(([dateStr, values]) => {
+                t.push(new Date(dateStr));
+                c.push(parseFloat(values["4. close"] || 0));
+            });
+
+            return { t, c };
+        }
+
+        // ── Load Data (Cache First) ─────────────────────
+        async function loadData() {
+            const btn = document.getElementById("refresh");
+            const st = document.getElementById("status");
+            const src = document.getElementById("source");
+            btn.disabled = true; btn.textContent = "Loading...";
+
+            // Cache first
+            const cached = await getCached();
+            if (cached) {
+                document.getElementById("chart").innerHTML = cached.value;
+                st.textContent = `From cache (${cached.source})`;
+                st.className = "badge success";
+                src.textContent = `Cache: ${cached.source}`;
+                btn.disabled = false; btn.textContent = "Refresh Data";
+                // Still try fresh in background
+                loadFreshData(st, src);
+                return;
+            }
+
+            st.textContent = "Fetching fresh data..."; st.className = "badge loading";
+            src.textContent = "Source: Alpha Vantage";
+
+            await loadFreshData(st, src);
+
+            btn.disabled = false; btn.textContent = "Refresh Data";
+        }
+
+        async function loadFreshData(st, src) {
+            let data = null;
+
+            try {
+                data = {};
+                for (const [name, sym] of Object.entries(SYMBOLS)) {
+                    const weekly = await fetchAlpha(sym, "weekly");
+                    const daily  = await fetchAlpha(sym, "daily");
+
+                    const map = new Map();
+                    weekly.t.forEach((d, i) => map.set(d.getTime(), weekly.c[i]));
+                    daily.t.forEach((d, i) => map.set(d.getTime(), daily.c[i]));
+
+                    data[name] = {
+                        t: Array.from(map.keys()).map(ts => new Date(ts)).sort((a,b)=>a-b),
+                        c: Array.from(map.values())
+                    };
+                }
+                src.textContent = "Source: Alpha Vantage";
+            } catch (err) {
+                st.textContent = "Fetch failed"; st.className = "badge error";
+                document.getElementById("chart").innerHTML += `<div class="error-box">Fetch error: ${err.message}</div>`;
+                return;
+            }
+
+            try {
+                st.textContent = "Generating chart...";
+
+                const pyCode = `
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import json
+
+data = json.loads('${JSON.stringify(data)}')
+
+df = pd.DataFrame()
+for name in data:
+    s = pd.Series(data[name]['c'], index=pd.to_datetime(data[name]['t'])).sort_index()
+    df[name] = s
+
+df = df.interpolate(method='time').ffill().bfill()
+
+df['Ratio'] = df['Gold'] / df['Silver'] if 'Gold' in df and 'Silver' in df else pd.Series()
+for col in ['Gold','Silver','Ratio','DXY']:
+    if col in df:
+        df[f'{col}_SMA'] = df[col].rolling(20, min_periods=1).mean()
+df['Corr'] = df['Gold'].rolling(60, min_periods=10).corr(df['DXY']) if 'Gold' in df and 'DXY' in df else pd.Series()
+
+fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.65, 0.35],
+                    specs=[[{"secondary_y":True}], [{"secondary_y":True}]])
+
+fig.add_trace(go.Scatter(x=df.index, y=df['Gold'], name='Gold (GLD)', line_color='#D4AF37'), row=1, col=1, secondary_y=False)
+fig.add_trace(go.Scatter(x=df.index, y=df['Silver'], name='Silver (SLV)', line_color='#708090'), row=1, col=1, secondary_y=True)
+fig.add_trace(go.Scatter(x=df.index, y=df['Ratio'], name='G/S Ratio', line_color='#800080', line_dash='dot'), row=1, col=1, secondary_y=True)
+
+fig.add_trace(go.Scatter(x=df.index, y=df['DXY'], name='USD Index (UUP)', line_color='#003366'), row=2, col=1, secondary_y=False)
+fig.add_trace(go.Scatter(x=df.index, y=df['Corr'], name='Gold-USD Corr', line_color='#FF6347', line_dash='dot'), row=2, col=1, secondary_y=True)
+
+fig.update_layout(title='Market Overview • Alpha Vantage • Updated: ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M'),
+                  template='plotly_white', height=900, hovermode='x unified',
+                  legend=dict(orientation='h', y=1.02, x=0.5))
+
+fig.to_html(include_plotlyjs=False, full_html=False)
+`;
+
+                const html = await pyodide.runPythonAsync(pyCode);
+                document.getElementById("chart").innerHTML = html;
+                await new Promise(r => setTimeout(r, 300)); // Give Plotly time
+                if (window.Plotly) Plotly.Plots.resize(document.getElementById("chart"));
+                await cacheData("latest", html);
+
+                st.textContent = "Loaded ✓";
+                st.className = "badge success";
+
+            } catch (err) {
+                st.textContent = "Chart failed"; st.className = "badge error";
+                document.getElementById("chart").innerHTML += `<div class="error-box">Chart error: ${err.message}</div>`;
+            }
+        }
+
+        // Start
+        (async () => {
+            await initPyodide();
+            await loadData();
+        })();
+    </script>
+</body>
+</html>

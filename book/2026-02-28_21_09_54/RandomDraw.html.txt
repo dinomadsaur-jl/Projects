@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎡 winner out · remove after spin</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #d9e2ef 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .card {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 10, 30, 0.25), 0 6px 12px rgba(0,0,0,0.1);
+            padding: 2.5rem 2rem;
+            border: 1px solid rgba(255,255,255,0.6);
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            border-left: 6px solid #3a5a8c;
+            padding-left: 1.2rem;
+        }
+        h1 span {
+            font-size: 2rem;
+        }
+        .sub {
+            color: #2c3e5c;
+            font-weight: 500;
+            margin-bottom: 1.8rem;
+            margin-top: -0.2rem;
+            padding-left: 2rem;
+            opacity: 0.8;
+        }
+        .csv-zone {
+            background: #ffffffcc;
+            border-radius: 2rem;
+            padding: 1.5rem 1.8rem;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.04), 0 8px 10px rgba(0,20,40,0.05);
+            border: 1px solid white;
+        }
+        .file-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .file-label {
+            background: #1e2f4b;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 3rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 4px 8px rgba(0, 30, 60, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+        }
+        .file-label:hover {
+            background: #2b3f60;
+            transform: scale(1.02);
+        }
+        .file-label i {
+            font-size: 1.2rem;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-hint {
+            color: #2e405b;
+            background: #eef3fc;
+            border-radius: 40px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 450;
+            border: 1px dashed #6b8bb0;
+        }
+        .status-badge {
+            background: #d1ddec;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: #1a314e;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        .counter {
+            font-weight: 600;
+            background: #35654d;
+            color: white;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            margin-left: 8px;
+        }
+        .name-pool {
+            background: white;
+            border-radius: 40px;
+            padding: 0.8rem 1.4rem;
+            margin: 1.5rem 0 2rem 0;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            border: 1px solid #b7c9e2;
+            box-shadow: inset 0 2px 5px #0000000c;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+        }
+        .name-chip {
+            background: #e6eefa;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            border: 1px solid #9fb7d3;
+            color: #102331;
+            font-weight: 450;
+            transition: all 0.2s;
+        }
+        .removed-chip {
+            background: #f1d7d7;
+            color: #a12b2b;
+            text-decoration: line-through;
+            border-color: #c99b9b;
+            order: 999;
+            opacity: 0.7;
+        }
+        .empty-pool-message {
+            color: #6b7d99;
+            font-style: italic;
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+        }
+        .action-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.8rem;
+        }
+        .btn {
+            background: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 18px rgba(0, 30, 60, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.1s ease;
+            border: 1px solid rgba(255,255,255,0.7);
+            flex: 1 1 auto;
+            color: #1a2e47;
+        }
+        .btn-primary {
+            background: #2b4f7b;
+            color: white;
+            box-shadow: 0 10px 18px #1e3a5f70;
+            border: 1px solid #93b3dd;
+        }
+        .btn-primary:disabled {
+            background: #9aafc7;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            color: #e5ecf5;
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 12px #0000001a;
+        }
+        .spinner-box {
+            background: #1f324b;
+            border-radius: 4rem;
+            padding: 0.5rem;
+            margin: 1.8rem 0 1rem;
+            box-shadow: inset 0 3px 10px #00000040, 0 8px 0 #0b1a2b;
+        }
+        .running-name {
+            background: #ffecbb;
+            border-radius: 4rem;
+            padding: 1.2rem 1.8rem;
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-align: center;
+            color: #1e3a5f;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 0 2px #f3d27e, inset 0 0 0 2px #ffe9b6;
+            transition: background 0.1s;
+            min-height: 5.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            word-break: break-word;
+        }
+        .blink-light {
+            background: #fff3d1;
+            box-shadow: 0 0 15px #f9e284;
+        }
+        .winner-box {
+            background: linear-gradient(125deg, #f7f0db, #faeed7);
+            border-radius: 2.5rem;
+            padding: 1.2rem 2rem;
+            margin-top: 1.8rem;
+            border: 2px solid #ffdd9e;
+            box-shadow: 0 8px 0 #896b3e20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .winner-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9b6b2b;
+        }
+        .winner-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #2d3f5e;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        .winner-name small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #957a54;
+        }
+        .footer-note {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #4b6382;
+            text-align: center;
+            border-top: 1px solid #cad8ec;
+            padding-top: 1.2rem;
+        }
+        .error-message {
+            background: #ffedea;
+            border-radius: 40px;
+            padding: 0.8rem 1.5rem;
+            color: #ac2c34;
+            border: 1px solid #ffb6b6;
+            font-weight: 500;
+        }
+        .removed-badge {
+            background: #b13939;
+            color: white;
+            border-radius: 30px;
+            padding: 0.1rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        <span>🎡</span> Winning Draw
+    </h1>
+    <div class="sub">winner removed from list – no repeats</div>
+
+    <div class="csv-zone">
+        <div class="file-row">
+            <label for="csvInput" class="file-label">
+                <span>📂</span> Choose CSV file
+            </label>
+            <input type="file" id="csvInput" accept=".csv, text/csv, text/plain">
+            <div class="file-hint">
+                ⚡ any CSV with names
+            </div>
+        </div>
+
+        <div id="fileStatus" class="status-badge">
+            ⏳ no file loaded
+        </div>
+
+        <!-- name pool chips (will show removed style) -->
+        <div id="namePoolContainer" class="name-pool">
+            <div class="empty-pool-message">✨ names will appear here</div>
+        </div>
+
+        <!-- SPINNER ANIMATION AREA -->
+        <div id="spinnerSection" style="display: none;">
+            <div class="spinner-box">
+                <div id="runningNameDisplay" class="running-name">⏎ ready to spin</div>
+            </div>
+        </div>
+
+        <div id="errorMessage" style="min-height: 2rem;"></div>
+
+        <div class="action-grid">
+            <button class="btn" id="resetBtn" title="clear file & reset">🔄 reset</button>
+            <button class="btn btn-primary" id="spinAndPickBtn" disabled>🎰 spin & remove winner</button>
+        </div>
+
+        <!-- winner display -->
+        <div id="winnerDisplay" class="winner-box" style="display: none;">
+            <span class="winner-label">winner (removed)</span>
+            <span id="winnerNameSpan" class="winner-name"></span>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        ⚡ each winner is taken out of the list. spin until empty!
+    </div>
+</div>
+
+<script>
+(function() {
+    // DOM elements
+    const fileInput = document.getElementById('csvInput');
+    const fileStatus = document.getElementById('fileStatus');
+    const namePoolContainer = document.getElementById('namePoolContainer');
+    const errorMessageDiv = document.getElementById('errorMessage');
+    const resetBtn = document.getElementById('resetBtn');
+    const spinAndPickBtn = document.getElementById('spinAndPickBtn');
+    const winnerDisplay = document.getElementById('winnerDisplay');
+    const winnerNameSpan = document.getElementById('winnerNameSpan');
+    const spinnerSection = document.getElementById('spinnerSection');
+    const runningNameDisplay = document.getElementById('runningNameDisplay');
+
+    // state
+    let allOriginalNames = [];        // untouched copy (used for reset reference, but we keep removed in workingList)
+    let workingNames = [];            // current available names (gets whittled down)
+    let removedNames = new Set();     // track removed winners for UI styling
+    let currentFileName = '';
+    let spinInterval = null;
+    let spinActive = false;
+
+    // helper: clear error
+    function setError(text) {
+        errorMessageDiv.innerHTML = text ? `<div class="error-message">⚠️ ${text}</div>` : '';
+    }
+
+    // stop any ongoing spin
+    function stopSpinIfRunning() {
+        if (spinInterval) {
+            clearInterval(spinInterval);
+            spinInterval = null;
+        }
+        spinActive = false;
+        refreshUI();
+    }
+
+    // refresh UI: status, name chips with removed style, button, spinner visibility
+    function refreshUI() {
+        // status line
+        if (!currentFileName) {
+            fileStatus.innerHTML = `⏳ no file loaded`;
+        } else {
+            const total = allOriginalNames.length;
+            const remaining = workingNames.length;
+            const removedCount = total - remaining;
+            fileStatus.innerHTML = `📄 ${currentFileName}  ·  <span class="counter">${remaining} left</span>  (${removedCount} removed)`;
+        }
+
+        // name pool chips – show allOriginalNames with strikethrough if removed
+        if (allOriginalNames.length === 0) {
+            namePoolContainer.innerHTML = `<div class="empty-pool-message">✨ no names yet — load a CSV</div>`;
+            spinnerSection.style.display = 'none';
+            runningNameDisplay.innerText = '⏎ ready';
+        } else {
+            const MAX_CHIPS = 80;
+            let chipsHtml = '';
+            const showNames = allOriginalNames.slice(0, MAX_CHIPS);
+            showNames.forEach(name => {
+                const safeName = String(name).replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;';
+                    if (m === '<') return '&lt;';
+                    if (m === '>') return '&gt;';
+                    if (m === '"') return '&quot;';
+                    return m;
+                });
+                const isRemoved = removedNames.has(name);
+                const removedClass = isRemoved ? 'removed-chip' : '';
+                const badge = isRemoved ? '<span class="removed-badge">out</span>' : '';
+                chipsHtml += `<span class="name-chip ${removedClass}">${safeName} ${badge}</span>`;
+            });
+            if (allOriginalNames.length > MAX_CHIPS) {
+                chipsHtml += `<span class="name-chip" style="background:#cfdef5;">+${allOriginalNames.length - MAX_CHIPS} more</span>`;
+            }
+            namePoolContainer.innerHTML = chipsHtml;
+            spinnerSection.style.display = 'block';
+        }
+
+        // disable button if workingNames empty OR spin active
+        spinAndPickBtn.disabled = (workingNames.length === 0 || spinActive);
+
+        // if no names left, hide winner display maybe, but keep if visible? fine.
+        if (workingNames.length === 0) {
+            // winner might stay, but we also hide the "spin" area a bit? let's keep spinner but show message
+            runningNameDisplay.innerText = '✅ all names removed';
+        }
+    }
+
+    // reset everything (clear file and internal state)
+    function resetState(clearFileInput = true) {
+        stopSpinIfRunning();
+        if (clearFileInput) {
+            fileInput.value = '';
+        }
+        allOriginalNames = [];
+        workingNames = [];
+        removedNames.clear();
+        currentFileName = '';
+        setError('');
+        winnerDisplay.style.display = 'none';
+        runningNameDisplay.innerText = '⏎ ready';
+        refreshUI();
+    }
+
+    // CSV parser (robust)
+    function parseNamesFromCSV(csvText) {
+        const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
+        if (lines.length === 0) return [];
+
+        let delimiter = ',';
+        if (lines[0].includes(';') && !lines[0].includes(',')) delimiter = ';';
+        else if (lines[0].includes('\t')) delimiter = '\t';
+        else {
+            let commaCnt = 0, semiCnt = 0;
+            for (let i=0; i<Math.min(3, lines.length); i++) {
+                commaCnt += (lines[i].match(/,/g) || []).length;
+                semiCnt += (lines[i].match(/;/g) || []).length;
+            }
+            if (semiCnt > commaCnt) delimiter = ';';
+        }
+
+        const headerParts = lines[0].split(delimiter).map(cell => cell.trim().replace(/^["']|["']$/g, ''));
+        const lowerHeader = headerParts.map(h => h.toLowerCase());
+        const nameKeywords = ['name','nom','nombre','full name','names','participant','winner'];
+        let nameColIndex = 0;
+        for (let i=0; i<lowerHeader.length; i++) {
+            if (nameKeywords.some(kw => lowerHeader[i].includes(kw))) {
+                nameColIndex = i;
+                break;
+            }
+        }
+
+        const hasHeader = lowerHeader.some(h => nameKeywords.some(kw => h.includes(kw))) || headerParts.length > 1;
+        const startRow = hasHeader ? 1 : 0;
+        const extracted = [];
+
+        for (let i=startRow; i<lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const parts = line.split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ''));
+            if (parts.length > nameColIndex && parts[nameColIndex] !== '') {
+                extracted.push(parts[nameColIndex]);
+            } else if (parts.length === 1 && parts[0] !== '') {
+                extracted.push(parts[0]);
+            }
+        }
+        return extracted;
+    }
+
+    // file selection
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) {
+            resetState(false);
+            return;
+        }
+        currentFileName = file.name;
+        setError('');
+        winnerDisplay.style.display = 'none';
+        stopSpinIfRunning();
+        runningNameDisplay.innerText = '⏎ loading...';
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                const names = parseNamesFromCSV(ev.target.result);
+                if (names.length === 0) {
+                    setError('No valid names found.');
+                    allOriginalNames = [];
+                    workingNames = [];
+                } else {
+                    // store unique? but keep as they appear (allow duplicates if needed)
+                    allOriginalNames = names.slice();   // original order for display
+                    workingNames = names.slice();       // mutable copy
+                }
+                removedNames.clear();
+                runningNameDisplay.innerText = workingNames.length ? '🎲 ready to spin' : '⏎ no names';
+                refreshUI();
+            } catch (err) {
+                setError('Parse error: ' + err.message);
+                allOriginalNames = [];
+                workingNames = [];
+                removedNames.clear();
+                refreshUI();
+            }
+        };
+        reader.onerror = () => {
+            setError('Failed to read file');
+            allOriginalNames = [];
+            workingNames = [];
+            removedNames.clear();
+            refreshUI();
+        };
+        reader.readAsText(file);
+    });
+
+    // reset button
+    resetBtn.addEventListener('click', function() {
+        resetState(true);
+    });
+
+    // spin animation & remove winner from list
+    function startSpinAndRemove() {
+        if (spinActive) return;
+        if (workingNames.length === 0) {
+            setError('No names remaining');
+            return;
+        }
+
+        stopSpinIfRunning(); // clean any previous interval
+        spinActive = true;
+        refreshUI(); // disables button
+
+        winnerDisplay.style.display = 'none';
+
+        const totalRemaining = workingNames.length;
+
+        // Choose final winner index from current workingNames
+        const finalWinnerIndex = Math.floor(Math.random() * totalRemaining);
+        const finalWinner = workingNames[finalWinnerIndex];
+
+        // Animation parameters
+        const MIN_STEPS = 20;
+        const MAX_STEPS = 35;
+        const spinIntervalTime = 60;
+        const totalSpinSteps = Math.floor(Math.random() * (MAX_STEPS - MIN_STEPS + 1)) + MIN_STEPS;
+        let currentStep = 0;
+
+        // helper random index from workingNames
+        function getRandomName() {
+            return workingNames[Math.floor(Math.random() * workingNames.length)];
+        }
+
+        spinInterval = setInterval(() => {
+            // show random name from current pool
+            runningNameDisplay.innerText = getRandomName();
+            // blink effect
+            runningNameDisplay.classList.add('blink-light');
+            setTimeout(() => runningNameDisplay.classList.remove('blink-light'), 40);
+
+            currentStep++;
+            if (currentStep >= totalSpinSteps) {
+                clearInterval(spinInterval);
+                spinInterval = null;
+
+                // REMOVE THE WINNER from working list
+                // Filter out the winner (only first occurrence? usually names are unique, but if duplicates exist, remove one instance)
+                const indexInWorking = workingNames.indexOf(finalWinner);
+                if (indexInWorking !== -1) {
+                    workingNames.splice(indexInWorking, 1); // remove one occurrence
+                }
+                // Add to removed set (for original display strikethrough)
+                removedNames.add(finalWinner);
+
+                // Update display
+                runningNameDisplay.innerText = finalWinner;
+                winnerNameSpan.innerHTML = finalWinner.replace(/[&<>"]/g, function(m) {
+                    if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m;
+                }) + ` <small>(removed · ${workingNames.length} left)</small>`;
+                winnerDisplay.style.display = 'flex';
+
+                spinActive = false;
+                refreshUI();  // updates chips (now with strikethrough), button enabled if names left
+            }
+        }, spinIntervalTime);
+    }
+
+    spinAndPickBtn.addEventListener('click', startSpinAndRemove);
+
+    // initial reset
+    resetState(true);
+})();
+</script>
+</body>
+</html>

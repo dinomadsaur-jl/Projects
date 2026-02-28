@@ -1,0 +1,10 @@
+com.appmindlab.nano.pref_auto_save|true
+com.appmindlab.nano.pref_copy_attachments_to_repo|false
+com.appmindlab.nano.pref_custom_filters|all;starred;A;B;C;D;E;F;G;H;I;J;K;L;M;N;O;P;Q;R;S;T;U;V;W;X;Y;Z
+com.appmindlab.nano.pref_incremental_backup|false
+com.appmindlab.nano.pref_lazy_update|false
+com.appmindlab.nano.pref_location_aware|false
+com.appmindlab.nano.pref_lux|false
+com.appmindlab.nano.pref_math_url|https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+com.appmindlab.nano.pref_show_hidden|false
+com.appmindlab.nano.pref_theme|system

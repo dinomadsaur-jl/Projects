@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎡 slow‑roll · speed slider · remove winner</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #18273f 0%, #1f3450 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .card {
+            max-width: 820px;
+            width: 100%;
+            background: rgba(245, 248, 255, 0.9);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 3rem;
+            box-shadow: 0 30px 50px rgba(0, 10, 30, 0.5), 0 8px 20px rgba(0,0,0,0.3);
+            padding: 2.5rem 2.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        h1 {
+            font-size: 2.3rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #0b1f33;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 0.3rem 0;
+            border-left: 8px solid #3f6b9c;
+            padding-left: 1.3rem;
+        }
+        h1 span { font-size: 2.4rem; }
+        .sub {
+            color: #2f4468;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+            font-style: italic;
+        }
+
+        /* slider panel */
+        .speed-panel {
+            background: #e7eef9;
+            border-radius: 60px;
+            padding: 1.2rem 2rem;
+            margin: 1.8rem 0 2rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: inset 0 1px 4px #ffffff, 0 6px 0 #99aec9;
+            border: 1px solid white;
+        }
+        .speed-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #1a3455;
+            font-size: 1.1rem;
+        }
+        .speed-label i {
+            font-size: 1.5rem;
+        }
+        .slider-container {
+            flex: 3;
+            min-width: 260px;
+        }
+        input[type=range] {
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, #3b5982, #7fa3d1);
+            border-radius: 30px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px #10243e, 0 0 0 3px #1e3f68;
+            cursor: pointer;
+            transition: 0.07s;
+            border: 2px solid #c6d9ff;
+        }
+        .speed-value {
+            background: #1f3f64;
+            color: white;
+            padding: 0.5rem 1.4rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            border: 1px solid #8fb1da;
+        }
+
+        .file-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .file-label {
+            background: #1e3f64;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 6px 0 #0e1f33;
+            border: 1px solid #91b3df;
+        }
+        .file-label:hover { background: #2b507a; transform: scale(1.02); }
+        input[type="file"] { display: none; }
+        .file-hint {
+            background: #c9daf5;
+            border-radius: 60px;
+            padding: 0.5rem 1.5rem;
+            border: 1px dashed #2e5580;
+            font-weight: 500;
+            color: #102536;
+        }
+
+        .status-badge {
+            background: #d6e3ff;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #042240;
+            margin: 0.5rem 0 1rem;
+        }
+        .counter {
+            background: #31613c;
+            color: white;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        .name-pool {
+            background: #ffffffd9;
+            border-radius: 40px;
+            padding: 1.2rem 1.5rem;
+            margin: 1.2rem 0 1.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #b2c9e8;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 14px;
+        }
+        .name-chip {
+            background: #e7f0fd;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid #809fc7;
+            font-weight: 500;
+            color: #102b48;
+            transition: all 0.2s;
+        }
+        .removed-chip {
+            background: #f5dbdb;
+            color: #a52b2b;
+            text-decoration: line-through 2px #c24b4b;
+            border-color: #b57a7a;
+            opacity: 0.8;
+        }
+        .removed-badge {
+            background: #ad3a3a;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.7rem;
+            border-radius: 30px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .empty-pool-message {
+            color: #6a7e9e;
+            width: 100%;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .spinner-box {
+            background: #172e47;
+            border-radius: 60px;
+            padding: 0.6rem;
+            margin: 2rem 0 1rem;
+            box-shadow: inset 0 3px 10px #030b16, 0 10px 0 #0a1b2d;
+        }
+        .running-name {
+            background: #fff3d4;
+            border-radius: 60px;
+            padding: 1.4rem 1.8rem;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            color: #113256;
+            box-shadow: 0 0 0 3px #f7d889, inset 0 0 0 3px #ffecb3;
+            transition: background 0.05s;
+            min-height: 6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Courier New', monospace;
+            word-break: break-word;
+        }
+        .blink-light {
+            background: #ffe69b;
+            box-shadow: 0 0 30px #ffd966;
+        }
+
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1.5rem 0 1rem;
+        }
+        .btn {
+            background: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 0 #99aec9, 0 8px 18px #00000030;
+            cursor: pointer;
+            transition: 0.06s linear;
+            border: 1px solid white;
+            flex: 1 1 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: #28578b;
+            color: white;
+            box-shadow: 0 8px 0 #113256;
+            border: 1px solid #9bbce6;
+        }
+        .btn-primary:disabled {
+            background: #92a9c7;
+            box-shadow: 0 6px 0 #5b6f8c;
+            pointer-events: none;
+            transform: translateY(2px);
+            opacity: 0.7;
+        }
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #7f95b2, 0 6px 12px #00000030;
+        }
+        .winner-box {
+            background: #ecdeb9;
+            border-radius: 50px;
+            padding: 1.2rem 2.2rem;
+            margin-top: 1.8rem;
+            border: 3px solid #efc47b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .winner-label {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #735e36;
+        }
+        .winner-name {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #1f3c62;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        .footer {
+            margin-top: 1.8rem;
+            font-size: 0.9rem;
+            color: #37557a;
+            text-align: center;
+            border-top: 2px solid #b7cef0;
+            padding-top: 1.2rem;
+        }
+        .error-message {
+            background: #ffe1dd;
+            border-radius: 40px;
+            padding: 0.7rem 1.5rem;
+            color: #ba2b2b;
+            border: 1px solid #ff9e9e;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1><span>🎰</span> slow‑roll selector</h1>
+    <div class="sub">fast & slow · slider controls spin speed · winner removed</div>
+
+    <!-- 🔽 SPEED SLIDER – exactly what you asked for -->
+    <div class="speed-panel">
+        <div class="speed-label"><span>🐢</span> SPEED</div>
+        <div class="slider-container">
+            <input type="range" id="speedSlider" min="20" max="250" value="80" step="5">
+        </div>
+        <div class="speed-value" id="speedDisplay">80 ms</div>
+    </div>
+
+    <div class="file-row">
+        <label for="csvInput" class="file-label">📂 LOAD CSV</label>
+        <input type="file" id="csvInput" accept=".csv, text/csv, .txt">
+        <div class="file-hint">any column with names</div>
+    </div>
+
+    <div id="fileStatus" class="status-badge">⏳ no file loaded</div>
+
+    <!-- dynamic chip list (strikethrough removed) -->
+    <div id="namePoolContainer" class="name-pool">
+        <div class="empty-pool-message">✨ names appear here</div>
+    </div>
+
+    <!-- spin display panel -->
+    <div id="spinnerSection" style="display: none;">
+        <div class="spinner-box">
+            <div id="runningNameDisplay" class="running-name">🎲 ready</div>
+        </div>
+    </div>
+
+    <div id="errorMessage"></div>
+
+    <div class="action-bar">
+        <button class="btn" id="resetBtn">🔄 reset</button>
+        <button class="btn btn-primary" id="spinAndPickBtn" disabled>🎰 spin & remove winner</button>
+    </div>
+
+    <!-- winner info (removed) -->
+    <div id="winnerDisplay" class="winner-box" style="display: none;">
+        <span class="winner-label">🏆 winner out</span>
+        <span id="winnerNameSpan" class="winner-name"></span>
+    </div>
+
+    <div class="footer">⚡ each winner removed – spin until empty · slider changes rhythm</div>
+</div>
+
+<script>
+(function() {
+    // DOM elements
+    const fileInput = document.getElementById('csvInput');
+    const fileStatus = document.getElementById('fileStatus');
+    const namePoolContainer = document.getElementById('namePoolContainer');
+    const errorMessageDiv = document.getElementById('errorMessage');
+    const resetBtn = document.getElementById('resetBtn');
+    const spinAndPickBtn = document.getElementById('spinAndPickBtn');
+    const winnerDisplay = document.getElementById('winnerDisplay');
+    const winnerNameSpan = document.getElementById('winnerNameSpan');
+    const spinnerSection = document.getElementById('spinnerSection');
+    const runningNameDisplay = document.getElementById('runningNameDisplay');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedDisplay = document.getElementById('speedDisplay');
+
+    // state
+    let allOriginalNames = [];        // keep order for chips
+    let workingNames = [];            // mutable (remaining)
+    let removedNames = new Set();     // set of removed strings
+    let currentFileName = '';
+    let spinInterval = null;
+    let spinActive = false;
+
+    // speed getter (ms)
+    function getCurrentSpeed() {
+        return parseInt(speedSlider.value, 10);
+    }
+
+    // update speed display
+    function updateSpeedLabel() {
+        speedDisplay.textContent = getCurrentSpeed() + ' ms';
+    }
+    speedSlider.addEventListener('input', updateSpeedLabel);
+    updateSpeedLabel();
+
+    // helper: stop any ongoing spin
+    function stopSpinIfRunning() {
+        if (spinInterval) {
+            clearInterval(spinInterval);
+            spinInterval = null;
+        }
+        spinActive = false;
+        refreshUI();
+    }
+
+    // clear error
+    function setError(text) {
+        errorMessageDiv.innerHTML = text ? `<div class="error-message">⚠️ ${text}</div>` : '';
+    }
+
+    // refresh: status, chips, buttons, spinner text
+    function refreshUI() {
+        // status line
+        if (!currentFileName) {
+            fileStatus.innerHTML = `⏳ no file loaded`;
+        } else {
+            const total = allOriginalNames.length;
+            const remaining = workingNames.length;
+            fileStatus.innerHTML = `📄 ${currentFileName}  ·  <span class="counter">${remaining} left</span>  (${total-remaining} removed)`;
+        }
+
+        // render chips: show allOriginalNames, removed ones with strikethrough
+        if (allOriginalNames.length === 0) {
+            namePoolContainer.innerHTML = `<div class="empty-pool-message">✨ load a CSV to see names</div>`;
+            spinnerSection.style.display = 'none';
+            runningNameDisplay.innerText = '🎲 ready';
+        } else {
+            const MAX_CHIPS = 90;
+            let html = '';
+            const sliced = allOriginalNames.slice(0, MAX_CHIPS);
+            sliced.forEach(name => {
+                const safe = String(name).replace(/[&<>]/g, function(m) {
+                    return (m === '&') ? '&amp;' : (m === '<' ? '&lt;' : '&gt;');
+                });
+                const isRemoved = removedNames.has(name);
+                const chipClass = isRemoved ? 'name-chip removed-chip' : 'name-chip';
+                const badge = isRemoved ? '<span class="removed-badge">out</span>' : '';
+                html += `<span class="${chipClass}">${safe} ${badge}</span>`;
+            });
+            if (allOriginalNames.length > MAX_CHIPS) {
+                html += `<span class="name-chip" style="background:#b9d0ef;">+${allOriginalNames.length - MAX_CHIPS} more</span>`;
+            }
+            namePoolContainer.innerHTML = html;
+            spinnerSection.style.display = 'block';
+        }
+
+        // disable spin button if workingNames empty OR spin active
+        spinAndPickBtn.disabled = (workingNames.length === 0 || spinActive);
+
+        if (workingNames.length === 0 && allOriginalNames.length > 0) {
+            runningNameDisplay.innerText = '✅ all removed';
+        }
+    }
+
+    // reset everything
+    function resetState(clearFileInput = true) {
+        stopSpinIfRunning();
+        if (clearFileInput) {
+            fileInput.value = '';
+        }
+        allOriginalNames = [];
+        workingNames = [];
+        removedNames.clear();
+        currentFileName = '';
+        setError('');
+        winnerDisplay.style.display = 'none';
+        runningNameDisplay.innerText = '🎲 ready';
+        refreshUI();
+    }
+
+    // CSV parser (smart)
+    function parseNamesFromCSV(csvText) {
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
+        if (lines.length === 0) return [];
+
+        // detect delimiter
+        let delimiter = ',';
+        if (lines[0].includes(';') && !lines[0].includes(',')) delimiter = ';';
+        else if (lines[0].includes('\t')) delimiter = '\t';
+        else {
+            const com = lines.slice(0,3).reduce((acc, l) => acc + (l.match(/,/g) || []).length, 0);
+            const sem = lines.slice(0,3).reduce((acc, l) => acc + (l.match(/;/g) || []).length, 0);
+            if (sem > com) delimiter = ';';
+        }
+
+        const headerCols = lines[0].split(delimiter).map(c => c.trim().replace(/^["']|["']$/g, ''));
+        const lower = headerCols.map(h => h.toLowerCase());
+        const nameKeywords = ['name','nom','nombre','full name','names','participant','winner','first'];
+        let nameIdx = 0;
+        for (let i=0; i<lower.length; i++) {
+            if (nameKeywords.some(kw => lower[i].includes(kw))) { nameIdx = i; break; }
+        }
+
+        const hasHeader = lower.some(h => nameKeywords.some(kw => h.includes(kw))) || headerCols.length > 1;
+        const start = hasHeader ? 1 : 0;
+        const result = [];
+        for (let i=start; i<lines.length; i++) {
+            const parts = lines[i].split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ''));
+            if (parts.length > nameIdx && parts[nameIdx] !== '') {
+                result.push(parts[nameIdx]);
+            } else if (parts.length === 1 && parts[0] !== '') {
+                result.push(parts[0]);
+            }
+        }
+        return result;
+    }
+
+    // file handling
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) {
+            resetState(false);
+            return;
+        }
+        currentFileName = file.name;
+        setError('');
+        winnerDisplay.style.display = 'none';
+        stopSpinIfRunning();
+        runningNameDisplay.innerText = '⏳ reading...';
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            try {
+                const names = parseNamesFromCSV(ev.target.result);
+                if (names.length === 0) {
+                    setError('No valid names');
+                    allOriginalNames = []; workingNames = [];
+                } else {
+                    allOriginalNames = names.slice();
+                    workingNames = names.slice();   // mutable copy
+                }
+                removedNames.clear();
+                runningNameDisplay.innerText = workingNames.length ? '🎲 ready' : '⏎ no names';
+                refreshUI();
+            } catch (err) {
+                setError('Parse error: ' + err.message);
+                allOriginalNames = []; workingNames = [];
+                removedNames.clear();
+                refreshUI();
+            }
+        };
+        reader.onerror = () => {
+            setError('File read failed');
+            allOriginalNames = []; workingNames = [];
+            removedNames.clear();
+            refreshUI();
+        };
+        reader.readAsText(file);
+    });
+
+    // reset button
+    resetBtn.addEventListener('click', function() {
+        resetState(true);
+    });
+
+    // spin & remove with adjustable speed
+    function startSpinAndRemove() {
+        if (spinActive) return;
+        if (workingNames.length === 0) {
+            setError('No names left');
+            return;
+        }
+
+        stopSpinIfRunning();  // kill any previous
+        spinActive = true;
+        refreshUI();   // disable button
+
+        winnerDisplay.style.display = 'none';
+
+        const totalRemaining = workingNames.length;
+        const finalWinnerIndex = Math.floor(Math.random() * totalRemaining);
+        const finalWinner = workingNames[finalWinnerIndex];
+
+        // determine steps (random between 18 and 42)
+        const stepsMin = 18, stepsMax = 42;
+        const totalSteps = Math.floor(Math.random() * (stepsMax - stepsMin + 1)) + stepsMin;
+        let step = 0;
+
+        // helper: random name from working
+        const randomName = () => workingNames[Math.floor(Math.random() * workingNames.length)];
+
+        // use current speed from slider each interval (read fresh)
+        const spinLoop = () => {
+            if (!spinActive) return; // just in case
+
+            // show random name
+            runningNameDisplay.innerText = randomName();
+            runningNameDisplay.classList.add('blink-light');
+            setTimeout(() => runningNameDisplay.classList.remove('blink-light'), 40);
+
+            step++;
+            if (step >= totalSteps) {
+                clearInterval(spinInterval);
+                spinInterval = null;
+
+                // REMOVE winner from working (first occurrence)
+                const idx = workingNames.indexOf(finalWinner);
+                if (idx !== -1) workingNames.splice(idx, 1);
+                removedNames.add(finalWinner);   // mark removed for UI
+
+                // final display
+                runningNameDisplay.innerText = finalWinner;
+                winnerNameSpan.innerHTML = finalWinner.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;')
+                    + ` <span style="font-size:1.2rem; opacity:0.8;">(removed · ${workingNames.length} left)</span>`;
+                winnerDisplay.style.display = 'flex';
+
+                spinActive = false;
+                refreshUI();   // chips get strikethrough, button re-enabled if names left
+            } else {
+                // continue: set next timeout with current slider speed
+                spinInterval = setTimeout(spinLoop, getCurrentSpeed());
+            }
+        };
+
+        // start first step using current speed
+        spinInterval = setTimeout(spinLoop, getCurrentSpeed());
+    }
+
+    spinAndPickBtn.addEventListener('click', startSpinAndRemove);
+
+    // initial reset
+    resetState(true);
+})();
+</script>
+</body>
+</html>
