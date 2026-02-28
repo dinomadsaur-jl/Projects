@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎡 random winner · spinning name animation</title>
+    <title>🎡 winner out · remove after spin</title>
     <style>
         * {
             box-sizing: border-box;
@@ -141,6 +141,15 @@
             border: 1px solid #9fb7d3;
             color: #102331;
             font-weight: 450;
+            transition: all 0.2s;
+        }
+        .removed-chip {
+            background: #f1d7d7;
+            color: #a12b2b;
+            text-decoration: line-through;
+            border-color: #c99b9b;
+            order: 999;
+            opacity: 0.7;
         }
         .empty-pool-message {
             color: #6b7d99;
@@ -192,7 +201,6 @@
             transform: translateY(2px);
             box-shadow: 0 4px 12px #0000001a;
         }
-        /* Spinning animation area */
         .spinner-box {
             background: #1f324b;
             border-radius: 4rem;
@@ -270,14 +278,24 @@
             border: 1px solid #ffb6b6;
             font-weight: 500;
         }
+        .removed-badge {
+            background: #b13939;
+            color: white;
+            border-radius: 30px;
+            padding: 0.1rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>
-        <span>🎡</span> random winner spinner
+        <span>🎡</span> Winning Draw
     </h1>
-    <div class="sub">watch names race before the winner</div>
+    <div class="sub">winner removed from list – no repeats</div>
 
     <div class="csv-zone">
         <div class="file-row">
@@ -286,7 +304,7 @@
             </label>
             <input type="file" id="csvInput" accept=".csv, text/csv, text/plain">
             <div class="file-hint">
-                ⚡ any CSV with a column of names
+                ⚡ any CSV with names
             </div>
         </div>
 
@@ -294,12 +312,12 @@
             ⏳ no file loaded
         </div>
 
-        <!-- name pool chips -->
+        <!-- name pool chips (will show removed style) -->
         <div id="namePoolContainer" class="name-pool">
             <div class="empty-pool-message">✨ names will appear here</div>
         </div>
 
-        <!-- SPINNING ANIMATION AREA (visible only when names exist) -->
+        <!-- SPINNER ANIMATION AREA -->
         <div id="spinnerSection" style="display: none;">
             <div class="spinner-box">
                 <div id="runningNameDisplay" class="running-name">⏎ ready to spin</div>
@@ -310,18 +328,18 @@
 
         <div class="action-grid">
             <button class="btn" id="resetBtn" title="clear file & reset">🔄 reset</button>
-            <button class="btn btn-primary" id="spinAndPickBtn" disabled>🎰 spin & pick winner</button>
+            <button class="btn btn-primary" id="spinAndPickBtn" disabled>🎰 spin & remove winner</button>
         </div>
 
         <!-- winner display -->
         <div id="winnerDisplay" class="winner-box" style="display: none;">
-            <span class="winner-label">winner</span>
+            <span class="winner-label">winner (removed)</span>
             <span id="winnerNameSpan" class="winner-name"></span>
         </div>
     </div>
 
     <div class="footer-note">
-        ⚡ SPIN animation runs through random names, then lands on winner. 100% offline.
+        ⚡ each winner is taken out of the list. spin until empty!
     </div>
 </div>
 
@@ -340,46 +358,49 @@
     const runningNameDisplay = document.getElementById('runningNameDisplay');
 
     // state
-    let namesArray = [];
+    let allOriginalNames = [];        // untouched copy (used for reset reference, but we keep removed in workingList)
+    let workingNames = [];            // current available names (gets whittled down)
+    let removedNames = new Set();     // track removed winners for UI styling
     let currentFileName = '';
-    let spinInterval = null;          // setInterval handle
-    let spinActive = false;           // prevent double spins
+    let spinInterval = null;
+    let spinActive = false;
 
     // helper: clear error
     function setError(text) {
         errorMessageDiv.innerHTML = text ? `<div class="error-message">⚠️ ${text}</div>` : '';
     }
 
-    // stop any ongoing spin (cleanup)
+    // stop any ongoing spin
     function stopSpinIfRunning() {
         if (spinInterval) {
             clearInterval(spinInterval);
             spinInterval = null;
         }
         spinActive = false;
-        // re-enable button (will be set by refreshUI, but we do it anyway)
-        spinAndPickBtn.disabled = (namesArray.length === 0 || spinActive);
+        refreshUI();
     }
 
-    // update UI (status, chips, button states, hide winner if needed)
+    // refresh UI: status, name chips with removed style, button, spinner visibility
     function refreshUI() {
         // status line
         if (!currentFileName) {
             fileStatus.innerHTML = `⏳ no file loaded`;
         } else {
-            const count = namesArray.length;
-            fileStatus.innerHTML = `📄 ${currentFileName}  ·  <span class="counter">${count} name${count !== 1 ? 's' : ''}</span> loaded`;
+            const total = allOriginalNames.length;
+            const remaining = workingNames.length;
+            const removedCount = total - remaining;
+            fileStatus.innerHTML = `📄 ${currentFileName}  ·  <span class="counter">${remaining} left</span>  (${removedCount} removed)`;
         }
 
-        // name pool chips
-        if (namesArray.length === 0) {
+        // name pool chips – show allOriginalNames with strikethrough if removed
+        if (allOriginalNames.length === 0) {
             namePoolContainer.innerHTML = `<div class="empty-pool-message">✨ no names yet — load a CSV</div>`;
             spinnerSection.style.display = 'none';
             runningNameDisplay.innerText = '⏎ ready';
         } else {
             const MAX_CHIPS = 80;
             let chipsHtml = '';
-            const showNames = namesArray.slice(0, MAX_CHIPS);
+            const showNames = allOriginalNames.slice(0, MAX_CHIPS);
             showNames.forEach(name => {
                 const safeName = String(name).replace(/[&<>"]/g, function(m) {
                     if (m === '&') return '&amp;';
@@ -388,32 +409,37 @@
                     if (m === '"') return '&quot;';
                     return m;
                 });
-                chipsHtml += `<span class="name-chip">${safeName}</span>`;
+                const isRemoved = removedNames.has(name);
+                const removedClass = isRemoved ? 'removed-chip' : '';
+                const badge = isRemoved ? '<span class="removed-badge">out</span>' : '';
+                chipsHtml += `<span class="name-chip ${removedClass}">${safeName} ${badge}</span>`;
             });
-            if (namesArray.length > MAX_CHIPS) {
-                chipsHtml += `<span class="name-chip" style="background:#cfdef5;">+${namesArray.length - MAX_CHIPS} more</span>`;
+            if (allOriginalNames.length > MAX_CHIPS) {
+                chipsHtml += `<span class="name-chip" style="background:#cfdef5;">+${allOriginalNames.length - MAX_CHIPS} more</span>`;
             }
             namePoolContainer.innerHTML = chipsHtml;
-            spinnerSection.style.display = 'block';  // show spinner area
+            spinnerSection.style.display = 'block';
         }
 
-        // disable pick button if no names OR spin is active
-        spinAndPickBtn.disabled = (namesArray.length === 0 || spinActive);
+        // disable button if workingNames empty OR spin active
+        spinAndPickBtn.disabled = (workingNames.length === 0 || spinActive);
 
-        // if names become empty, hide winner and stop spin
-        if (namesArray.length === 0) {
-            winnerDisplay.style.display = 'none';
-            stopSpinIfRunning();
+        // if no names left, hide winner display maybe, but keep if visible? fine.
+        if (workingNames.length === 0) {
+            // winner might stay, but we also hide the "spin" area a bit? let's keep spinner but show message
+            runningNameDisplay.innerText = '✅ all names removed';
         }
     }
 
-    // reset everything
+    // reset everything (clear file and internal state)
     function resetState(clearFileInput = true) {
-        stopSpinIfRunning();          // kill animation
+        stopSpinIfRunning();
         if (clearFileInput) {
             fileInput.value = '';
         }
-        namesArray = [];
+        allOriginalNames = [];
+        workingNames = [];
+        removedNames.clear();
         currentFileName = '';
         setError('');
         winnerDisplay.style.display = 'none';
@@ -421,17 +447,15 @@
         refreshUI();
     }
 
-    // improved CSV parser (handles more formats)
+    // CSV parser (robust)
     function parseNamesFromCSV(csvText) {
         const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
         if (lines.length === 0) return [];
 
-        // detect delimiter: comma, semicolon, tab
         let delimiter = ',';
         if (lines[0].includes(';') && !lines[0].includes(',')) delimiter = ';';
         else if (lines[0].includes('\t')) delimiter = '\t';
         else {
-            // count which is more frequent in first few lines
             let commaCnt = 0, semiCnt = 0;
             for (let i=0; i<Math.min(3, lines.length); i++) {
                 commaCnt += (lines[i].match(/,/g) || []).length;
@@ -440,11 +464,10 @@
             if (semiCnt > commaCnt) delimiter = ';';
         }
 
-        // check for header (simple heuristic)
         const headerParts = lines[0].split(delimiter).map(cell => cell.trim().replace(/^["']|["']$/g, ''));
         const lowerHeader = headerParts.map(h => h.toLowerCase());
         const nameKeywords = ['name','nom','nombre','full name','names','participant','winner'];
-        let nameColIndex = 0; // default first column
+        let nameColIndex = 0;
         for (let i=0; i<lowerHeader.length; i++) {
             if (nameKeywords.some(kw => lowerHeader[i].includes(kw))) {
                 nameColIndex = i;
@@ -452,21 +475,17 @@
             }
         }
 
-        // is header row likely? if first line contains keywords OR more than one column and next lines similar
         const hasHeader = lowerHeader.some(h => nameKeywords.some(kw => h.includes(kw))) || headerParts.length > 1;
-
-        const extracted = [];
         const startRow = hasHeader ? 1 : 0;
+        const extracted = [];
 
         for (let i=startRow; i<lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
             const parts = line.split(delimiter).map(v => v.trim().replace(/^["']|["']$/g, ''));
-            // try to use detected name column
             if (parts.length > nameColIndex && parts[nameColIndex] !== '') {
                 extracted.push(parts[nameColIndex]);
             } else if (parts.length === 1 && parts[0] !== '') {
-                // fallback: whole line
                 extracted.push(parts[0]);
             }
         }
@@ -483,7 +502,7 @@
         currentFileName = file.name;
         setError('');
         winnerDisplay.style.display = 'none';
-        stopSpinIfRunning();           // kill any ongoing spin
+        stopSpinIfRunning();
         runningNameDisplay.innerText = '⏎ loading...';
 
         const reader = new FileReader();
@@ -491,22 +510,30 @@
             try {
                 const names = parseNamesFromCSV(ev.target.result);
                 if (names.length === 0) {
-                    setError('No valid names found. Check format.');
-                    namesArray = [];
+                    setError('No valid names found.');
+                    allOriginalNames = [];
+                    workingNames = [];
                 } else {
-                    namesArray = names;
+                    // store unique? but keep as they appear (allow duplicates if needed)
+                    allOriginalNames = names.slice();   // original order for display
+                    workingNames = names.slice();       // mutable copy
                 }
-                runningNameDisplay.innerText = namesArray.length ? '🎲 ready to spin' : '⏎ no names';
+                removedNames.clear();
+                runningNameDisplay.innerText = workingNames.length ? '🎲 ready to spin' : '⏎ no names';
                 refreshUI();
             } catch (err) {
                 setError('Parse error: ' + err.message);
-                namesArray = [];
+                allOriginalNames = [];
+                workingNames = [];
+                removedNames.clear();
                 refreshUI();
             }
         };
         reader.onerror = () => {
             setError('Failed to read file');
-            namesArray = [];
+            allOriginalNames = [];
+            workingNames = [];
+            removedNames.clear();
             refreshUI();
         };
         reader.readAsText(file);
@@ -517,78 +544,76 @@
         resetState(true);
     });
 
-    // spin animation & final winner pick
-    function startSpinAndPick() {
+    // spin animation & remove winner from list
+    function startSpinAndRemove() {
         if (spinActive) return;
-        if (namesArray.length === 0) {
-            setError('No names to spin');
+        if (workingNames.length === 0) {
+            setError('No names remaining');
             return;
         }
 
-        stopSpinIfRunning(); // clear any previous interval just in case
+        stopSpinIfRunning(); // clean any previous interval
         spinActive = true;
-        refreshUI(); // disables spin button
+        refreshUI(); // disables button
 
-        // hide previous winner
         winnerDisplay.style.display = 'none';
 
-        const totalNames = namesArray.length;
-        let spinCount = 0;
-        const MIN_SPINS = 20;      // at least 20 name changes
-        const MAX_SPINS = 35;       // random additional flair
+        const totalRemaining = workingNames.length;
 
-        // pick a random final winner index
-        const finalWinnerIndex = Math.floor(Math.random() * totalNames);
-        const finalName = namesArray[finalWinnerIndex];
+        // Choose final winner index from current workingNames
+        const finalWinnerIndex = Math.floor(Math.random() * totalRemaining);
+        const finalWinner = workingNames[finalWinnerIndex];
 
-        // determine spin duration: between 500ms and 900ms of changing names
-        const spinIntervalTime = 60; // ms per frame (smooth)
-        const totalSpinSteps = Math.floor(Math.random() * (MAX_SPINS - MIN_SPINS + 1)) + MIN_SPINS;
+        // Animation parameters
+        const MIN_STEPS = 20;
+        const MAX_STEPS = 35;
+        const spinIntervalTime = 60;
+        const totalSpinSteps = Math.floor(Math.random() * (MAX_STEPS - MIN_STEPS + 1)) + MIN_STEPS;
         let currentStep = 0;
 
-        // helper: get random name index (different than previous? not needed, pure random is fun)
-        function getRandomNameIndex() {
-            return Math.floor(Math.random() * totalNames);
+        // helper random index from workingNames
+        function getRandomName() {
+            return workingNames[Math.floor(Math.random() * workingNames.length)];
         }
 
-        // start interval
         spinInterval = setInterval(() => {
-            // show a random name
-            const randomIdx = getRandomNameIndex();
-            runningNameDisplay.innerText = namesArray[randomIdx];
-            // add a little blink class effect
+            // show random name from current pool
+            runningNameDisplay.innerText = getRandomName();
+            // blink effect
             runningNameDisplay.classList.add('blink-light');
             setTimeout(() => runningNameDisplay.classList.remove('blink-light'), 40);
 
             currentStep++;
-
-            // check if we've done enough spins and should land on winner
             if (currentStep >= totalSpinSteps) {
-                // stop spinning
                 clearInterval(spinInterval);
                 spinInterval = null;
 
-                // show final winner name with small index
-                runningNameDisplay.innerText = finalName;
-                winnerNameSpan.innerHTML = finalName.replace(/[&<>"]/g, function(m) {
+                // REMOVE THE WINNER from working list
+                // Filter out the winner (only first occurrence? usually names are unique, but if duplicates exist, remove one instance)
+                const indexInWorking = workingNames.indexOf(finalWinner);
+                if (indexInWorking !== -1) {
+                    workingNames.splice(indexInWorking, 1); // remove one occurrence
+                }
+                // Add to removed set (for original display strikethrough)
+                removedNames.add(finalWinner);
+
+                // Update display
+                runningNameDisplay.innerText = finalWinner;
+                winnerNameSpan.innerHTML = finalWinner.replace(/[&<>"]/g, function(m) {
                     if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m;
-                }) + ` <small>#${finalWinnerIndex + 1} of ${totalNames}</small>`;
+                }) + ` <small>(removed · ${workingNames.length} left)</small>`;
                 winnerDisplay.style.display = 'flex';
 
                 spinActive = false;
-                refreshUI();  // re-enable button
+                refreshUI();  // updates chips (now with strikethrough), button enabled if names left
             }
         }, spinIntervalTime);
     }
 
-    // connect button
-    spinAndPickBtn.addEventListener('click', startSpinAndPick);
+    spinAndPickBtn.addEventListener('click', startSpinAndRemove);
 
     // initial reset
     resetState(true);
-
-    // extra safety: if file input is cleared programmatically, reset
-    window.addEventListener('load', () => resetState(true));
 })();
 </script>
 </body>

@@ -1,0 +1,408 @@
+@echo off
+setlocal enabledelayedexpansion
+
+:: ============================================
+:: USER SELECTABLE FOLDER MIRROR - FINAL VERSION
+:: With progress bars, speed options, and safety checks
+:: ============================================
+
+:: Configuration - EDIT THESE
+set "LOG=C:\mirror_logs"
+set "DEFAULT_SPEED=250"  :: Default IPG value (milliseconds)
+
+:: Create log folder
+if not exist "%LOG%" mkdir "%LOG%"
+
+:: Get timestamp
+for /f "tokens=2 delims==" %%I in ('wmic os get localdatetime /value') do set datetime=%%I
+set "timestamp=%datetime:~0,8%_%datetime:~8,4%"
+set "MAINLOG=%LOG%\user_mirror_%timestamp%.log"
+
+:: Save user preferences file
+set "PREFS_FILE=%LOG%\user_preferences.txt"
+
+:: ============================================
+:: SPEED SELECTION MENU
+:: ============================================
+:SPEED_MENU
+cls
+echo ========================================
+echo    SELECT TRANSFER SPEED
+echo ========================================
+echo Choose based on your network and DDoS defender:
+echo.
+echo [1] Very Slow (IPG: 1000ms) - Safest for DDoS
+echo [2] Slow (IPG: 500ms) - Recommended
+echo [3] Medium (IPG: 250ms) - Default
+echo [4] Fast (IPG: 100ms) - Only if no issues
+echo [5] Custom IPG value
+echo.
+set /p "SPEED_CHOICE=Select speed (1-5): "
+
+if "!SPEED_CHOICE!"=="1" set "IPG_SMALL=1000" & set "IPG_LARGE=3000"
+if "!SPEED_CHOICE!"=="2" set "IPG_SMALL=500" & set "IPG_LARGE=2000"
+if "!SPEED_CHOICE!"=="3" set "IPG_SMALL=250" & set "IPG_LARGE=1500"
+if "!SPEED_CHOICE!"=="4" set "IPG_SMALL=100" & set "IPG_LARGE=500"
+if "!SPEED_CHOICE!"=="5" (
+    set /p "IPG_SMALL=Enter IPG for small files (ms): "
+    set /p "IPG_LARGE=Enter IPG for large files (ms): "
+)
+
+:: ============================================
+:: SAVE/LOAD USER PREFERENCES
+:: ============================================
+:CHECK_PREFS
+if exist "!PREFS_FILE!" (
+    echo.
+    echo Found saved preferences from last run.
+    set /p "LOAD_PREFS=Load previous folder selections? (y/n): "
+    if /i "!LOAD_PREFS!"=="y" (
+        for /f "tokens=*" %%a in (!PREFS_FILE!) do set "SAVED_SELECTION=%%a"
+        echo Using saved selection: !SAVED_SELECTION!
+        set "SELECTION=!SAVED_SELECTION!"
+        timeout /t 2
+        goto :PROCESS_SELECTION
+    )
+)
+
+:: ============================================
+:: DEFINE YOUR FOLDER MAPPINGS (WITH USERNAMES)
+:: ============================================
+:: Get current username
+set "CURRENT_USER=%USERNAME%"
+echo.
+echo Current user: %CURRENT_USER%
+echo.
+
+:: Mapping 1: User Documents
+set "MAP1_NAME=My Documents"
+set "MAP1_SRC=C:\Users\%CURRENT_USER%\Documents"
+set "MAP1_DEST=D:\backups\%CURRENT_USER%\Documents"
+set "MAP1_ICON=📄"
+
+:: Mapping 2: User Desktop
+set "MAP2_NAME=Desktop Files"
+set "MAP2_SRC=C:\Users\%CURRENT_USER%\Desktop"
+set "MAP2_DEST=D:\backups\%CURRENT_USER%\Desktop"
+set "MAP2_ICON=🖥️"
+
+:: Mapping 3: User Downloads (warning - can be large)
+set "MAP3_NAME=Downloads Folder"
+set "MAP3_SRC=C:\Users\%CURRENT_USER%\Downloads"
+set "MAP3_DEST=E:\archive\%CURRENT_USER%\Downloads"
+set "MAP3_ICON=📥"
+set "MAP3_WARN=⚠️ May contain large files"
+
+:: Mapping 4: User Pictures
+set "MAP4_NAME=Pictures"
+set "MAP4_SRC=C:\Users\%CURRENT_USER%\Pictures"
+set "MAP4_DEST=F:\media\%CURRENT_USER%\Photos"
+set "MAP4_ICON=🖼️"
+
+:: Mapping 5: User Music
+set "MAP5_NAME=Music"
+set "MAP5_SRC=C:\Users\%CURRENT_USER%\Music"
+set "MAP5_DEST=F:\media\%CURRENT_USER%\Music"
+set "MAP5_ICON=🎵"
+
+:: Mapping 6: User Videos (warning - can be large)
+set "MAP6_NAME=Videos"
+set "MAP6_SRC=C:\Users\%CURRENT_USER%\Videos"
+set "MAP6_DEST=G:\video_archive\%CURRENT_USER%"
+set "MAP6_ICON=🎬"
+set "MAP6_WARN=⚠️ May contain large files"
+
+:: Mapping 7: Work Projects (custom path example)
+set "MAP7_NAME=Work Projects"
+set "MAP7_SRC=D:\projects\%CURRENT_USER%"
+set "MAP7_DEST=E:\backups\projects\%CURRENT_USER%"
+set "MAP7_ICON=💼"
+
+:: Mapping 8: Add more as needed
+set "MAP8_NAME="
+set "MAP8_SRC="
+set "MAP8_DEST="
+set "MAP8_ICON="
+
+:: ============================================
+:: DISPLAY MENU AND GET USER SELECTION
+:: ============================================
+:SHOW_MENU
+cls
+echo ========================================
+echo    FOLDER MIRROR - USER SELECTION
+echo ========================================
+echo Current user: %CURRENT_USER%
+echo Speed setting: Small files IPG=%IPG_SMALL%ms, Large files IPG=%IPG_LARGE%ms
+echo.
+echo Available folders to mirror:
+echo.
+
+set "COUNT=0"
+set "AVAILABLE_MAPS="
+
+for %%M in (1 2 3 4 5 6 7 8) do (
+    call :CheckMap %%M
+)
+
+if "!AVAILABLE_MAPS!"=="" (
+    echo No folder mappings configured!
+    pause
+    exit /b
+)
+
+echo.
+echo Enter the numbers of folders to mirror (comma-separated)
+echo Examples: 1,3,5  or  2-6  or  all
+echo.
+set /p "SELECTION=Your choice: "
+
+:: Save selection for next time
+echo !SELECTION! > "!PREFS_FILE!"
+
+:PROCESS_SELECTION
+call :ParseSelection "%SELECTION%"
+
+if "!TO_MIRROR!"=="" (
+    echo.
+    echo No valid selection made. Exiting.
+    pause
+    exit /b
+)
+
+:: ============================================
+:: CONFIRM SELECTION WITH SIZE ESTIMATE
+:: ============================================
+cls
+echo ========================================
+echo CONFIRM SELECTION
+echo ========================================
+echo You selected to mirror:
+echo.
+
+set "TOTAL_EST_SIZE=0"
+
+for %%N in (!TO_MIRROR!) do (
+    set "MAP=MAP%%N"
+    echo  !%%MAP_ICON! %%N: !%%MAP_NAME!
+    echo     From: !%%MAP_SRC!
+    echo     To:   !%%MAP_DEST!
+    
+    :: Quick size estimate if folder exists
+    if exist "!%%MAP_SRC!" (
+        for /f "tokens=3" %%S in ('dir "!%%MAP_SRC!" /-c /s /w 2^>nul ^| find "bytes" ^| find /v "free"') do set "FOLDER_SIZE=%%S"
+        if defined FOLDER_SIZE (
+            set /a "SIZE_MB=!FOLDER_SIZE:~0,-3!/1048576" 2>nul
+            echo     Size: ~!SIZE_MB! MB
+            set /a "TOTAL_EST_SIZE+=!SIZE_MB!" 2>nul
+        ) else (
+            echo     Size: Unable to estimate
+        )
+    ) else (
+        echo     ⚠️ Source folder not found!
+    )
+    echo.
+)
+
+echo Estimated total: ~!TOTAL_EST_SIZE! MB
+echo.
+echo ========================================
+echo WARNING: Destination folders will be DELETED first!
+echo ========================================
+set /p "CONFIRM=Proceed? (y/n): "
+
+if /i not "!CONFIRM!"=="y" (
+    echo Cancelled.
+    pause
+    exit /b
+)
+
+:: ============================================
+:: START MIRRORING WITH PROGRESS
+:: ============================================
+echo ======================================== >> "%MAINLOG%"
+echo User: %CURRENT_USER% started mirror at %time% on %date% >> "%MAINLOG%"
+echo Selected mappings: !TO_MIRROR! >> "%MAINLOG%"
+echo Speed: Small IPG=!IPG_SMALL!, Large IPG=!IPG_LARGE! >> "%MAINLOG%"
+echo ======================================== >> "%MAINLOG%"
+
+set "SUCCESS_COUNT=0"
+set "ERROR_COUNT=0"
+set "TOTAL_COUNT=0"
+set "START_TIME=%time%"
+
+for %%N in (!TO_MIRROR!) do (
+    set /a TOTAL_COUNT+=1
+    call :ProcessMapping %%N
+)
+
+:: Calculate elapsed time
+set "END_TIME=%time%"
+call :CalculateTime !START_TIME! !END_TIME!
+
+:: ============================================
+:: FINAL SUMMARY WITH STATISTICS
+:: ============================================
+cls
+echo ========================================
+echo MIRROR COMPLETE
+echo ========================================
+echo Started: !START_TIME!
+echo Ended:   !END_TIME!
+echo Elapsed: !ELAPSED_TIME!
+echo.
+echo Successful: !SUCCESS_COUNT! of !TOTAL_COUNT!
+echo Failed: !ERROR_COUNT!
+echo Log saved to: %MAINLOG%
+echo ========================================
+
+:: Show per-folder log locations
+echo.
+echo Individual logs:
+for %%N in (!TO_MIRROR!) do (
+    set "MAP=MAP%%N"
+    echo  !%%MAP_ICON! Mapping %%N: %LOG%\!%%MAP_NAME:_=!_%timestamp%.log
+)
+
+echo.
+pause
+goto :EOF
+
+:CheckMap
+set "MAP=MAP%1"
+set "NAME=!%MAP%_NAME!"
+set "SRC=!%MAP%_SRC!"
+set "DEST=!%MAP%_DEST!"
+set "ICON=!%MAP%_ICON!"
+set "WARN=!%MAP%_WARN!"
+
+if "!NAME!"=="" goto :EOF
+if "!SRC!"=="" goto :EOF
+if "!DEST!"=="" goto :EOF
+
+set /a COUNT+=1
+set "AVAILABLE_MAPS=!AVAILABLE_MAPS! %1"
+echo [!COUNT!] !ICON! !NAME! (Map %1) !WARN!
+echo     From: !SRC!
+echo     To:   !DEST!
+echo.
+goto :EOF
+
+:ParseSelection
+set "INPUT=%~1"
+set "TO_MIRROR="
+
+if /i "!INPUT!"=="all" (
+    set "TO_MIRROR=!AVAILABLE_MAPS!"
+    goto :EOF
+)
+
+:: Parse comma-separated list
+for %%I in (!INPUT!) do (
+    set "ITEM=%%I"
+    
+    :: Check for range (e.g., 2-5)
+    echo !ITEM! | findstr /r "^[0-9]*-[0-9]*$" >nul
+    if !errorlevel! equ 0 (
+        for /f "tokens=1,2 delims=-" %%A in ("!ITEM!") do (
+            for /l %%N in (%%A,1,%%B) do (
+                set "TO_MIRROR=!TO_MIRROR! %%N"
+            )
+        )
+    ) else (
+        :: Single number
+        set "TO_MIRROR=!TO_MIRROR! !ITEM!"
+    )
+)
+goto :EOF
+
+:ProcessMapping
+set "MAP=MAP%1"
+set "NAME=!%MAP%_NAME!"
+set "SOURCE=!%MAP%_SRC!"
+set "DEST=!%MAP%_DEST!"
+set "ICON=!%MAP%_ICON!"
+
+echo.
+echo ========================================
+echo !ICON! Processing: !NAME! (!1! of !TOTAL_COUNT!)
+echo ========================================
+echo From: !SOURCE!
+echo To:   !DEST!
+echo.
+
+:: Log to main file
+echo [%time%] Processing mapping %1: !NAME! >> "%MAINLOG%"
+echo   Source: !SOURCE! >> "%MAINLOG%"
+echo   Dest:   !DEST! >> "%MAINLOG%"
+
+:: Create clean filename for log
+set "CLEAN_NAME=!NAME: =_!"
+set "MAPLOG=%LOG%\!CLEAN_NAME!_%timestamp%.log"
+
+:: ============================================
+:: STEP 1: DELETE DESTINATION
+:: ============================================
+echo [Step 1/3] Cleaning destination...
+echo   [Step 1] Cleaning destination... >> "%MAINLOG%"
+
+if exist "!DEST!" (
+    echo   Deleting contents...
+    del /f /s /q "!DEST!\*.*" >nul 2>&1
+    for /d %%p in ("!DEST!\*") do rmdir /s /q "%%p" 2>nul
+    echo   ✓ Destination cleaned
+) else (
+    echo   Creating destination folder...
+    mkdir "!DEST!" 2>nul
+)
+
+:: ============================================
+:: STEP 2: SMALL FILES (≤100MB)
+:: ============================================
+echo [Step 2/3] Copying small files (≤100MB)...
+echo   [Step 2a] Small files (≤100MB) with IPG=!IPG_SMALL!... >> "%MAINLOG%"
+
+robocopy "!SOURCE!" "!DEST!" /MIR /MAX:104857600 /IPG:!IPG_SMALL! /R:3 /W:10 /NP /LOG+:"%MAPLOG%" >nul 2>&1
+echo   ✓ Small files complete
+
+:: ============================================
+:: STEP 3: LARGE FILES (>100MB)
+:: ============================================
+echo [Step 3/3] Copying large files (>100MB)...
+echo   [Step 2b] Large files (>100MB) with IPG=!IPG_LARGE!... >> "%MAINLOG%"
+
+robocopy "!SOURCE!" "!DEST!" /E /MIN:104857601 /IPG:!IPG_LARGE! /R:3 /W:15 /NP /LOG+:"%MAPLOG%" >nul 2>&1
+
+:: Check result
+if !errorlevel! geq 8 (
+    echo   ✗ ERROR: Some files failed for !NAME!
+    echo   ERROR: Failed for !NAME! >> "%MAINLOG%"
+    set /a ERROR_COUNT+=1
+) else (
+    echo   ✓ SUCCESS: Completed !NAME!
+    echo   SUCCESS: Completed !NAME! >> "%MAINLOG%"
+    set /a SUCCESS_COUNT+=1
+)
+
+echo Log saved to: %MAPLOG%
+echo.
+timeout /t 3 /nobreak >nul
+goto :EOF
+
+:CalculateTime
+set "START=%~1"
+set "END=%~2"
+
+:: Simple time calculation (minutes only)
+set /a "START_HH=1!START:~0,2!-100"
+set /a "START_MM=1!START:~3,2!-100"
+set /a "END_HH=1!END:~0,2!-100"
+set /a "END_MM=1!END:~3,2!-100"
+
+set /a "START_MIN=!START_HH!*60+!START_MM!"
+set /a "END_MIN=!END_HH!*60+!END_MM!"
+set /a "ELAPSED=!END_MIN!-!START_MIN!"
+
+if !ELAPSED! lss 0 set /a "ELAPSED+=1440"
+set "ELAPSED_TIME=!ELAPSED! minutes"
+goto :EOF
