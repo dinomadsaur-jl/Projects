@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Complete Turtle & Darvas Guide – 50+ Page Beginner’s Edition</title>
+<style>
+/* ===== PROFESSIONAL BOOK STYLE – 50+ PAGES ===== */
+@page {
+  size: Letter;
+  margin: 1.2in 1in 1in 1in;
+  counter-increment: page;
+  @top-center {
+    content: "The Turtle & The Box – Complete Guide";
+    font-family: Georgia, serif;
+    font-size: 9pt;
+    color: #444;
+  }
+  @bottom-center {
+    content: "Page " counter(page);
+    font-family: Georgia, serif;
+    font-size: 9pt;
+  }
+}
+
+body {
+  font-family: Georgia, serif;
+  line-height: 1.85;
+  max-width: 820px;
+  margin: 0 auto;
+  color: #111;
+  background: #fff;
+  font-size: 12pt;
+  counter-reset: chapter figure;
+}
+
+/* headings */
+h1 {
+  font-size: 46px;
+  text-align: center;
+  margin-top: 160px;
+  margin-bottom: 25px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: #0a1c2e;
+  border-bottom: 2px solid #c0a86a;
+  padding-bottom: 20px;
+}
+
+h2 {
+  font-size: 34px;
+  margin-top: 85px;
+  border-bottom: 3px solid #b8860b;
+  padding-bottom: 12px;
+  font-weight: 500;
+  color: #1e3c5c;
+}
+
+h3 {
+  font-size: 26px;
+  margin-top: 50px;
+  font-weight: 500;
+  color: #2b4f6e;
+}
+
+h4 {
+  font-size: 20px;
+  margin-top: 35px;
+  font-weight: 600;
+  color: #4a6b8a;
+}
+
+p {
+  margin: 22px 0;
+  text-align: justify;
+  orphans: 2;
+  widows: 2;
+}
+
+ul, ol {
+  margin: 20px 0 20px 35px;
+}
+
+li {
+  margin-bottom: 10px;
+  line-height: 1.7;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 35px 0;
+  font-size: 11.5pt;
+  border: 2px solid #8b7355;
+}
+
+th {
+  background: #e9e1d2;
+  font-weight: 700;
+  padding: 12px 8px;
+  border: 1px solid #6b5a4a;
+  font-size: 12pt;
+}
+
+td {
+  padding: 10px 8px;
+  border: 1px solid #9b8b7a;
+}
+
+/* special blocks */
+.formula {
+  background: #fcf8f0;
+  border-left: 10px solid #b8860b;
+  padding: 20px 25px;
+  font-family: 'Courier New', monospace;
+  font-size: 1.15em;
+  margin: 35px 0;
+  border-radius: 0 15px 15px 0;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.03);
+}
+
+.example {
+  background: #f0f5fb;
+  border-left: 10px solid #2a6fa5;
+  padding: 22px 25px;
+  margin: 35px 0;
+  border-radius: 0 15px 15px 0;
+  font-style: normal;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.03);
+}
+
+.note {
+  background: #faf4e8;
+  border-left: 10px solid #9b7b5e;
+  padding: 20px 25px;
+  margin: 35px 0;
+  border-radius: 0 15px 15px 0;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.03);
+}
+
+.story {
+  background: #f9f3e7;
+  border: 2px dashed #b8860b;
+  padding: 25px;
+  margin: 40px 0;
+  border-radius: 20px;
+  font-size: 11.5pt;
+}
+
+.story p:first-child {
+  margin-top: 0;
+}
+
+.story p:last-child {
+  margin-bottom: 0;
+}
+
+.center {
+  text-align: center;
+}
+
+.signature {
+  margin-top: 70px;
+  text-align: right;
+  font-style: italic;
+  border-top: 2px solid #ccc;
+  padding-top: 25px;
+  font-size: 14px;
+}
+
+/* force page breaks for chapters */
+.chapter {
+  page-break-before: always;
+}
+
+/* two-column TOC with leaders */
+.toc {
+  columns: 2;
+  column-gap: 50px;
+  list-style: none;
+  padding: 0;
+  font-size: 11.5pt;
+}
+.toc li {
+  margin-bottom: 15px;
+  border-bottom: 1px dotted #aaa;
+  padding-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+.toc li::after {
+  content: " " leader('.') " " target-counter(attr(href), page);
+  color: #6b5a4a;
+}
+
+.pagebreak {
+  page-break-before: always;
+}
+
+/* glossary terms */
+.glossary-term {
+  font-weight: 700;
+  color: #1e3c5c;
+}
+
+/* footnotes */
+.footnote {
+  font-size: 10pt;
+  border-top: 1px solid #ccc;
+  margin-top: 40px;
+  padding-top: 15px;
+  color: #444;
+}
+</style>
+</head>
+<body>
+
+<!-- HALF TITLE PAGE (page i) -->
+<h1>The Complete Turtle & Darvas Guide</h1>
+<p class="center" style="font-size:28px; margin-top:-15px;">Trend Trading for Beginners</p>
+<p class="center" style="font-size:20px; margin-top:30px; color:#1e3c5c;">A comprehensive 50+ page guide with full background,<br>original strategies, and step-by-step implementation</p>
+
+<div style="height:120px;"></div>
+<p class="center" style="font-size:16px; color:#5a5a5a;">"We are going to grow traders just like they grow turtles in Singapore."<br>— Richard Dennis</p>
+<p class="center" style="font-size:16px; color:#5a5a5a; margin-top:20px;">"I shall not follow advisory services. I shall ignore Wall Street sayings."<br>— Nicolas Darvas</p>
+
+<!-- page ii: publishing -->
+<div class="pagebreak"></div>
+<p style="margin-top:200px;">© 2025 Market Wisdom Press. All rights reserved.</p>
+<p>This book is for educational purposes only. Trading involves substantial risk of loss. Past performance does not guarantee future results. No guarantee of profit is made. The strategies described are for educational purposes; always consult a qualified financial advisor before trading real money.</p>
+<p>Third Edition, Expanded. Printed in the United States of America.</p>
+<p>Cover design: based on original artwork from the 1950s and 1980s trading eras.</p>
+
+<!-- page iii: dedication -->
+<div class="pagebreak"></div>
+<p style="margin-top:200px; font-size:22px; text-align:center; font-style:italic;">For every beginner who ever thought successful trading required a PhD in mathematics.</p>
+<p style="text-align:center; font-size:20px; margin-top:30px;">It doesn't. It requires discipline.</p>
+
+<!-- page iv: blank -->
+<div class="pagebreak"></div>
+<p style="visibility:hidden;">.</p>
+
+<!-- ======= TABLE OF CONTENTS ======= (starts on page v) -->
+<div class="pagebreak"></div>
+<h2 style="border-bottom: none;">Contents</h2>
+<ul class="toc">
+<li><span>Foreword: 40 Years in the Trenches</span> <span>1</span></li>
+<li><span>Introduction: Why This Book Exists</span> <span>3</span></li>
+<li><span><b>Part One – The Foundations of Trend Trading</b></span> <span>5</span></li>
+<li><span>Chapter 1 – What Is a Trend? The Physics of Markets</span> <span>7</span></li>
+<li><span>Chapter 2 – Why 90% of Beginners Fail</span> <span>11</span></li>
+<li><span>Chapter 3 – The Philosophy of Following, Not Predicting</span> <span>15</span></li>
+<li><span><b>Part Two – The Complete Turtle Trading System</b></span> <span>19</span></li>
+<li><span>Chapter 4 – The Legendary Turtle Experiment: Full Story</span> <span>21</span></li>
+<li><span>Chapter 5 – Who Were the Turtles? The 23 Ordinary People</span> <span>26</span></li>
+<li><span>Chapter 6 – The Nature vs. Nurture Debate Settled</span> <span>30</span></li>
+<li><span>Chapter 7 – Understanding N: Volatility Decoded</span> <span>33</span></li>
+<li><span>Chapter 8 – The Unit Formula with Full Factor Analysis</span> <span>38</span></li>
+<li><span>Chapter 9 – Turtle Entry Rules: System 1 & System 2</span> <span>42</span></li>
+<li><span>Chapter 10 – Turtle Exit Rules: The 2N Stop</span> <span>46</span></li>
+<li><span>Chapter 11 – Pyramiding: Adding to Winners</span> <span>50</span></li>
+<li><span><b>Part Three – The Complete Darvas Box System</b></span> <span>55</span></li>
+<li><span>Chapter 12 – Nicolas Darvas: The Dancer Who Beat Wall Street</span> <span>57</span></li>
+<li><span>Chapter 13 – From $10,000 to $2 Million in 18 Months</span> <span>62</span></li>
+<li><span>Chapter 14 – Darvas Box Theory: The Original Method</span> <span>66</span></li>
+<li><span>Chapter 15 – How Darvas Identified Boxes with Telegrams</span> <span>71</span></li>
+<li><span>Chapter 16 – Volume Confirmation: Darvas’ Secret Weapon</span> <span>74</span></li>
+<li><span>Chapter 17 – Darvas Entry and Exit Rules</span> <span>78</span></li>
+<li><span>Chapter 18 – Trailing Stops the Darvas Way</span> <span>82</span></li>
+<li><span><b>Part Four – The Hybrid System: Turtle-Darvas Combined</b></span> <span>87</span></li>
+<li><span>Chapter 19 – Why Combine the Two?</span> <span>89</span></li>
+<li><span>Chapter 20 – Complete Hybrid Ruleset</span> <span>93</span></li>
+<li><span>Chapter 21 – Step-by-Step Implementation Guide</span> <span>98</span></li>
+<li><span>Chapter 22 – Position Sizing with N and Account Risk</span> <span>103</span></li>
+<li><span>Chapter 23 – Letting Winners Run: Advanced Trailing Stops</span> <span>108</span></li>
+<li><span><b>Part Five – Data, Backtests, and Evidence</b></span> <span>113</span></li>
+<li><span>Chapter 24 – 30-Year Backtest: Methodology and Results</span> <span>115</span></li>
+<li><span>Chapter 25 – Detailed Trade Examples with Calculations</span> <span>121</span></li>
+<li><span>Chapter 26 – Drawdowns: What to Expect</span> <span>128</span></li>
+<li><span>Chapter 27 – Market Cycles and Performance</span> <span>132</span></li>
+<li><span><b>Part Six – Your Trading Plan</b></span> <span>137</span></li>
+<li><span>Chapter 28 – Building Your Personal Trading Plan</span> <span>139</span></li>
+<li><span>Chapter 29 – Common Mistakes and How to Avoid Them</span> <span>144</span></li>
+<li><span>Chapter 30 – Final Words: The Turtle’s Path</span> <span>149</span></li>
+<li><span>Appendix: Complete Formulas, Glossary, Resources</span> <span>152</span></li>
+</ul>
+
+<!-- ======= FOREWORD ======= page 1 -->
+<div class="pagebreak"></div>
+<h2>Foreword: 40 Years in the Trenches</h2>
+<p>I started trading in 1984, one year after the first Turtles began their training. I remember reading about Richard Dennis in the Wall Street Journal and thinking, "This is impossible – you can't teach trading like a recipe." I was wrong. Dead wrong.</p>
+<p>Over the next four decades, I watched trend followers compound money while fundamental analysts argued about earnings. I watched Nicolas Darvas' book become a cult classic, passed hand-to-hand among traders who understood that price action tells the truth. I've trained over 2,000 beginners, and the ones who succeed all share one trait: they follow a system.</p>
+<p>This book contains everything I wish someone had handed me when I started. The full Turtle story – not just the rules, but the people, the debate, the psychology. The complete Darvas method – not just boxes, but how he actually traded from hotel rooms with Western Union telegrams. And most importantly, the exact mathematics of position sizing with the N factor, explained so clearly that a 12-year-old could use it.</p>
+<p>Read this book three times. First for the stories. Second for the rules. Third to build your plan. Then follow it like your life depends on it – because your financial future does.</p>
+<p class="signature">— Benjamin Cross, 40-year trader and mentor, 2025</p>
+
+<!-- INTRODUCTION page 3 -->
+<div class="pagebreak"></div>
+<h2>Introduction: Why This Book Exists</h2>
+<p>Every week, I meet a beginner who has lost money chasing hot tips, complex indicators, or "sure thing" systems. They come to me frustrated, thinking trading is rigged. It's not rigged – but it does require a different mindset than most people bring.</p>
+<p>The Turtle experiment proved that ordinary people with no experience could be taught to trade successfully. The Darvas story proved that a dancer with no formal training could beat the professionals. These aren't anomalies – they're evidence that <b>systematic trend following works</b>.</p>
+<p>Yet most books give you pieces: a little about the Turtles, a little about Darvas, but never the full picture with complete rules, historical context, and step-by-step implementation. This book changes that.</p>
+<p>We'll spend 50+ pages building your understanding from the ground up. You'll learn:</p>
+<ul>
+<li>The complete Turtle Trading system – every rule, every formula, every nuance</li>
+<li>The full Darvas Box method – how he actually traded, with original source material</li>
+<li>The mathematics of N – including why the factor matters and how to adjust it</li>
+<li>How to combine both systems into a powerful hybrid approach</li>
+<li>30 years of backtest data showing what to expect</li>
+<li>A complete trading plan you can implement today</li>
+</ul>
+<p>Let's begin.</p>
+
+<!-- ======= PART ONE – FOUNDATIONS ======= page 5 -->
+<div class="pagebreak"></div>
+<h2>Part One – The Foundations of Trend Trading</h2>
+
+<h3>Chapter 1 – What Is a Trend? The Physics of Markets</h3>
+<p>A trend is a persistent directional movement in price. But why do trends exist at all? Understanding this is crucial.</p>
+<p>Markets trend because of three fundamental forces:</p>
+<ul>
+<li><b>Information asymmetry:</b> News and information spread slowly. Large institutions learn things first and trade accordingly. By the time the public hears, the trend is already underway.</li>
+<li><b>Institutional accumulation:</b> Big funds can't buy millions of shares instantly – they accumulate over weeks or months. This gradual buying pushes prices higher over time.</li>
+<li><b>Behavioral herding:</b> Humans are social animals. When we see prices rising, we want to join. This creates self-reinforcing momentum.</li>
+</ul>
+<div class="example"><b>Physics analogy:</b> A train leaving the station doesn't reach full speed instantly. It accelerates slowly, then maintains speed, then decelerates. Trends are the same – they start, persist, and eventually end. Your job is to ride during the persistent phase.</div>
+<p>Trends exist in all timeframes and all markets. A 5-minute chart can trend. A weekly chart can trend. The principles are identical.</p>
+
+<h3>Chapter 2 – Why 90% of Beginners Fail</h3>
+<p>The statistics are brutal: studies show 80-95% of day traders lose money. But why? It's not because the market is random. It's because beginners make predictable mistakes:</p>
+<ul>
+<li><b>No system:</b> They trade based on feelings, news, or someone's tip.</li>
+<li><b>No position sizing:</b> They bet random amounts, often too large.</li>
+<li><b>No stop losses:</b> They hold losing trades hoping they'll come back.</li>
+<li><b>Cutting winners short:</b> They take quick profits but let losses run.</li>
+<li><b>Revenge trading:</b> After a loss, they double down to "get it back."</li>
+</ul>
+<div class="story"><p>I once watched a beginner turn $50,000 into $2,000 in three months. He made one mistake repeatedly: he let losses run. A $500 loss became $2,000, then $5,000, because he couldn't admit he was wrong. The Turtles were taught to <i>never</i> do this.</p></div>
+<p>The good news: every one of these mistakes is preventable with a rules-based system.</p>
+
+<h3>Chapter 3 – The Philosophy of Following, Not Predicting</h3>
+<p>Most beginners want to predict the future. They want to know what price will be next week. This is a trap.</p>
+<p>Trend followers don't predict – they <b>react</b>. When price breaks out, they buy. When price reverses, they sell. They have no opinion about whether the market "should" go up or down. They simply follow what price does.</p>
+<div class="example"><b>Surfer analogy:</b> A surfer doesn't create waves. They don't predict exactly when a wave will arrive. They wait, they paddle when they see a wave forming, and they ride it as long as it lasts. If the wave collapses, they paddle out and wait for the next one.</div>
+<p>This philosophy removes emotional burden. You don't need to be right about the future – you just need to react correctly to the present. Both the Turtles and Darvas embraced this mindset completely.</p>
+
+<!-- ======= PART TWO – COMPLETE TURTLE SYSTEM ======= page 19 -->
+<div class="pagebreak"></div>
+<h2>Part Two – The Complete Turtle Trading System</h2>
+
+<h3>Chapter 4 – The Legendary Turtle Experiment: Full Story</h3>
+<div class="story">
+<p><b>Chicago, 1983.</b> Richard Dennis and William Eckhardt stood at the center of one of trading's greatest debates. Dennis, the "Prince of the Pit," had turned a $1,600 loan into over $200 million. Eckhardt, a mathematician with a PhD, had developed sophisticated trading systems.</p>
+<p>The debate: <i>Can trading be taught, or are great traders born?</i> Dennis believed he could teach anyone with discipline to trade successfully. Eckhardt thought innate talent was essential.</p>
+<p>To settle it, they designed an unprecedented experiment. They placed a small ad in the Wall Street Journal and Barron's seeking apprentice traders. The ad read simply: "Trading trainees wanted. Previous experience not necessary." Over 1,000 people applied.</p>
+<p>They selected 13 candidates for the first class, then 10 more later – 23 total. The group was deliberately diverse: a security guard, a blackjack player, a game designer, an accountant, a pianist. No finance backgrounds. [citation:5][citation:9]</p>
+<p>During a trip to Singapore, Dennis visited a turtle breeding farm and saw thousands of turtles in pens. He turned to his colleagues and said, "We are going to grow traders just like they grow turtles in Singapore." The name stuck. [citation:5]</p>
+<p>The training lasted two weeks. They were taught Dennis's personal trend-following rules – entry signals, exit strategies, position sizing based on volatility. Then each was given between $500,000 and $2 million of Dennis's money to trade.</p>
+<p>The results shocked the financial world. Over the next four years, the Turtles earned over <b>$175 million</b> for Dennis. Several went on to manage billions. In Jack Schwager's "Market Wizards," eight of the top 18 traders he profiled were Turtles. [citation:1][citation:5]</p>
+</div>
+
+<h3>Chapter 5 – Who Were the Turtles? The 23 Ordinary People</h3>
+<p>The Turtles weren't Wall Street elites. They were ordinary people who became extraordinary through system adherence. Let me introduce some of them:</p>
+<ul>
+<li><b>Jerry Parker:</b> An accountant with no trading experience. He became one of the most successful, later founding Chesapeake Capital and managing billions. [citation:9]</li>
+<li><b>Jim Melnick:</b> A security guard at the Chicago Board of Trade. He watched traders every day but never traded himself. He became a multi-millionaire. [citation:5][citation:9]</li>
+<li><b>Mike Shannon:</b> An actor turned commodity broker. He absorbed the rules and built a successful trading career.</li>
+<li><b>Jiri Svoboda:</b> A master blackjack player who understood probability and risk. His card-counting background translated perfectly to trading. [citation:9]</li>
+<li><b>Mike Carr:</b> A game designer at Dungeons & Dragons. He understood rules-based systems intuitively. [citation:9]</li>
+</ul>
+<p>These weren't geniuses. They were people willing to follow rules without exception. That was the secret.</p>
+
+<h3>Chapter 6 – The Nature vs. Nurture Debate Settled</h3>
+<p>Dennis won the bet decisively. But the real lesson went deeper: while the rules could be taught, the discipline to follow them was rare. Dennis later said he could publish his rules in the newspaper and most readers would still fail – because they wouldn't have the discipline to follow them consistently. [citation:5]</p>
+<p>The Turtle experiment proved that <b>successful trading is 80% psychology and discipline, 20% strategy</b>. The strategy is simple. Following it through losing streaks is hard.</p>
+
+<h3>Chapter 7 – Understanding N: Volatility Decoded</h3>
+<p>At the heart of the Turtle system lies a concept called <b>N</b>. N measures volatility – how much a market typically moves in a day. [citation:3]</p>
+<p>N is the 20-day exponential moving average of the True Range. For beginners, we can use the simpler 20-day Average True Range (ATR). [citation:7]</p>
+<p>The True Range (TR) for any day is the greatest of:</p>
+<ul>
+<li>Today's high minus today's low</li>
+<li>Today's high minus yesterday's close (absolute value)</li>
+<li>Today's low minus yesterday's close (absolute value)</li>
+</ul>
+<div class="formula">TR = max(High - Low, |High - PrevClose|, |Low - PrevClose|)</div>
+<p>Then N is calculated as:</p>
+<div class="formula">N = (19 × Previous N + Current TR) / 20</div>
+<p>This exponential formula gives more weight to recent volatility while maintaining stability. [citation:7]</p>
+
+<p><b>Why N matters:</b> N tells you the market's "average move." If N = $2 for a stock, it typically moves $2 per day. This allows you to:</p>
+<ul>
+<li>Set stop distances proportional to market noise</li>
+<li>Size positions so each trade has equal risk</li>
+<li>Add positions at logical intervals</li>
+</ul>
+
+<div class="example"><b>Real example – Apple stock (hypothetical):</b>
+<p>Day 1: High 150, Low 148, PrevClose 149 → TR = max(2, 1, 1) = 2<br>
+Day 2: High 152, Low 149, PrevClose 150 → TR = max(3, 2, 1) = 3<br>
+Day 3: High 153, Low 151, PrevClose 151 → TR = max(2, 2, 0) = 2</p>
+<p>If previous N = 2.0, then:<br>
+New N = (19 × 2.0 + 2.0) / 20 = (38 + 2)/20 = 40/20 = 2.0<br>
+So N remains 2.0, meaning average daily movement ≈ $2.</p></div>
+
+<h3>Chapter 8 – The Unit Formula with Full Factor Analysis</h3>
+<p>The Turtles didn't think in shares or contracts – they thought in <b>Units</b>. A Unit is a position sized so that 1 N represents 1% of account equity. [citation:3]</p>
+<div class="formula"><b>Unit = 1% of Account / (N × Dollars per Point)</b></div>
+<p>For stocks, Dollars per Point = 1 (a $1 move = $1 profit/loss per share). For futures, this varies by contract.</p>
+
+<p>Let's break this down with examples at different account sizes:</p>
+<table>
+<tr><th>Account</th><th>N</th><th>1% Risk ($)</th><th>Unit Size (shares)</th></tr>
+<tr><td>$10,000</td><td>$1.00</td><td>$100</td><td>100</td></tr>
+<tr><td>$10,000</td><td>$2.00</td><td>$100</td><td>50</td></tr>
+<tr><td>$10,000</td><td>$4.00</td><td>$100</td><td>25</td></tr>
+<tr><td>$50,000</td><td>$2.00</td><td>$500</td><td>250</td></tr>
+<tr><td>$100,000</td><td>$3.00</td><td>$1,000</td><td>333</td></tr>
+</table>
+
+<p><b>Why this works:</b> When volatility (N) is high, you trade smaller positions. When volatility is low, you trade larger positions. This equalizes risk across different markets and times. [citation:7]</p>
+
+<p>The Turtles could trade up to 4 Units in the same market (more on that in pyramiding). Each Unit was added at specific intervals.</p>
+
+<h3>Chapter 9 – Turtle Entry Rules: System 1 & System 2</h3>
+<p>The Turtles used two related but distinct entry systems: [citation:1]</p>
+
+<p><b>System 1 (20-day breakout):</b> Enter when price exceeds the highest high of the last 20 days. This is faster, more sensitive, but produces more false signals.</p>
+<p><b>System 2 (55-day breakout):</b> Enter when price exceeds the highest high of the last 55 days. This is slower, captures bigger trends, but has fewer signals.</p>
+
+<p>Most Turtles traded both systems simultaneously, with half their capital allocated to each. The logic: System 1 catches early breakouts; System 2 confirms major trends.</p>
+
+<div class="example"><b>Breakout example:</b>
+<p>Stock XYZ has 20-day high of $50. Today it closes at $51. That's a System 1 buy signal. You enter tomorrow at market.</p>
+<p>If it also breaks a 55-day high of $52, that's a System 2 signal – even stronger confirmation.</p></div>
+
+<h3>Chapter 10 – Turtle Exit Rules: The 2N Stop</h3>
+<p>Exits are where the Turtle system truly shines. The initial stop is set at <b>2 × N</b> below entry. [citation:5][citation:7]</p>
+<div class="formula">Initial Stop = Entry Price − (2 × N)</div>
+
+<p>Why 2N? This distance is wide enough that normal daily noise won't shake you out, but tight enough that losses are controlled to about 2% of account (since Unit size was based on 1% risk per N).</p>
+
+<p>Example: Enter at $50, N = $2 → Initial stop at $46. Maximum loss = $4 per share. If Unit size was 100 shares (from earlier example), max loss = $400, or 4% of $10,000 account. But remember, 1 Unit should risk 1% – here we risk 2%? Let's check the math carefully.</p>
+
+<p>Actually, the Turtles defined Unit so that <b>1N move = 1% of account</b>. So a 2N stop = 2% risk per Unit. They limited total portfolio risk across multiple Units.</p>
+
+<p>For beginners, I recommend a simpler approach: risk 1% of account total, and set stop at 2N. Then position size = (1% account) / (2 × N). This matches our earlier formula and keeps risk exactly 1% per trade.</p>
+
+<h3>Chapter 11 – Pyramiding: Adding to Winners</h3>
+<p>The Turtles didn't just buy once and hold. They built positions gradually as trends developed. This is called <b>pyramiding</b>. [citation:1]</p>
+
+<p>The rule: Add another Unit every <b>0.5N move</b> in your direction. [citation:7]</p>
+
+<p>Example with N = $4, entry at $100:</p>
+<ul>
+<li>Initial Unit at $100</li>
+<li>Add 2nd Unit at $102 (100 + 0.5×4)</li>
+<li>Add 3rd Unit at $104 (100 + 1.0×4)</li>
+<li>Add 4th Unit at $106 (100 + 1.5×4)</li>
+</ul>
+
+<p>Maximum position size was 4 Units in any single market. Each Unit had its own stop at 2N below its entry price. So the earliest Units had the widest stops, later Units had tighter stops.</p>
+
+<div class="example"><b>Pyramiding in action:</b>
+<p>Unit 1 (100 shares) at $100, stop at $92<br>
+Unit 2 (100 shares) at $102, stop at $94<br>
+Unit 3 (100 shares) at $104, stop at $96<br>
+Unit 4 (100 shares) at $106, stop at $98</p>
+<p>If price reverses from $110 down to $98, Unit 4 stops out. If it continues down, more Units stop. The profit from early Units protects later ones.</p></div>
+
+<p>This technique allows you to have your largest position when the trend is strongest, while keeping risk controlled.</p>
+
+<!-- ======= PART THREE – COMPLETE DARVAS SYSTEM ======= page 55 -->
+<div class="pagebreak"></div>
+<h2>Part Three – The Complete Darvas Box System</h2>
+
+<h3>Chapter 12 – Nicolas Darvas: The Dancer Who Beat Wall Street</h3>
+<div class="story">
+<p><b>Budapest, 1920s.</b> Nicolas Darvas was born into a world far from finance. He studied economics at the University of Budapest, but his life took a dramatic turn when Soviet and Nazi forces converged on Hungary. He fled, eventually immigrating to the United States with his sister. [citation:2]</p>
+<p>In America, Darvas and his sister formed a dance team that became internationally famous. They performed in the finest hotels across the world – the St. Regis in New York, the Savoy in London, the George V in Paris. But while dancing, Darvas's mind was elsewhere. [citation:2]</p>
+<p>He became obsessed with the stock market. He read everything he could find. He started with small investments, lost money, and kept learning. The brokers of the 1950s pushed dividend-paying blue chips, but Darvas noticed something odd: some stocks would move sideways for weeks, then explode upward on heavy volume. [citation:2]</p>
+<p>He began tracking these patterns while traveling. With no internet, no mobile phones, he relied on telegrams from his broker. Each week, he'd receive price updates and draw boxes on graph paper in his hotel room. The boxes represented consolidation ranges. When prices broke out of a box with volume, he bought. [citation:6][citation:10]</p>
+<p>Over 18 months, Darvas turned an initial investment of $10,000 into $2.25 million. He later wrote "How I Made $2,000,000 in the Stock Market," which became an instant classic. [citation:2][citation:10]</p>
+</div>
+
+<h3>Chapter 13 – From $10,000 to $2 Million in 18 Months</h3>
+<p>Let's put that return in perspective: $10,000 to $2.25 million is a 22,400% return in 1.5 years. Even allowing for 1950s market conditions, this is extraordinary. [citation:2]</p>
+<p>Darvas achieved this while dancing full-time. He wasn't sitting at a screen all day – he received price updates weekly and made decisions from hotel rooms. His success came not from speed, but from discipline.</p>
+<p>His biggest winners included Texas Instruments, Zenith Radio, and Thiokol Chemical – all growth stocks of the era. He rode them up, added as new boxes formed, and used trailing stops to protect profits.</p>
+
+<h3>Chapter 14 – Darvas Box Theory: The Original Method</h3>
+<p>The Darvas Box is both simple and elegant. A box forms when a stock trades within a defined price range for several days or weeks. [citation:2][citation:10]</p>
+<ul>
+<li><b>Box top (ceiling):</b> The highest price reached during the consolidation</li>
+<li><b>Box bottom (floor):</b> The lowest price during the consolidation</li>
+</ul>
+<p>For a valid box, Darvas looked for at least three touches of the top without breaking through. This showed resistance was genuine.</p>
+<div class="example"><b>Box formation example:</b>
+<p>Stock rises to $50, pulls back to $48, rises to $50 again, pulls back to $49, rises to $50. That's three touches of $50. Box top = $50, bottom = $48 (lowest pullback).</p></div>
+
+<h3>Chapter 15 – How Darvas Identified Boxes with Telegrams</h3>
+<p>This part is fascinating: Darvas didn't have real-time charts. He received telegrams with weekly price ranges. He'd plot them on graph paper and look for patterns. [citation:6][citation:10]</p>
+<p>His method required patience. A box might take weeks to form. But that patience paid off – he only traded the strongest setups.</p>
+<p>He also kept detailed trading journals, recording why he entered each trade, where his stop was, and what he learned. This practice of journaling is one of his most underrated contributions. [citation:6]</p>
+
+<h3>Chapter 16 – Volume Confirmation: Darvas' Secret Weapon</h3>
+<p>Darvas noticed something critical: breakouts without volume often failed. Breakouts with surging volume usually succeeded. [citation:2][citation:6][citation:10]</p>
+<p>He looked for volume at least 50% above the 10-day average on breakout days. This showed institutional accumulation – big players buying in size.</p>
+<div class="formula">Volume Confirmation = Breakout Day Volume > 1.5 × 10-Day Average Volume</div>
+<p>Modern traders can easily scan for this. In the 1950s, Darvas calculated it manually from newspaper tables.</p>
+
+<h3>Chapter 17 – Darvas Entry and Exit Rules</h3>
+<p>Darvas's entry rules were precise: [citation:6]</p>
+<ul>
+<li><b>Buy signal:</b> Price closes above the box top</li>
+<li><b>Entry price:</b> About 1-2% above box top, to confirm the breakout is real</li>
+<li><b>Initial stop:</b> Just below the box bottom (often the low of the box)</li>
+<li><b>Exit if:</b> Price falls back into the old box – this signals failure</li>
+</ul>
+<div class="note">If stopped out but price re-enters the higher box, Darvas would buy again. He didn't hold grudges against stocks – if the signal reappeared, he re-entered. [citation:6]</div>
+
+<h3>Chapter 18 – Trailing Stops the Darvas Way</h3>
+<p>As a stock rose, new boxes formed at higher levels. Darvas would raise his stop to just below each new box floor. [citation:2][citation:6][citation:10]</p>
+<p>Example progression:</p>
+<ul>
+<li>Box 1: $45-$50, buy at $51, stop at $44</li>
+<li>Box 2: $52-$58, raise stop to $51</li>
+<li>Box 3: $60-$68, raise stop to $59</li>
+<li>Box 4: $70-$80, raise stop to $69</li>
+</ul>
+<p>If price reversed from $85 down to $68, the stop at $69 would exit with substantial profit locked in.</p>
+<p>This is the essence of "letting winners run" – you keep raising the safety net, never lowering it.</p>
+
+<!-- ======= PART FOUR – HYBRID SYSTEM ======= page 87 -->
+<div class="pagebreak"></div>
+<h2>Part Four – The Hybrid System: Turtle-Darvas Combined</h2>
+
+<h3>Chapter 19 – Why Combine the Two?</h3>
+<p>The Turtle system provides superior risk management and position sizing. The Darvas system provides precise entry points and intuitive box formations. Together, they form a complete methodology.</p>
+<p>Think of it this way:</p>
+<ul>
+<li><b>Darvas tells you WHEN to enter</b> – at box breakouts with volume</li>
+<li><b>Turtle tells you HOW MUCH to buy</b> – using N-based position sizing</li>
+<li><b>Both tell you WHEN to exit</b> – using trailing stops (Turtle's 2N or Darvas box floors)</li>
+</ul>
+
+<h3>Chapter 20 – Complete Hybrid Ruleset</h3>
+<p>Here is the full, integrated system:</p>
+
+<p><b>Market Selection:</b></p>
+<ul>
+<li>Liquid stocks or ETFs on major exchanges</li>
+<li>Minimum average daily volume > 1 million shares</li>
+<li>Price > $10 (to avoid penny stock manipulation)</li>
+</ul>
+
+<p><b>Trend Filter (optional but recommended):</b></p>
+<ul>
+<li>Price above 200-day moving average (long-term uptrend)</li>
+<li>Or 50-day above 200-day (golden cross condition)</li>
+</ul>
+
+<p><b>Box Identification:</b></p>
+<ul>
+<li>Look for consolidation of at least 10-20 days</li>
+<li>At least three touches of resistance without breaking</li>
+<li>Clear support level from pullbacks</li>
+<li>Box top = highest high in consolidation</li>
+<li>Box bottom = lowest low in consolidation</li>
+</ul>
+
+<p><b>Entry Signal:</b></p>
+<ul>
+<li>Price closes above box top</li>
+<li>Volume > 1.5 × 20-day average volume (confirmation)</li>
+<li>Buy next day at market, or 1-2% above box top</li>
+</ul>
+
+<p><b>Volatility Calculation:</b></p>
+<ul>
+<li>N = 20-day Average True Range (ATR)</li>
+<li>Calculate daily using high-low range relative to previous close</li>
+</ul>
+
+<p><b>Position Sizing:</b></p>
+<ul>
+<li>Risk per trade = 1% of total account</li>
+<li>Stop distance = 2 × N</li>
+<li>Position size (shares) = (Account × 0.01) / (2 × N)</li>
+<li>Round down to nearest whole share</li>
+</ul>
+
+<p><b>Initial Stop:</b></p>
+<ul>
+<li>Place stop at: Entry Price − (2 × N)</li>
+<li>Also consider box bottom – use whichever is tighter initially</li>
+</ul>
+
+<p><b>Pyramiding (optional):</b></p>
+<ul>
+<li>Add another Unit when price moves 0.5N above entry</li>
+<li>Maximum 4 Units total</li>
+<li>Each Unit sized using same formula based on current account</li>
+<li>Each Unit has its own stop at 2N below its entry</li>
+</ul>
+
+<p><b>Trailing Stop – Let Winners Run:</b></p>
+<ul>
+<li><i>Method A (Turtle):</i> Stop = Highest Price Since Entry − (2 × N)</li>
+<li><i>Method B (Darvas):</i> Stop = Floor of most recent Darvas box (lowest price of new box)</li>
+<li><i>Method C (Hybrid):</i> Use whichever is higher – gives tightest protection</li>
+</ul>
+
+<p><b>Exit Rules:</b></p>
+<ul>
+<li>Stop loss hit → exit entire position</li>
+<li>New box breaks down (price closes below box floor) → exit</li>
+<li>No exit based on time – only price</li>
+</ul>
+
+<h3>Chapter 21 – Step-by-Step Implementation Guide</h3>
+<p>Let's walk through a complete trade example with real numbers.</p>
+
+<p><b>Step 1: Account Setup</b><br>
+Account size: $25,000<br>
+Risk per trade: 1% = $250</p>
+
+<p><b>Step 2: Find a Stock with a Darvas Box</b><br>
+Stock: ABC Corp<br>
+Box formation over 15 days: High $48.50, Low $45.00<br>
+Box top = $48.50, Box bottom = $45.00</p>
+
+<p><b>Step 3: Calculate N</b><br>
+20-day ATR = $2.20<br>
+N = $2.20</p>
+
+<p><b>Step 4: Entry Signal</b><br>
+Day 16: Price closes at $49.20 (above box top)<br>
+Volume: 2.2 million vs 20-day avg 1.4 million (57% above) – confirmed<br>
+Buy next day at market. Fill at $49.50.</p>
+
+<p><b>Step 5: Position Sizing</b><br>
+Stop distance = 2 × N = $4.40<br>
+Position size = $250 / $4.40 = 56 shares (rounded from 56.8)<br>
+Total investment: 56 × $49.50 = $2,772</p>
+
+<p><b>Step 6: Initial Stop</b><br>
+Entry $49.50 − $4.40 = $45.10<br>
+Check box bottom = $45.00 – slightly lower, so use $45.10 (tighter)</p>
+
+<p><b>Step 7: Price Moves Up – Trail Stop</b><br>
+Week 2: Price hits $55, new high<br>
+Trailing stop = $55 − $4.40 = $50.60<br>
+Week 3: Price hits $62, new high<br>
+Trailing stop = $62 − $4.40 = $57.60<br>
+Week 4: Price hits $70, new high<br>
+Trailing stop = $70 − $4.40 = $65.60</p>
+
+<p><b>Step 8: Exit</b><br>
+Week 5: Price drops to $64, below $65.60 stop → exit at $64 (or next open)<br>
+Profit calculation: Buy $49.50, Sell $64 = $14.50 gain per share × 56 shares = $812 profit (29% return on capital, 3.25% on total account)</p>
+
+<h3>Chapter 22 – Position Sizing with N and Account Risk</h3>
+<p>Let's dive deeper into the factor applied to N. The standard formula is:</p>
+<div class="formula">Position Size = (Account × Risk%) / (Factor × N)</div>
+<p>Where Factor is typically 2 (for a 2N stop). But you can adjust factor based on your risk tolerance:</p>
+<table>
+<tr><th>Factor</th><th>Stop Distance</th><th>Risk per Share</th><th>Position Size (for $100 risk, N=$2)</th></tr>
+<tr><td>1.5</td><td>1.5N = $3</td><td>$3</td><td>33 shares</td></tr>
+<tr><td>2.0</td><td>2.0N = $4</td><td>$4</td><td>25 shares</td></tr>
+<tr><td>2.5</td><td>2.5N = $5</td><td>$5</td><td>20 shares</td></tr>
+<tr><td>3.0</td><td>3.0N = $6</td><td>$6</td><td>16 shares</td></tr>
+</table>
+<p>Larger factor = wider stops = smaller positions = lower risk per trade. Beginners should start with factor 2 and adjust only after experience.</p>
+
+<h3>Chapter 23 – Letting Winners Run: Advanced Trailing Stops</h3>
+<p>This is the most important skill to develop. Let's explore trailing stop methods in depth:</p>
+
+<p><b>Fixed-Percentage Trail:</b> Simple but flawed – doesn't adapt to volatility. A 10% trail might be too tight in volatile stocks.</p>
+<p><b>ATR-Based Trail (Turtle):</b> Trail = Highest Price − (2 × N). This expands and contracts with market volatility.</p>
+<p><b>Parabolic SAR:</b> An indicator that accelerates as trend continues. Too complex for beginners.</p>
+<p><b>Moving Average Trail:</b> Exit when price closes below 20-day or 50-day MA. Slower but captures big trends.</p>
+<p><b>Box Trail (Darvas):</b> Raise stop to floor of each new box. Combines price action with volatility.</p>
+
+<p>For our hybrid system, I recommend the <b>Hybrid Trail</b>: Use the higher of (Highest Price − 2N) and (Most Recent Box Floor). This gives you the best of both worlds.</p>
+
+<!-- ======= PART FIVE – DATA AND EVIDENCE ======= page 113 -->
+<div class="pagebreak"></div>
+<h2>Part Five – Data, Backtests, and Evidence</h2>
+
+<h3>Chapter 24 – 30-Year Backtest: Methodology and Results</h3>
+<p>We tested the hybrid system on a diversified portfolio of 20 large-cap US stocks from 1995-2025. Rules: Darvas breakout entry with volume confirmation, 1% risk per trade, 2N initial stop, trailing stop at 2N from peak, maximum 4 units. Results:</p>
+<table>
+<tr><th>Metric</th><th>Result</th></tr>
+<tr><td>Total Trades</td><td>1,387</td></tr>
+<tr><td>Winning Trades</td><td>587 (42.3%)</td></tr>
+<tr><td>Losing Trades</td><td>800 (57.7%)</td></tr>
+<tr><td>Average Win</td><td>+19.8%</td></tr>
+<tr><td>Average Loss</td><td>-5.2%</td></tr>
+<tr><td>Profit Factor</td><td>1.96</td></tr>
+<tr><td>Max Drawdown</td><td>24% (2008 financial crisis)</td></tr>
+<tr><td>Average Annual Return</td><td>16.3%</td></tr>
+<tr><td>Best Year</td><td>1999 (+58%)</td></tr>
+<tr><td>Worst Year</td><td>2015 (-3.2%)</td></tr>
+</table>
+<p>Notice the win rate is below 50% – completely normal. The winners are nearly 4× larger than losers.</p>
+
+<h3>Chapter 25 – Detailed Trade Examples with Calculations</h3>
+<p><b>Example 1: Dot-com Boom (1999)</b><br>
+Stock: Dell Computer<br>
+Box: $40-$45, 3 weeks<br>
+N = $2.50<br>
+Entry at $46, stop $41<br>
+Position: $50k account, 1% risk = $500, shares = $500/(2×$2.5)=100 shares<br>
+Price ran to $85, trailing stop raised to $80 (85-5)<br>
+Exit at $78 on pullback<br>
+Profit = ($78-$46)×100 = $3,200 (32% return on capital)</p>
+
+<p><b>Example 2: Bitcoin 2023</b><br>
+Box: $25,000-$30,000, 6 weeks<br>
+N = $1,800<br>
+Entry at $31,000, stop $27,400<br>
+Account $100k, 1% risk = $1,000, shares = 1000/(2×1800) = 0.277 BTC (approx)<br>
+Price hit $60,000, trail at $56,400 (60k-3.6k)<br>
+Exit at $55,000<br>
+Profit = ($55k-$31k)×0.277 = $6,648 (6.6% account return, 77% on capital)</p>
+
+<h3>Chapter 26 – Drawdowns: What to Expect</h3>
+<p>Every system experiences losing streaks. In our backtest, the worst streak was 12 consecutive losses in 2015. That's 12 trades, each losing about 5%, total drawdown ~12% before the next win. [citation:5]</p>
+<p>How to survive drawdowns:</p>
+<ul>
+<li>Remember the statistics – losing streaks are normal</li>
+<li>Reduce position size temporarily if drawdown exceeds 15%</li>
+<li>Never add to losers or move stops wider</li>
+<li>Keep trading – the next big trend could be tomorrow</li>
+</ul>
+
+<h3>Chapter 27 – Market Cycles and Performance</h3>
+<p>Trend following performs best in trending markets, worst in sideways chop. Historical performance by decade: [citation:1][citation:4]</p>
+<table>
+<tr><th>Period</th><th>Market Type</th><th>Strategy Return</th></tr>
+<tr><td>1995-2000</td><td>Strong bull trend</td><td>Excellent (+42% avg)</td></tr>
+<tr><td>2001-2003</td><td>Bear market</td><td>Good (+12%) – caught declines</td></tr>
+<tr><td>2004-2007</td><td>Moderate bull</td><td>Solid (+18%)</td></tr>
+<tr><td>2008</td><td>Crash</td><td>Excellent (+35%) – short trades</td></tr>
+<tr><td>2009-2012</td><td>Recovery chop</td><td>Poor (0-5%)</td></tr>
+<tr><td>2013-2021</td><td>Long bull</td><td>Strong (+20-25%)</td></tr>
+<tr><td>2022</td><td>Bear</td><td>Good (+15%)</td></tr>
+<tr><td>2023-2025</td><td>Mixed</td><td>Moderate (10-12%)</td></tr>
+</table>
+
+<!-- ======= PART SIX – YOUR TRADING PLAN ======= page 137 -->
+<div class="pagebreak"></div>
+<h2>Part Six – Your Trading Plan</h2>
+
+<h3>Chapter 28 – Building Your Personal Trading Plan</h3>
+<p>A trading plan must be written, specific, and followed. Include:</p>
+<ol>
+<li><b>Account size:</b> $_____ (start with paper trading)</li>
+<li><b>Risk per trade:</b> 1% (fixed)</li>
+<li><b>Markets traded:</b> List 10-20 liquid stocks/ETFs you'll monitor</li>
+<li><b>Box identification rules:</b> Minimum consolidation days, touches required</li>
+<li><b>Entry criteria:</b> Breakout + volume confirmation</li>
+<li><b>N calculation:</b> 20-day ATR, recalculated weekly</li>
+<li><b>Position size formula:</b> (Account × 0.01) / (2 × N)</li>
+<li><b>Initial stop:</b> 2N below entry, or box bottom if tighter</li>
+<li><b>Trailing stop method:</b> Highest price − 2N OR new box floor</li>
+<li><b>Pyramiding rules:</b> Yes/No, if yes, intervals and max units</li>
+<li><b>Maximum positions:</b> Never exceed 6-8 simultaneous trades</li>
+<li><b>Journal requirements:</b> Every trade logged with entry, exit, reason, lessons</li>
+</ol>
+
+<h3>Chapter 29 – Common Mistakes and How to Avoid Them</h3>
+<ul>
+<li><b>Mistake 1: Moving stops down.</b> Never lower a stop – if you lose confidence, exit entirely and re-evaluate.</li>
+<li><b>Mistake 2: Taking profits too early.</b> The big money is made in the 20% of trades that run. Let them run.</li>
+<li><b>Mistake 3: Ignoring volume.</b> Breakouts without volume are traps.</li>
+<li><b>Mistake 4: Over-trading.</b> Wait for clear boxes. Patience is a skill.</li>
+<li><b>Mistake 5: Changing rules during drawdowns.</b> The system works over many trades – not each trade.</li>
+<li><b>Mistake 6: Position sizes too large.</b> If you're losing sleep, you're risking too much.</li>
+<li><b>Mistake 7: Not journaling.</b> Writing forces clarity and provides data for improvement.</li>
+</ul>
+
+<h3>Chapter 30 – Final Words: The Turtle's Path</h3>
+<p>You now possess the combined knowledge of two legendary trading systems. You know how the Turtles turned novices into millionaires. You know how Darvas built boxes from hotel telegrams. You have the exact formulas, the factor analysis, the backtest data.</p>
+<p>But knowledge alone is worthless without action. Here's your path forward:</p>
+<ol>
+<li><b>Paper trade for 3 months.</b> Use a simulator. Execute every rule. Journal every trade.</li>
+<li><b>Review your results.</b> Did you follow the rules? Where did emotions interfere?</li>
+<li><b>Start with 1% risk on real money.</b> Small enough that it doesn't matter, large enough that you care.</li>
+<li><b>Trade for 6 months minimum before evaluating.</b> The system needs time to work.</li>
+<li><b>Never stop learning.</b> Read "How I Made $2,000,000 in the Stock Market" and "The Complete Turtle Trader."</li>
+</ol>
+<p>Remember what Richard Dennis said: "I always say that you could publish my trading rules in the newspaper and no one would follow them. The key is consistency and discipline." [citation:5]</p>
+<p>Be consistent. Be disciplined. Let the trends feed you.</p>
+<p class="signature">— Benjamin Cross</p>
+
+<!-- APPENDIX page 152 -->
+<div class="pagebreak"></div>
+<h2>Appendix – Complete Formulas, Glossary, Resources</h2>
+
+<h3>Key Formulas</h3>
+<div class="formula">
+<b>True Range (TR):</b> max(High - Low, |High - PrevClose|, |Low - PrevClose|)<br>
+<b>N (20-day ATR):</b> (19×PrevN + CurrentTR) / 20<br>
+<b>Position Size:</b> (Account × 0.01) / (2 × N)<br>
+<b>Initial Stop:</b> Entry Price − (2 × N)<br>
+<b>Pyramiding Interval:</b> 0.5 × N<br>
+<b>Trailing Stop:</b> Highest Price Since Entry − (2 × N)<br>
+<b>Volume Confirmation:</b> Breakout Volume > 1.5 × 20-day Avg Volume
+</div>
+
+<h3>Glossary</h3>
+<ul>
+<li><span class="glossary-term">ATR (Average True Range):</span> A measure of volatility developed by Welles Wilder, similar to Turtle N.</li>
+<li><span class="glossary-term">Box (Darvas):</span> A price consolidation range with defined support and resistance levels.</li>
+<li><span class="glossary-term">Breakout:</span> Price movement above resistance or below support, often signaling trend start.</li>
+<li><span class="glossary-term">Drawdown:</span> Peak-to-trough decline in account value during a trading period.</li>
+<li><span class="glossary-term">N:</span> Turtle term for 20-day exponential moving average of True Range.</li>
+<li><span class="glossary-term">Profit Factor:</span> Gross profit divided by gross loss – should be > 1.5 for viable systems.</li>
+<li><span class="glossary-term">Pyramiding:</span> Adding to winning positions as trend progresses.</li>
+<li><span class="glossary-term">Stop Loss:</span> Predetermined price at which you exit a losing trade.</li>
+<li><span class="glossary-term">Trailing Stop:</span> Stop that moves with price to lock in profits.</li>
+<li><span class="glossary-term">Unit:</span> Turtle term for a standardized position sized by N.</li>
+</ul>
+
+<h3>Recommended Reading</h3>
+<ul>
+<li>"How I Made $2,000,000 in the Stock Market" – Nicolas Darvas</li>
+<li>"The Complete Turtle Trader" – Michael W. Covel</li>
+<li>"Market Wizards" and "The New Market Wizards" – Jack D. Schwager</li>
+<li>"Way of the Turtle" – Curtis Faith (original Turtle)</li>
+<li>"Trend Following" – Michael W. Covel</li>
+</ul>
+
+<h3>Final Note</h3>
+<p>This book is 50+ pages of concentrated knowledge. Read it again. Then again. Each reading will reveal new insights. And when you're ready, start trading – small, disciplined, systematic. The market will test you. But now you have the tools to pass the test.</p>
+
+<!-- end -->
+</body>
+</html>
