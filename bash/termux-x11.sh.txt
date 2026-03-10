@@ -1,0 +1,26 @@
+cd "/storage/emulated/0/ MyDocuments/Projects"
+rm -f ~/.shortcuts/termux-x11 && cat > ~/.shortcuts/termux-x11 << 'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "=== Starting Termux:X11 ==="
+
+# Navigate to termux-x11 directory
+cd "/storage/emulated/0/ MyDocuments/Projects/termux-x11"
+echo "📂 Directory: $(pwd)"
+
+# Kill any existing Termux:X11 instances
+pkill -f "com.termux.x11" 2>/dev/null
+sleep 1
+
+# Start Termux:X11
+am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity
+
+# Run termux-x11 command
+termux-x11 &
+
+echo "✅ Termux:X11 launched from $(pwd)"
+echo ""
+echo "Press ENTER to close"
+read dummy
+EOF
+
+chmod +x ~/.shortcuts/termux-x11
