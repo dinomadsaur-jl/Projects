@@ -1,0 +1,359 @@
+cat > kali.sh << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+
+# SUPER SIMPLE KALI INSTALLER
+clear
+echo "╔════════════════════════════════╗"
+echo "║   KALI NETHUNTER INSTALLER     ║"
+echo "╚════════════════════════════════╝"
+echo ""
+
+# Function to check Termux:X11 app
+check_x11_app() {
+    if ! pm list packages | grep -q com.termux.x11; then
+        echo "❌ Termux:X11 app NOT installed!"
+        echo ""
+        echo "📱 DOWNLOAD TERMUX:X11 APP:"
+        echo "1. Open this link on your phone:"
+        echo "   https://github.com/termux/termux-x11/releases/tag/nightly"
+        echo ""
+        echo "2. Download: termux-x11-universal-debug.apk"
+        echo "3. Install the APK"
+        echo ""
+        echo "Press Enter after installing..."
+        read dummy
+    else
+        echo "✅ Termux:X11 app is installed"
+    fi
+}
+
+# Function to check Kali installation
+check_kali() {
+    if [ ! -d ~/kali-arm64 ]; then
+        echo "❌ Kali not fully installed!"
+        echo "Run option 1 or 2 first"
+        return 1
+    else
+        echo "✅ Kali is installed"
+        return 0
+    fi
+}
+
+echo "1) Full Install + Shortcuts"
+echo "2) Install Kali Only"
+echo "3) Create Shortcuts Only"
+echo "4) Remove Everything"
+echo "5) Instructions"
+echo "0) Exit"
+echo ""
+read -p "Choice: " opt
+
+case $opt in
+    1)
+        echo "📦 Updating Termux..."
+        pkg update -y && pkg upgrade -y
+        pkg install -y wget termux-x11-nightly pulseaudio proot-distro
+        
+        echo "📁 Setting up storage..."
+        termux-setup-storage
+        
+        echo "⬇️ Downloading Kali installer..."
+        wget -O install-nethunter-termux https://offs.ec/2MceZWr
+        chmod +x install-nethunter-termux
+        
+        echo ""
+        echo "⚠️  IMPORTANT: When prompted, select 'Lite'"
+        echo "Press Enter to continue..."
+        read dummy
+        ./install-nethunter-termux
+        
+        echo "🖥️ Installing desktop environment..."
+        nethunter sudo apt update
+        nethunter sudo apt install -y dbus-x11 xfce4 xfce4-terminal firefox-esr
+        
+        echo "🔗 Creating shortcuts..."
+        mkdir -p ~/.shortcuts
+        cd ~/.shortcuts
+        
+        cat > kali-gui << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🚀 Starting Kali GUI"
+
+# Check if X11 app is installed
+if ! pm list packages | grep -q com.termux.x11; then
+    echo "❌ Termux:X11 app not installed!"
+    echo "Download from: https://github.com/termux/termux-x11/releases"
+    echo ""
+    echo "Press Enter to exit"
+    read dummy
+    exit 1
+fi
+
+pkill -f termux-x11 2>/dev/null
+pulseaudio --kill 2>/dev/null
+pulseaudio --start --exit-idle-time=-1
+termux-x11 &
+sleep 3
+
+# Try to start X11 app
+am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "⚠️ Please open Termux:X11 app manually"
+fi
+
+nethunter bash -c "export DISPLAY=:0 PULSE_SERVER=127.0.0.1; dbus-launch startxfce4"
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        cat > kali-stop << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🛑 Stopping Kali"
+pkill -f termux-x11
+pulseaudio --kill
+echo "✅ Done"
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        cat > kali-cli << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "💻 Kali CLI"
+nethunter
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        cat > kali-check << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🔍 KALI SYSTEM CHECK"
+echo "══════════════════════"
+if [ -d ~/kali-arm64 ]; then
+    echo "✅ Kali: Installed"
+    du -sh ~/kali-arm64 2>/dev/null || echo "   Size: Unknown"
+else
+    echo "❌ Kali: Not installed"
+fi
+
+if pm list packages | grep -q com.termux.x11; then
+    echo "✅ Termux:X11: Installed"
+else
+    echo "❌ Termux:X11: Missing"
+    echo "   Download: https://github.com/termux/termux-x11/releases"
+fi
+
+if [ -f ~/.shortcuts/kali-gui ]; then
+    echo "✅ Shortcuts: Created"
+else
+    echo "❌ Shortcuts: Missing"
+fi
+echo "══════════════════════"
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        chmod +x kali-gui kali-stop kali-cli kali-check
+        echo ""
+        echo "✅ INSTALLATION COMPLETE!"
+        echo ""
+        echo "📱 NEXT STEPS:"
+        echo "1. Install Termux:X11 app from GitHub"
+        echo "2. Open Termux:X11 app once"
+        echo "3. Run: ~/.shortcuts/kali-gui"
+        echo ""
+        echo "Or run: ~/.shortcuts/kali-check to verify"
+        ;;
+        
+    2)
+        echo "📦 Updating Termux..."
+        pkg update -y && pkg upgrade -y
+        pkg install -y wget
+        
+        echo "⬇️ Downloading Kali installer..."
+        wget -O install-nethunter-termux https://offs.ec/2MceZWr
+        chmod +x install-nethunter-termux
+        
+        echo ""
+        echo "⚠️  IMPORTANT: When prompted, select 'Lite'"
+        echo "Press Enter to continue..."
+        read dummy
+        ./install-nethunter-termux
+        ;;
+        
+    3)
+        echo "🔗 Creating shortcuts..."
+        
+        # Check X11 app first
+        check_x11_app
+        
+        mkdir -p ~/.shortcuts
+        cd ~/.shortcuts
+        
+        cat > kali-gui << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🚀 Starting Kali GUI"
+
+# Check if X11 app is installed
+if ! pm list packages | grep -q com.termux.x11; then
+    echo "❌ Termux:X11 app not installed!"
+    echo "Download from: https://github.com/termux/termux-x11/releases"
+    echo ""
+    echo "Press Enter to exit"
+    read dummy
+    exit 1
+fi
+
+pkill -f termux-x11 2>/dev/null
+pulseaudio --kill 2>/dev/null
+pulseaudio --start --exit-idle-time=-1
+termux-x11 &
+sleep 3
+
+# Try to start X11 app
+am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null
+if [ $? -ne 0 ]; then
+    echo "⚠️ Please open Termux:X11 app manually"
+fi
+
+# Check if Kali exists
+if [ ! -d ~/kali-arm64 ]; then
+    echo "❌ Kali not installed! Run installer first"
+    echo ""
+    echo "Press Enter to exit"
+    read dummy
+    exit 1
+fi
+
+nethunter bash -c "export DISPLAY=:0 PULSE_SERVER=127.0.0.1; dbus-launch startxfce4"
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        cat > kali-stop << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🛑 Stopping Kali"
+pkill -f termux-x11
+pulseaudio --kill
+echo "✅ Done"
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        cat > kali-cli << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "💻 Kali CLI"
+if [ ! -d ~/kali-arm64 ]; then
+    echo "❌ Kali not installed! Run installer first"
+    echo ""
+    echo "Press Enter to exit"
+    read dummy
+    exit 1
+fi
+nethunter
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        cat > kali-check << 'INNER'
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🔍 KALI SYSTEM CHECK"
+echo "══════════════════════"
+if [ -d ~/kali-arm64 ]; then
+    echo "✅ Kali: Installed"
+    du -sh ~/kali-arm64 2>/dev/null || echo "   Size: Unknown"
+else
+    echo "❌ Kali: Not installed"
+fi
+
+if pm list packages | grep -q com.termux.x11; then
+    echo "✅ Termux:X11: Installed"
+else
+    echo "❌ Termux:X11: Missing"
+    echo "   Download: https://github.com/termux/termux-x11/releases"
+fi
+
+if [ -f ~/.shortcuts/kali-gui ]; then
+    echo "✅ Shortcuts: Created"
+else
+    echo "❌ Shortcuts: Missing"
+fi
+echo "══════════════════════"
+echo ""
+echo "Press Enter to close"
+read dummy
+INNER
+
+        chmod +x kali-gui kali-stop kali-cli kali-check
+        
+        echo ""
+        echo "✅ SHORTCUTS CREATED!"
+        echo ""
+        echo "Available shortcuts in ~/.shortcuts/:"
+        ls -la ~/.shortcuts/kali-*
+        echo ""
+        echo "Run: ~/.shortcuts/kali-check to verify setup"
+        ;;
+        
+    4)
+        echo "🗑️  Removing everything..."
+        rm -rf ~/kali-arm64
+        rm -f ~/install-nethunter-termux
+        rm -f ~/.shortcuts/kali*
+        echo "✅ Removed"
+        ;;
+        
+    5)
+        clear
+        echo "════════════════════════════════"
+        echo "📋 INSTRUCTIONS"
+        echo "════════════════════════════════"
+        echo ""
+        echo "1️⃣  INSTALL TERMUX:X11 APP:"
+        echo "   https://github.com/termux/termux-x11/releases"
+        echo "   Download termux-x11-universal-debug.apk"
+        echo ""
+        echo "2️⃣  AFTER INSTALLING KALI:"
+        echo "   • Open Termux:X11 app once"
+        echo "   • Run: ~/.shortcuts/kali-gui"
+        echo ""
+        echo "3️⃣  ANDROID 12+ SETTINGS:"
+        echo "   Settings > Developer options"
+        echo "   Enable 'Disable child process restrictions'"
+        echo ""
+        echo "4️⃣  AVAILABLE COMMANDS:"
+        echo "   ~/.shortcuts/kali-gui    - Start desktop"
+        echo "   ~/.shortcuts/kali-cli    - CLI access"
+        echo "   ~/.shortcuts/kali-stop   - Stop GUI"
+        echo "   ~/.shortcuts/kali-check  - System check"
+        echo ""
+        echo "5️⃣  DESKTOP WIDGETS:"
+        echo "   Install Termux:Widget from F-Droid"
+        echo "   Add widget → Select shortcut"
+        echo ""
+        echo "════════════════════════════════"
+        echo ""
+        echo "Press Enter to continue..."
+        read dummy
+        ;;
+        
+    0)
+        exit 0
+        ;;
+        
+    *)
+        echo "❌ Invalid choice"
+        sleep 2
+        ;;
+esac
+EOF
+
+chmod +x kali.sh
+echo "✅ Setup complete! Run: ./kali.sh"
+./kali.sh
