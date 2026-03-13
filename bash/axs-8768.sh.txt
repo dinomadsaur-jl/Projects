@@ -1,7 +1,11 @@
-cd "/storage/emulated/0/ MyDocuments/Projects"
+cd "/storage/emulated/0/MyDocuments/Projects"
 rm -f ~/.shortcuts/axs-8768 && cat > ~/.shortcuts/axs-8768 << 'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 echo "=== AXS Port 8768 Manager ==="
+
+# Acquire wake lock to prevent process termination when screen is off
+termux-wake-lock
+echo "🔒 Wake lock acquired"
 
 # Kill any existing axs process on port 8768
 pkill -f "axs.*--port 8768" 2>/dev/null
@@ -11,8 +15,12 @@ sleep 1
 axs --port 8768 &
 echo "✅ AXS restarted on port 8768"
 echo ""
-echo "Press ENTER to close"
+echo "Press ENTER to close (will release wake lock)"
 read dummy
+
+# Release wake lock when done
+termux-wake-unlock
+echo "🔓 Wake lock released"
 EOF
 
 chmod +x ~/.shortcuts/axs-8768

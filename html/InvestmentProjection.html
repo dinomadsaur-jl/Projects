@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>retire · target return range with bands</title>
+    <!-- Plotly light CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.27.1.min.js" charset="utf-8"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f5f7fb;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            touch-action: pan-y pinch-zoom;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            max-width: 100%;
+        }
+        .calc-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 1rem 1rem 0.5rem 1rem;
+            gap: 0.7rem;
+        }
+        .input-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem 0.8rem;
+            background: white;
+            border-radius: 24px;
+            padding: 1rem 1rem;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.02), 0 2px 6px rgba(0,20,40,0.05);
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(220, 230, 245, 0.5);
+            flex-shrink: 0;
+        }
+        .input-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        .input-item label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: #2c3e66;
+            margin-bottom: 0.15rem;
+            white-space: nowrap;
+        }
+        .input-item input, .input-item select {
+            background: #f0f4fc;
+            border: 1px solid #d9e2ef;
+            border-radius: 18px;
+            padding: 0.6rem 0.9rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1a263b;
+            outline: none;
+            width: 100%;
+            transition: all 0.15s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .input-item input:focus, .input-item select:focus {
+            border-color: #3f6ae0;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(63,106,224,0.15);
+        }
+        .input-item select {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="%233f5e8a" stroke-width="1.5" stroke-linecap="round"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 0.9rem;
+        }
+        /* NEW: two additional rows: rate range + target row */
+        .range-row {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #eef3fd;
+            border-radius: 40px;
+            padding: 0.3rem 0.3rem 0.3rem 1rem;
+        }
+        .range-row label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #1f3a6b;
+            white-space: nowrap;
+        }
+        .range-row input {
+            background: white;
+            border: 1px solid #cdddec;
+            border-radius: 40px;
+            padding: 0.45rem 0.8rem;
+            width: 80px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .range-row span {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2f4b7c;
+            margin-right: 0.2rem;
+        }
+
+        .target-row {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #eef3fd;
+            border-radius: 30px;
+            padding: 0.2rem 0.2rem 0.2rem 1rem;
+            margin-top: 0.1rem;
+        }
+        .target-select {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 40px;
+            border: 1px solid #cdddec;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .target-select select {
+            background: white;
+            border: none;
+            padding: 0.55rem 1.8rem 0.55rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e3b5c;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="%233f5e8a" stroke-width="1.8" stroke-linecap="round"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 0.8rem;
+            cursor: pointer;
+        }
+        .target-value {
+            flex: 1;
+            min-width: 100px;
+        }
+        .target-value input {
+            width: 100%;
+            background: white;
+            border: 1px solid #cdddec;
+            border-radius: 40px;
+            padding: 0.55rem 1rem;
+            font-size: 0.95rem;
+        }
+        .target-symbol {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e3b5c;
+            padding: 0 0.2rem 0 0.5rem;
+        }
+
+        .chart-area {
+            flex: 1 1 100%;
+            min-height: 0;
+            width: 100%;
+            background: transparent;
+            border-radius: 28px;
+            padding-bottom: 0px;
+            margin-bottom: 0px;
+        }
+        #retirementChart {
+            width: 100%;
+            height: 100%;
+            border-radius: 24px 24px 18px 18px;
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(3px);
+            box-shadow: 0 4px 14px rgba(0, 20, 30, 0.1);
+        }
+        .foot-note {
+            text-align: center;
+            font-size: 0.6rem;
+            color: #4c5e7a;
+            opacity: 0.7;
+            letter-spacing: 0.2px;
+            padding: 0.2rem 0 0.1rem 0;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 480px) {
+            .input-panel {
+                padding: 0.7rem 0.7rem;
+                gap: 0.5rem 0.6rem;
+            }
+            .range-row {
+                flex-wrap: wrap;
+                padding: 0.5rem;
+            }
+            .range-row input {
+                width: 70px;
+            }
+            .target-select select {
+                padding: 0.45rem 1.6rem 0.45rem 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="calc-container">
+    <!-- INPUT PANEL with rate range and target selector -->
+    <div class="input-panel">
+        <div class="input-item">
+            <label>💰 Principal</label>
+            <input type="number" id="principal" value="25000" min="0" step="1000">
+        </div>
+        <div class="input-item">
+            <label>📆 Contribution</label>
+            <input type="number" id="contribution" value="400" min="0" step="50">
+        </div>
+        <div class="input-item">
+            <label>⏲️ Frequency</label>
+            <select id="freq">
+                <option value="monthly" selected>monthly</option>
+                <option value="quarterly">quarterly</option>
+                <option value="yearly">yearly</option>
+            </select>
+        </div>
+        <div class="input-item">
+            <label>📈 Base rate %</label>
+            <input type="number" id="rate" value="6.5" min="0" step="0.1">
+        </div>
+
+        <!-- RANGE row for +/- annual return variability -->
+        <div class="range-row">
+            <label>🔀 Range ±</label>
+            <input type="number" id="rateRange" value="2.0" min="0" max="10" step="0.1">
+            <span>percentage points</span>
+        </div>
+        
+        <!-- TARGET selector (year/amount) -->
+        <div class="target-row">
+            <div class="target-select">
+                <select id="targetType">
+                    <option value="year" selected>🎯 TARGET YEAR</option>
+                    <option value="amount">💰 TARGET AMOUNT</option>
+                </select>
+            </div>
+            <span class="target-symbol" id="targetSymbol">year</span>
+            <div class="target-value">
+                <input type="number" id="targetValue" value="2055" min="0" step="1">
+            </div>
+        </div>
+    </div>
+
+    <!-- CHART area -->
+    <div class="chart-area">
+        <div id="retirementChart"></div>
+    </div>
+    <div class="foot-note">
+        ⚡ solid line = base rate · dashed lines = base ± range (upper / lower bound)
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Inputs
+        const principalInp = document.getElementById('principal');
+        const contribInp = document.getElementById('contribution');
+        const freqSelect = document.getElementById('freq');
+        const rateInp = document.getElementById('rate');
+        const rateRangeInp = document.getElementById('rateRange');
+        const targetType = document.getElementById('targetType');
+        const targetValue = document.getElementById('targetValue');
+        const targetSymbol = document.getElementById('targetSymbol');
+
+        const chartDiv = document.getElementById('retirementChart');
+
+        // Helper: update symbol when target type changes
+        function updateSymbol() {
+            if (targetType.value === 'year') {
+                targetSymbol.textContent = 'year';
+                targetValue.placeholder = 'e.g. 2055';
+                if (targetValue.value < 2000) targetValue.value = 2055;
+            } else {
+                targetSymbol.textContent = '$';
+                targetValue.placeholder = 'amount';
+                if (targetValue.value < 0) targetValue.value = 200000;
+            }
+        }
+        targetType.addEventListener('change', updateSymbol);
+        updateSymbol();
+
+        // --- compute three projections: base, high, low (using rate +/- range) ---
+        function computeProjections() {
+            // base values
+            let principal = Math.max(0, parseFloat(principalInp.value) || 0);
+            let contrib = Math.max(0, parseFloat(contribInp.value) || 0);
+            let baseRate = Math.max(0, parseFloat(rateInp.value) || 0);
+            let range = Math.max(0, parseFloat(rateRangeInp.value) || 0);
+
+            // target (year or amount)
+            const type = targetType.value;
+            let rawTarget = parseFloat(targetValue.value);
+            if (isNaN(rawTarget) || rawTarget < 0) rawTarget = (type === 'year') ? 2055 : 200000;
+            const target = rawTarget;
+
+            const currentYear = new Date().getFullYear();
+            const now = new Date();
+            const currentYearFraction = now.getFullYear() + (now.getMonth() + 1) / 12;
+
+            // frequency
+            let periodsPerYear = 12;
+            if (freqSelect.value === 'quarterly') periodsPerYear = 4;
+            else if (freqSelect.value === 'yearly') periodsPerYear = 1;
+
+            const contribPerPeriod = contrib;   // per frequency amount
+            const dt = 1 / periodsPerYear;
+
+            // three rates
+            const rateLow = Math.max(0, baseRate - range);
+            const rateBase = baseRate;
+            const rateHigh = baseRate + range;
+
+            // helper to run projection for a given annual rate (as percentage)
+            function runSingle(annualRatePercent) {
+                let ratePerPeriod = annualRatePercent / 100 / periodsPerYear;
+                let balance = principal;
+                let years = [currentYearFraction];
+                let balances = [principal];
+
+                if (type === 'year') {
+                    let targetYear = target;
+                    if (targetYear < currentYearFraction) targetYear = currentYearFraction + 1;
+                    let periodsToTarget = Math.ceil((targetYear - currentYearFraction) * periodsPerYear);
+                    if (periodsToTarget < 0) periodsToTarget = 0;
+
+                    for (let p = 1; p <= periodsToTarget; p++) {
+                        balance = balance * (1 + ratePerPeriod) + contribPerPeriod;
+                        years.push(currentYearFraction + p * dt);
+                        balances.push(balance);
+                        if (p > 800) break; // safety
+                    }
+                } else { 
+                    // target amount
+                    let maxPeriods = 1200; // 100 years
+                    for (let p = 1; p <= maxPeriods; p++) {
+                        balance = balance * (1 + ratePerPeriod) + contribPerPeriod;
+                        years.push(currentYearFraction + p * dt);
+                        balances.push(balance);
+                        if (balance >= target) break;
+                    }
+                }
+                return { years, balances };
+            }
+
+            const baseProj = runSingle(rateBase);
+            const lowProj = runSingle(rateLow);
+            const highProj = runSingle(rateHigh);
+
+            // ensure same x-axis length? for shaded area we need consistent years.
+            // we will use the union of years? but simpler: plot three lines separately.
+            // they might have different lengths, but that's fine – Plotly handles it.
+
+            return {
+                base: baseProj,
+                low: lowProj,
+                high: highProj,
+                targetType: type,
+                targetValue: target,
+                currentYearFraction,
+                rateBase,
+                rateLow,
+                rateHigh
+            };
+        }
+
+        // --- render Plotly with three traces + optional target lines ---
+        function updatePlot() {
+            const proj = computeProjections();
+
+            // helper to create a trace
+            function makeTrace(years, balances, name, color, dashStyle = 'solid', width = 2.2) {
+                return {
+                    x: years,
+                    y: balances,
+                    mode: 'lines',
+                    name: name,
+                    line: { color: color, width: width, dash: dashStyle },
+                    hoverinfo: 'y+x',
+                    hoverlabel: { namelength: -1 },
+                };
+            }
+
+            let traces = [];
+
+            // base trace (solid, prominent)
+            if (proj.base.years.length) {
+                traces.push(makeTrace(proj.base.years, proj.base.balances, `base ${proj.rateBase.toFixed(1)}%`, '#3361cc', 'solid', 3));
+            }
+            // low trace (dashed)
+            if (proj.low.years.length && proj.rateLow !== proj.rateBase) {
+                traces.push(makeTrace(proj.low.years, proj.low.balances, `lower ${proj.rateLow.toFixed(1)}%`, '#e67e22', 'dash', 2));
+            } else if (proj.rateLow === proj.rateBase) {
+                // if range = 0, low = base, skip duplicate or show subtle? skip.
+            }
+            // high trace (dashed)
+            if (proj.high.years.length && proj.rateHigh !== proj.rateBase) {
+                traces.push(makeTrace(proj.high.years, proj.high.balances, `upper ${proj.rateHigh.toFixed(1)}%`, '#27ae60', 'dash', 2));
+            }
+
+            // build shapes (target markers)
+            let shapes = [];
+            if (proj.targetType === 'amount' && proj.base.years.length > 0) {
+                shapes.push({
+                    type: 'line',
+                    xref: 'paper',
+                    yref: 'y',
+                    x0: 0,
+                    y0: proj.targetValue,
+                    x1: 1,
+                    y1: proj.targetValue,
+                    line: { color: '#e67e22', width: 2, dash: 'dash' },
+                });
+            } else if (proj.targetType === 'year') {
+                let targetYear = proj.targetValue;
+                if (targetYear > proj.currentYearFraction && targetYear < 2100) {
+                    shapes.push({
+                        type: 'line',
+                        xref: 'x',
+                        yref: 'paper',
+                        x0: targetYear,
+                        y0: 0,
+                        x1: targetYear,
+                        y1: 1,
+                        line: { color: '#2c3e50', width: 1.8, dash: 'dot' },
+                    });
+                }
+            }
+
+            const layout = {
+                autosize: true,
+                margin: { l: 38, r: 12, t: 22, b: 28 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(255,255,255,0.6)',
+                font: { family: 'Inter, sans-serif', size: 10, color: '#2b3856' },
+                xaxis: {
+                    title: 'year',
+                    fixedrange: true,
+                    tickformat: '.0f',
+                    gridcolor: '#dbe4f0',
+                    tickangle: -15,
+                    automargin: true,
+                    zeroline: false,
+                },
+                yaxis: {
+                    title: 'balance ($)',
+                    fixedrange: true,
+                    tickprefix: '$',
+                    gridcolor: '#dbe4f0',
+                    automargin: true,
+                    zeroline: false,
+                    tickformat: ',.0f'
+                },
+                hovermode: 'x unified',
+                showlegend: true,
+                legend: { orientation: 'h', y: 1.02, x: 0, font: { size: 9 } },
+                dragmode: false,
+                shapes: shapes,
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: false,
+                scrollZoom: false,
+                editable: false,
+            };
+
+            Plotly.react(chartDiv, traces, layout, config).catch(e => console.warn);
+        }
+
+        // debounce
+        let timeout;
+        function queueUpdate() {
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                updatePlot();
+                timeout = null;
+            }, 30);
+        }
+
+        // listeners
+        [principalInp, contribInp, freqSelect, rateInp, rateRangeInp, targetValue, targetType].forEach(el => {
+            el.addEventListener('input', queueUpdate);
+            el.addEventListener('change', queueUpdate);
+        });
+
+        // initial plot
+        updatePlot();
+
+        // resize handler
+        window.addEventListener('resize', function() {
+            if (window.resizeReq) clearTimeout(window.resizeReq);
+            window.resizeReq = setTimeout(() => {
+                Plotly.relayout(chartDiv, { width: chartDiv.clientWidth, height: chartDiv.clientHeight });
+            }, 80);
+        });
+    })();
+</script>
+</body>
+</html>
